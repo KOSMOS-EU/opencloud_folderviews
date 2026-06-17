@@ -1,0 +1,62 @@
+volume: Natur- und Landschaftspflege
+id: 9eed6c6a-11f7-408f-9e13-c9ed76aebc09
+total_folders: 35
+total_docs: 2
+tree:
+  name: Natur- und Landschaftspflege
+  folders:
+  - name: Friedhofs- und Bestattungswesen
+    folders:
+    - name: Friedhofs- und Bestattungswesen
+      docs: 1
+      folders:
+      - name: Bestattungsleistungen, Unterhaltung und Bereitstellung von Grabstellen
+          und Friedhofsanlagen
+        docs: 1
+        folders:
+        - name: Satzungen
+  - name: Land- und Forstwirtschaft
+    folders:
+    - name: Land- und Forstwirtschaft
+      folders:
+      - name: AVL Land- und Forstwirtschaft
+      - name: Bewirtschaftung und Verpachtung eigener landwirtschaftlicher Flächen
+      - name: Vollzug von Förderprogrammen der ländlichen Entwicklung
+      - name: Waldbewirtschaftung einschließlich jagdliche Nutzung
+        folders:
+        - name: Berufsgenossenschaft
+          folders:
+          - name: Umlage
+        - name: Flugplatz
+        - name: Fördermittel
+        - name: Jagdpacht
+        - name: Rechnungen Selbstwerber
+        - name: Selbstwerberverträge
+        - name: Sonstiges
+        - name: Wirtschaftsplan Wald
+  - name: Natur- und Landschaftspflege
+    folders:
+    - name: 55.40.06
+      folders:
+      - name: Steinbrüche
+        folders:
+        - name: Bergbauflächen (Bergbaurestflächen, Erweiterung von Bergbauflächen)
+    - name: Natur- und Landschaftspflege
+      folders:
+      - name: AVL Naturschutz und Landschaftspflege
+      - name: Ausgleichsflächen (Ökokonto)
+      - name: Durchführung und Förderung von landschaftspflegerischen und gestalterischen
+          Maßnahmen (LEADER)
+      - name: Ersatzpflanzungen gemäß Baumschutzsatzung
+        folders:
+        - name: Stellungnahme zu Bauanträgen
+  - name: Öffentliche Gewässer und Wasserbauliche Anlagen
+    folders:
+    - name: Öffentliche Gewässer und Wasserbauliche Anlagen
+      folders:
+      - name: Ausbau und Unterhaltung Öffentlicher Gewässer II. Ordnung
+  - name: Öffentliches Grün, Landschaftsbau
+    folders:
+    - name: Öffentliches Grün, Landschaftsbau
+      folders:
+      - name: Kleingartenanlagen und Kleingartenwesen - Bereitstellung und Unterhaltung

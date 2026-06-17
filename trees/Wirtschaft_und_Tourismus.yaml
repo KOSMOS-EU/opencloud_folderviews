@@ -1,0 +1,28 @@
+volume: Wirtschaft und Tourismus
+id: 49cdf871-7a0c-4d1e-905f-85f086e96f50
+total_folders: 16
+total_docs: 0
+tree:
+  name: Wirtschaft und Tourismus
+  folders:
+  - name: Allgemeine Einrichtungen und Unternehmen
+    folders:
+    - name: Allgemeine Einrichtungen und Unternehmen
+      folders:
+      - name: AVL Allg. Einrichtungen und Unternehmen
+      - name: Festzelt, Bühne, sonst. Einrichtungen und Anlagen (st.pfl.)
+      - name: Gemeindehaus Polenz
+      - name: Sport- und Mehrzweckhalle Brandis
+      - name: Verpachtete Garagen und Garagenhöfe
+      - name: Verpachtete Werbeflächen
+      - name: Wochenmarkt, sonstige Markteinrichtungen
+      - name: Öffentliche Toiletten
+    - name: Weihnachtsmärkte, andere Markteinrichtungen
+  - name: Tourismus
+    folders:
+    - name: Tourismusförderung
+      folders:
+      - name: Tourismusförderung
+  - name: Wirtschaftsförderung
+    folders:
+    - name: Wirtschaftsförderung

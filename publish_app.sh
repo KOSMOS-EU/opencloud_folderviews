@@ -20,11 +20,11 @@ if [ ! -f "$DEPLOY_DIR/remoteEntry.mjs" ]; then
 fi
 
 # Deploy
-echo "[sync] -> $HOST:$REMOTE_BASE/web-views/$APP/"
-ssh "root@$HOST" "mkdir -p $REMOTE_BASE/web-views/$APP"
-rsync -avz --delete "$DEPLOY_DIR/" "root@$HOST:$REMOTE_BASE/web-views/$APP/"
+echo "[sync] -> $HOST:$REMOTE_BASE/views/$APP/"
+ssh "root@$HOST" "mkdir -p $REMOTE_BASE/views/$APP"
+rsync -avz --delete "$DEPLOY_DIR/" "root@$HOST:$REMOTE_BASE/views/$APP/"
 
 echo ""
 echo "=== $APP published ==="
 echo "Mount in extensions.yml:"
-echo "      - ./web-views/$APP:$VIEWS_PATH/$APP:ro"
+echo "      - ./views/$APP:$VIEWS_PATH/$APP:ro"

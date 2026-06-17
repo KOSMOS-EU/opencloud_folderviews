@@ -1,0 +1,75 @@
+volume: Sicherheit und Ordnung
+id: 476195e0-cc6f-4622-ac39-1bcd8dede652
+total_folders: 37
+total_docs: 26
+tree:
+  name: Sicherheit und Ordnung
+  folders:
+  - name: Brandschutz
+    folders:
+    - name: Brandbekämpfung und Gefahrenabwehr
+      folders:
+      - name: Brandbekämpfung und Gefahrenabwehr
+      - name: FFW Geräte, Ausrüstungsgegenstände, Einsatztechnik
+      - name: Gefahrenvorbeugung und vorbeugender Brandschutz
+  - name: Katastrophenschutz
+    folders:
+    - name: Katastrophen- und Zivilschutz
+      folders:
+      - name: AVL Katastrophenschutz
+  - name: Melde- und Personenstandwesen
+    folders:
+    - name: Aufgaben des Meldewesens
+  - name: Ordnungsaufgaben
+    folders:
+    - name: Allgemeine Gefahrenabwehr und Angelegenheiten der allgemeinen öffentlichen
+        Sicherheit und Ordnung einschließlich Obdachlose, Nachlass, Bestattungen,
+        Schornsteinfegerwesen
+      folders:
+      - name: Allg. Gefahrenabwehr/Sicherheit
+      - name: Dienstleistungen Ordnungswesen
+      - name: Schiedsstelle, Friedensrichter
+      - name: Verkehrsrechtliche Anordnungen und Genehmigungen
+      - name: Überwachung des ruhenden und fließenden Verkehrs
+        folders:
+        - name: K+S Parkraumservice GmbH
+          folders:
+          - name: Korrespondenz Landratsamt
+            docs: 4
+          - name: Rechtsgrundlagen
+            docs: 3
+          - name: Vertrag
+            docs: 1
+    - name: Überwachung erlaubnispflichtiger Gewerbebetriebe
+      folders:
+      - name: Überwachung erlaubnispflichtiger Gewerbebetriebe
+        docs: 1
+  - name: Statistik und Wahlen
+    folders:
+    - name: Statistische Angelegenheiten, eigene Statistiken und Auftragsstatistiken
+        aller Art
+      folders:
+      - name: Wahlen
+        folders:
+        - name: Wahlen
+          folders:
+          - name: Kommunalwahl (Kreistag, Stadtrat und Ortschaftsräte)
+            folders:
+            - name: '2024'
+              folders:
+              - name: Landratsamt
+                folders:
+                - name: Hinweise Datenschutzgrundverordnung
+                  docs: 7
+              - name: Wahllokale und Wahlhelfer
+                folders:
+                - name: Bereitschaftserklärung
+                  docs: 1
+                - name: Einteilung
+                  docs: 4
+                - name: Freistellungen
+                  docs: 1
+                - name: Wahllokale
+                  folders:
+                  - name: Vertrag Lilly vanilly
+                    docs: 4

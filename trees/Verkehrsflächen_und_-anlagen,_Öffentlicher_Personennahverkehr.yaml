@@ -1,0 +1,45 @@
+volume: Verkehrsflächen und -anlagen, Öffentlicher Personennahverkehr
+id: f9b0c2e7-23ad-43dd-874c-c108f0f83353
+total_folders: 24
+total_docs: 0
+tree:
+  name: Verkehrsflächen und -anlagen, Öffentlicher Personennahverkehr
+  folders:
+  - name: Gemeindestraßen
+    folders:
+    - name: Gemeindestraßen
+      folders:
+      - name: Bereitstellung und Unterhaltung der Gemeindestraßen, Wege, Brücken und
+          Anlagen
+      - name: Bereitstellung und Unterhaltung von öffentlicher Beleuchtung an Gemeindestraßen
+      - name: Kalkulation und Abrechnung von Erschließungs- und Straßenbaubeiträgen
+          für Gemeindestraßen und Anlage
+  - name: Kreisstraßen
+    folders:
+    - name: Kreisstraßen
+  - name: Parkeinrichtungen
+    folders:
+    - name: Parkeinrichtungen
+  - name: Sonstige Leistungen der Straßenbaulastträger
+    folders:
+    - name: Sonstige Leistungen der Straßenbaulastträger
+      folders:
+      - name: Straßenrechtliche Sondernutzung und Sperrung
+  - name: Sonstiger Personen- und Güterverkehr
+    folders:
+    - name: Sonstiger Personen- und Güterverkehr
+  - name: Staatsstraßen
+    folders:
+    - name: Staatsstraßen
+    - name: Verkehrsflächen und Anlagen, ÖPNV
+  - name: Straßenreinigung und Winterdienst
+    folders:
+    - name: Straßenreinigung
+  - name: Winterdienst an Gemeindestraßen, Wegen und Plätzen
+    folders:
+    - name: Winterdienst an Gemeindestraßen, Wegen und Plätzen
+      folders:
+      - name: Winterdienst an Gemeindestraßen, Wegen und Plätzen
+  - name: Öffentlicher Personennahverkehr
+    folders:
+    - name: Öffentlicher Personennahverkehr

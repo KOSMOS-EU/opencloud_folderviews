@@ -31,20 +31,42 @@ Gleicher Typ `.type_aktenplan`, unterschiedliches Verhalten je nach Schutzstatus
 | `shielded` | Aktenschrank (letztes Blatt) | akte | "Neue Akte" (Editor+) |
 | keiner | Ungeschützter Aktenplan-Ordner | aktenplan, akte | "Neue Sachgruppe", "Neue Akte" |
 
-## Aktencode-Syntax
+## Aktenzeichen (`oy.fileReference`)
 
-Jeder Ordnername: **`<Aktencode> <Titel>`**
+Aktenzeichen werden **nie im Dateinamen** geführt, sondern als Metadatum:
 
 ```
-Ebene           Code             Trennzeichen    Beispiel
-─────────────────────────────────────────────────────────────
-Sachgruppe 1    11               (Startcode)     11 Innere Verwaltung
-Sachgruppe 2    11.12            . (Punkt)       11.12 Kommunalverwaltung
-Sachgruppe n    11.12.01         . (Punkt)       11.12.01 Organisationsang.
-Aktenschrank    11.12.01.03      . (Punkt)       11.12.01.03 Satzungen
-Akte            11.12.01.03-01   - (Bindestrich) 11.12.01.03-01 Entschädigungssatzung
-Vorgang         11.12.01.03-01/1 / (Schrägstrich) 11.12.01.03-01/1 Fassung 2016
-Register        11.12.01.03-01/1#1 # (Raute)    11.12.01.03-01/1#1 Vorlagen
+xattr: user.oc.md.oy.fileReference = "11.12.01.03-01/1#1"
+```
+
+Der **Ordnername** ist frei wählbar (z.B. "Entschädigungssatzung", "Fassung 2016").
+Das Aktenzeichen wird im FolderView als Spalte angezeigt und über die Metadata API
+gelesen/geschrieben (`GET/PUT /metadata` → `{ "oy.fileReference": "..." }`).
+
+### Aktenzeichen-Syntax
+
+```
+Ebene           Aktenzeichen      Trennzeichen
+─────────────────────────────────────────────────
+Sachgruppe 1    11                (Startcode)
+Sachgruppe 2    11.12             . (Punkt)
+Sachgruppe n    11.12.01          . (Punkt)
+Aktenschrank    11.12.01.03       . (Punkt)
+Akte            11.12.01.03-01    - (Bindestrich)
+Vorgang         11.12.01.03-01/1  / (Schrägstrich)
+Register        11.12.01.03-01/1#1  # (Raute)
+```
+
+### Beispiel Ordnerstruktur (Dateinamen ≠ Aktenzeichen)
+
+```
+Innere Verwaltung/                  oy.fileReference = "11"
+  Kommunalverwaltung/               oy.fileReference = "11.12"
+    Organisationsangelegenheiten/    oy.fileReference = "11.12.01"
+      Satzungen/                     oy.fileReference = "11.12.01.03"
+        Entschädigungssatzung/       oy.fileReference = "11.12.01.03-01"
+          Fassung 2016/              oy.fileReference = "11.12.01.03-01/1"
+            Vorlagen/                oy.fileReference = "11.12.01.03-01/1#1"
 ```
 
 ## FolderViews und Schema-Dateien
@@ -61,18 +83,17 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
     "shielded": ["akte"],
     "default": ["aktenplan", "akte"]
   },
-  "columns": ["name", "aktencode", "typ", "anzahl"],
-  "namePattern": "{parentCode}.{seq:2} {title}",
+  "columns": ["name", "oy.fileReference", "typ", "anzahl"],
+  "fileReferencePattern": "{parentRef}.{seq:2}",
   "metadata": {
-    "aktencode": { "label": "Aktencode", "type": "string", "auto": true }
+    "oy.fileReference": { "label": "Aktenzeichen", "type": "string", "auto": true }
   }
 }
 ```
 
 **FolderView Aktenplan** zeigt:
-- Spalten: Name, Aktencode, Untertyp (Sachgruppe/Aktenschrank), Anzahl Kinder
-- Action-Button: "Neue Sachgruppe" (wenn protected, nur Manager) oder "Neue Akte" (wenn shielded)
-- Icon: Ordner mit Schild (protected) oder offener Ordner (shielded)
+- Spalten: Name, Aktenzeichen (aus `oy.fileReference`), Untertyp, Anzahl Kinder
+- Action-Button: "Neue Sachgruppe" (protected, Manager) oder "Neue Akte" (shielded, Editor+)
 
 ### .space/views/akte.json
 ```json
@@ -80,11 +101,11 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
   "label": "Akte",
   "icon": "folder-open",
   "children": ["vorgang"],
-  "columns": ["name", "aktencode", "status", "abgelegt-von", "abgelegt-am"],
-  "namePattern": "{parentCode}-{seq:2} {title}",
+  "columns": ["name", "oy.fileReference", "status", "abgelegt-von", "abgelegt-am"],
+  "fileReferencePattern": "{parentRef}-{seq:2}",
   "metadata": {
-    "aktencode": { "label": "Aktenzeichen", "type": "string", "auto": true },
-    "status": {
+    "oy.fileReference": { "label": "Aktenzeichen", "type": "string", "auto": true },
+    "oy.status": {
       "label": "Status", "type": "enum",
       "values": ["offen", "gespeichert", "geschlossen"],
       "default": "offen"
@@ -96,7 +117,6 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
 **FolderView Akte** zeigt:
 - Spalten: Name, Aktenzeichen, Status, abgelegt von/am
 - Action-Button: "Neuer Vorgang", "Dokument hinzufügen"
-- Status-Badge (offen/gespeichert/geschlossen)
 
 ### .space/views/vorgang.json
 ```json
@@ -104,11 +124,11 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
   "label": "Vorgang",
   "icon": "file-list",
   "children": ["register"],
-  "columns": ["name", "aktencode", "version", "abgelegt-von", "abgelegt-am"],
-  "namePattern": "{parentCode}/{seq} {title}",
+  "columns": ["name", "oy.fileReference", "version", "abgelegt-von", "abgelegt-am"],
+  "fileReferencePattern": "{parentRef}/{seq}",
   "metadata": {
-    "aktencode": { "label": "Aktenzeichen", "type": "string", "auto": true },
-    "version": { "label": "Version", "type": "string" }
+    "oy.fileReference": { "label": "Aktenzeichen", "type": "string", "auto": true },
+    "oy.version": { "label": "Version", "type": "string" }
   }
 }
 ```
@@ -123,10 +143,10 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
   "label": "Register",
   "icon": "bookmark",
   "children": [],
-  "columns": ["name", "aktencode", "abgelegt-von", "abgelegt-am"],
-  "namePattern": "{parentCode}#{seq} {title}",
+  "columns": ["name", "oy.fileReference", "abgelegt-von", "abgelegt-am"],
+  "fileReferencePattern": "{parentRef}#{seq}",
   "metadata": {
-    "aktencode": { "label": "Aktenzeichen", "type": "string", "auto": true }
+    "oy.fileReference": { "label": "Aktenzeichen", "type": "string", "auto": true }
   }
 }
 ```
@@ -140,27 +160,27 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
 Jeder FolderView hat typ-spezifische Action-Buttons im AppBar:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  ← 11.12.01.03 Satzungen                               │
-│                                                         │
-│  [+ Neue Akte]                          Filter  Ansicht │
-│                                                         │
-│  Name                    Aktenzeichen   Status    Datum  │
-│  ─────────────────────────────────────────────────────── │
-│  📁 11.12.01.03-01 Entschädigungssatzung  offen  ...   │
-│  📁 11.12.01.03-02 Feuerwehrsatzung      gesp.  ...   │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  ← Satzungen                                                │
+│                                                              │
+│  [+ Neue Akte]                               Filter  Ansicht│
+│                                                              │
+│  Name                       Aktenzeichen   Status    Datum   │
+│  ──────────────────────────────────────────────────────────── │
+│  📁 Entschädigungssatzung   11.12.01.03-01  offen    ...    │
+│  📁 Feuerwehrsatzung        11.12.01.03-02  gesp.    ...    │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Action-Button Logik
 
-1. FolderView liest `children` aus Schema
+1. FolderView liest `children` aus Schema (+ `immutableState` für Aktenplan)
 2. Für jeden erlaubten Kind-Typ: lade dessen Schema (Label, Icon)
 3. Zeige Action-Button: "Neue(r/s) {label}"
-4. Click → Dialog: Titel eingeben → Aktencode wird automatisch generiert
-5. Erstellt: Ordner + `.type_<kind>` + initiale Metadaten
+4. Click → Dialog: Name eingeben, Aktenzeichen wird automatisch generiert
+5. Erstellt: Ordner + `.type_<kind>` + `oy.fileReference` via Metadata PUT
 
-### Aktencode-Generierung im Dialog
+### Aktenzeichen-Generierung im Dialog
 
 ```
 ┌─────────────────────────────────────────┐
@@ -169,36 +189,36 @@ Jeder FolderView hat typ-spezifische Action-Buttons im AppBar:
 │  Aktenzeichen: 11.12.01.03-03           │
 │  (automatisch, nächste freie Nummer)    │
 │                                         │
-│  Titel: [Brandverhütungsschauordnung ]  │
-│                                         │
-│  Ordnername: 11.12.01.03-03 Brandver... │
+│  Name: [Brandverhütungsschauordnung  ]  │
 │                                         │
 │            [Abbrechen]  [Anlegen]        │
 └─────────────────────────────────────────┘
 ```
 
+Ordnername = Name-Eingabe. Aktenzeichen wird als `oy.fileReference` gespeichert.
+
 ## Beispiel: Komplette Struktur
 
 ```
-Archikart DMS/                                              .type_aktenplan
+Archikart DMS/                             .type_aktenplan           oy.fileReference=""
 ├── .space/views/{aktenplan,akte,vorgang,register}.json
-├── 11 Innere Verwaltung/                                   .type_aktenplan  protected
-│   ├── 11.12 Kommunalverwaltung/                           .type_aktenplan  protected
-│   │   ├── 11.12.01 Organisationsangelegenheiten/          .type_aktenplan  protected
-│   │   │   ├── 11.12.01.03 Satzungen/                     .type_aktenplan  shielded (Aktenschrank)
-│   │   │   │   ├── 11.12.01.03-01 Entschädigungssatzung/  .type_akte
-│   │   │   │   │   ├── 11.12.01.03-01/1 Fassung 2016/     .type_vorgang
-│   │   │   │   │   │   ├── 11.12.01.03-01/1#1 Vorlagen/   .type_register
+├── Innere Verwaltung/                     .type_aktenplan protected oy.fileReference="11"
+│   ├── Kommunalverwaltung/                .type_aktenplan protected oy.fileReference="11.12"
+│   │   ├── Organisationsangelegenheiten/  .type_aktenplan protected oy.fileReference="11.12.01"
+│   │   │   ├── Satzungen/                 .type_aktenplan shielded  oy.fileReference="11.12.01.03"
+│   │   │   │   ├── Entschädigungssatzung/ .type_akte                oy.fileReference="11.12.01.03-01"
+│   │   │   │   │   ├── Fassung 2016/      .type_vorgang             oy.fileReference="11.12.01.03-01/1"
+│   │   │   │   │   │   ├── Vorlagen/      .type_register            oy.fileReference="11.12.01.03-01/1#1"
 │   │   │   │   │   │   │   ├── Vergleich_A.pdf
 │   │   │   │   │   │   │   └── Arbeitshilfe.docx
 │   │   │   │   │   │   └── Beschluss.pdf
-│   │   │   │   │   └── 11.12.01.03-01/2 Fassung 2026/     .type_vorgang
-│   │   │   │   └── 11.12.01.03-02 Feuerwehrsatzung/       .type_akte
-│   │   │   └── 11.12.01.05 Landratsamt/                   .type_aktenplan  shielded
-│   │   └── 11.12.02 Personalangelegenheiten/               .type_aktenplan  protected
-│   └── 11.13 Finanzverwaltung/                             .type_aktenplan  protected
-├── 12 Sicherheit und Ordnung/                              .type_aktenplan  protected
-└── 21 Schulträgeraufgaben/                                 .type_aktenplan  protected
+│   │   │   │   │   └── Fassung 2026/      .type_vorgang             oy.fileReference="11.12.01.03-01/2"
+│   │   │   │   └── Feuerwehrsatzung/      .type_akte                oy.fileReference="11.12.01.03-02"
+│   │   │   └── Landratsamt/               .type_aktenplan shielded  oy.fileReference="11.12.01.05"
+│   │   └── Personalangelegenheiten/       .type_aktenplan protected oy.fileReference="11.12.02"
+│   └── Finanzverwaltung/                  .type_aktenplan protected oy.fileReference="11.13"
+├── Sicherheit und Ordnung/                .type_aktenplan protected oy.fileReference="12"
+└── Schulträgeraufgaben/                   .type_aktenplan protected oy.fileReference="21"
 ```
 
 ## Implementierung
