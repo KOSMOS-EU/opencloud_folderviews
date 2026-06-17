@@ -1,0 +1,116 @@
+
+.typed-folder-header[data-v-0295f814] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.typed-folder-type-badge[data-v-0295f814] {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #e8eaf6;
+  color: #3949ab;
+}
+.typed-action-btn[data-v-0295f814] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid #1a73e8;
+  border-radius: 6px;
+  background: #1a73e8;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+.typed-action-btn[data-v-0295f814]:hover { background: #1565c0;
+}
+.typed-action-icon[data-v-0295f814] { font-size: 16px; font-weight: 700;
+}
+
+.typed-folder-header[data-v-dfbe8531] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.typed-folder-type-badge.akte[data-v-dfbe8531] {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.typed-action-btn[data-v-dfbe8531] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid #2e7d32;
+  border-radius: 6px;
+  background: #2e7d32;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+.typed-action-btn[data-v-dfbe8531]:hover { background: #1b5e20;
+}
+.typed-action-icon[data-v-dfbe8531] { font-size: 16px; font-weight: 700;
+}
+
+.typed-folder-header[data-v-9841a994] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.typed-folder-type-badge.vorgang[data-v-9841a994] {
+  background: #fff3e0;
+  color: #e65100;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.typed-action-btn[data-v-9841a994] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid #e65100;
+  border-radius: 6px;
+  background: #e65100;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+.typed-action-btn[data-v-9841a994]:hover { background: #bf360c;
+}
+.typed-action-icon[data-v-9841a994] { font-size: 16px; font-weight: 700;
+}
+
+.typed-folder-header[data-v-557897cd] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.typed-folder-type-badge.register[data-v-557897cd] {
+  background: #fce4ec;
+  color: #c62828;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.typed-folder-hint[data-v-557897cd] {
+  font-size: 12px;
+  color: #888;
+}

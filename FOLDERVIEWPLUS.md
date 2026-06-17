@@ -20,7 +20,7 @@ User durch definierte Workflows, ohne die Flexibilität des Dateisystems einzusc
 
 ```
 Projekt-Space/
-├── .type_aktenplan                    ← Space-Root ist ein Aktenplan
+├── _type_aktenplan                    ← Space-Root ist ein Aktenplan
 ├── .space/
 │   └── views/
 │       ├── aktenplan.json             ← Schema: was darf auf Root-Ebene?
@@ -29,33 +29,33 @@ Projekt-Space/
 │       ├── register.json
 │       └── vorgang.json
 ├── 11 Innere Verwaltung/
-│   ├── .type_sachgruppe
+│   ├── _type_sachgruppe
 │   └── 11.12 Kommunalverwaltung/
-│       ├── .type_sachgruppe
+│       ├── _type_sachgruppe
 │       └── 11.12.01.03 Satzungen/
-│           ├── .type_akte
+│           ├── _type_akte
 │           ├── 11.12.01.03-01/
-│           │   ├── .type_vorgang
+│           │   ├── _type_vorgang
 │           │   ├── Bescheid.pdf
 │           │   └── Antrag.docx
 │           └── 11.12.01.03-02/
-│               ├── .type_vorgang
+│               ├── _type_vorgang
 │               └── Entwurf.odt
 └── 12 Sicherheit und Ordnung/
-    └── .type_sachgruppe
+    └── _type_sachgruppe
 ```
 
-### Warum `.type_*` statt xattr?
+### Warum `_type_*` statt xattr?
 
-| Kriterium | xattr | .type_ Datei |
+| Kriterium | xattr | _type_ Datei |
 |-----------|-------|-------------|
 | Nativ sichtbar | Nein (braucht getfattr) | Ja (ls -a) |
 | NFS/SMB kompatibel | Teilweise (Attribut-Support variiert) | Ja |
 | Desktop-Client | Braucht spezielle API | Sieht Datei direkt |
 | Backup-sicher | Oft verloren | Immer dabei |
-| CLI-Zugriff | `getfattr -n user.oc.md.type` | `ls .type_*` |
-| Setzen | `setfattr` oder API | `touch .type_akte` |
-| Suche | Nicht durchsuchbar | `find . -name ".type_*"` |
+| CLI-Zugriff | `getfattr -n user.oc.md.type` | `ls _type_*` |
+| Setzen | `setfattr` oder API | `touch _type_akte` |
+| Suche | Nicht durchsuchbar | `find . -name "_type_*"` |
 | Performance | Extra xattr-Read | Kommt im PROPFIND-Listing gratis mit |
 
 ## Schichten
@@ -69,7 +69,7 @@ Projekt-Space/
 │  → lädt .space/views/<type>.json, cacht pro Space       │
 ├─────────────────────────────────────────────────────────┤
 │  Typ-Erkennung (useTypedFolderDetect)                   │
-│  → erkennt .type_* in PROPFIND-Listing                  │
+│  → erkennt _type_* in PROPFIND-Listing                  │
 ├─────────────────────────────────────────────────────────┤
 │  GenericSpace.vue                                       │
 │  → entscheidet: normaler View oder Typed View           │
@@ -123,7 +123,7 @@ Jeder Typ wird durch eine JSON-Datei in `.space/views/` beschrieben:
 
 - Kein `source` oder `source: "resource"` → Standard-Resource-Feld (name, mdate, size)
 - `source: "metadata"` → Wert aus `user.oc.md.<key>` xattr (via Metadata API)
-- `source: "type"` → Abgeleitet aus `.type_*` des Kindes
+- `source: "type"` → Abgeleitet aus `_type_*` des Kindes
 
 ## Drei Ebenen der Anpassung
 
@@ -153,11 +153,11 @@ PROPFIND (normal, wie bisher)
     ▼
 Kinder-Liste durchsuchen
     │
-    ├── .type_* gefunden?
+    ├── _type_* gefunden?
     │   │
     │   ├── Nein → Normaler FolderView (Standard OpenCloud)
     │   │
-    │   └── Ja → Typ = Dateiname nach ".type_"
+    │   └── Ja → Typ = Dateiname nach "_type_"
     │           │
     │           ▼
     │       .space/views/<typ>.json geladen? (Cache)
@@ -191,7 +191,7 @@ Name-Dialog (ggf. auto aus namePattern)
 WebDAV: createFolder("11.12.01.03-03")
     │
     ▼
-WebDAV: putFileContents(".type_vorgang", "")     ← leere Datei
+WebDAV: putFileContents("_type_vorgang", "")     ← leere Datei
     │
     ▼
 Optional: Metadata PUT für Initialwerte
@@ -212,8 +212,8 @@ Typ-Liste aus .space/views/ (gecacht)
 Auswahl: "register"
     │
     ▼
-WebDAV: deleteFile(".type_akte")       ← alten Marker löschen
-WebDAV: putFileContents(".type_register", "")   ← neuen setzen
+WebDAV: deleteFile("_type_akte")       ← alten Marker löschen
+WebDAV: putFileContents("_type_register", "")   ← neuen setzen
     │
     ▼
 View aktualisiert sich (anderes Schema)
@@ -221,7 +221,7 @@ View aktualisiert sich (anderes Schema)
 
 ## Performance
 
-- **Kein Extra-Call für Typ-Erkennung**: `.type_*` kommt im normalen PROPFIND-Listing mit
+- **Kein Extra-Call für Typ-Erkennung**: `_type_*` kommt im normalen PROPFIND-Listing mit
 - **Schema-Cache pro Space**: `.space/views/*.json` wird einmal geladen, dann aus Memory
 - **Lazy Schema-Load**: Nur der aktuelle Typ wird geladen, nicht alle
 - **Cache-Invalidierung**: Per etag auf `.space/views/` oder manueller Refresh
@@ -234,7 +234,7 @@ packages/web-app-files/src/
     typedFolder/
       types.ts                      ← TypedFolderSchema, TypedFieldDef
       useTypedFolderSchema.ts       ← Schema laden + cachen
-      useTypedFolderDetect.ts       ← .type_* aus Listing erkennen
+      useTypedFolderDetect.ts       ← _type_* aus Listing erkennen
       useTypedFolderTypes.ts        ← verfügbare Typen aus .space/views/
       useTypedFolderActions.ts      ← "Neuer [Kind-Typ]" + Typ setzen
       index.ts
@@ -250,6 +250,6 @@ packages/web-app-files/src/
 ## Kompatibilität
 
 - **Untypisierte Spaces**: Keine Änderung, normaler FolderView
-- **Untypisierte Ordner in typisiertem Space**: Normaler View (kein `.type_*` = kein Typ)
-- **Nativer Zugriff**: `.type_*` Dateien sind sichtbar, Schema lesbar aus `.space/views/`
-- **Ältere Clients**: Ignorieren `.type_*` und `.space/` — keine Probleme
+- **Untypisierte Ordner in typisiertem Space**: Normaler View (kein `_type_*` = kein Typ)
+- **Nativer Zugriff**: `_type_*` Dateien sind sichtbar, Schema lesbar aus `.space/views/`
+- **Ältere Clients**: Ignorieren `_type_*` und `.space/` — keine Probleme

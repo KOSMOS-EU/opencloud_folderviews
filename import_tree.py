@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 import_tree.py — Importiert eine YAML-Tree-Datei in einen OpenCloud Space
-mit .type_* Markern und oy.fileReference Aktenzeichen.
+mit _type_* Markern und oy.fileReference Aktenzeichen.
 
 Usage:
   python3 import_tree.py <yaml-file> <space-root-path> [--owner USER:GROUP] [--dry-run]
@@ -87,8 +87,8 @@ def process_node(node, parent_path, parent_ref, depth, seq, owner, dry_run, is_l
         if depth > 0:
             os.makedirs(path, exist_ok=True)
 
-        # .type_ marker
-        type_marker = os.path.join(path, f'.type_{folder_type}')
+        # _type_ marker
+        type_marker = os.path.join(path, f'_type_{folder_type}')
         open(type_marker, 'w').close()
 
         # fileReference

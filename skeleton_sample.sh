@@ -14,7 +14,7 @@ OWNER="adminuser:adminuser"
 echo "=== Creating Aktenplan skeleton in $SPACE ==="
 
 # --- Space-Root Typ-Marker ---
-touch "$SPACE/.type_aktenplan"
+touch "$SPACE/_type_aktenplan"
 
 # --- Schema-Dateien ---
 mkdir -p "$SPACE/.space/views"
@@ -84,7 +84,7 @@ echo "[ok] Schema-Dateien angelegt"
 mk() {
   local path="$1" type="$2" ref="$3" immutable="${4:-}"
   mkdir -p "$path"
-  touch "$path/.type_$type"
+  touch "$path/_type_$type"
   setfattr -n user.oc.md.oy.fileReference -v "$ref" "$path"
   [ "$immutable" = "protected" ] && setfattr -n user.oc.immutable -v 1 "$path"
   chown -R "$OWNER" "$path"
@@ -126,24 +126,24 @@ mk "$SPACE/Sicherheit und Ordnung"                                              
 mk "$SPACE/Schulträgeraufgaben"                                                            aktenplan "21"          protected
 
 # Space-Root Marker Rechte
-chown "$OWNER" "$SPACE/.type_aktenplan" "$SPACE/.space/views/"*
+chown "$OWNER" "$SPACE/_type_aktenplan" "$SPACE/.space/views/"*
 chmod 700 "$SPACE/.space/views"
 
 echo ""
 echo "=== Aktenplan skeleton created ==="
 echo ""
 echo "Structure:"
-echo "  77 Aktenplan/                           .type_aktenplan"
+echo "  77 Aktenplan/                           _type_aktenplan"
 echo "  ├── Innere Verwaltung/                  protected  11"
 echo "  │   └── Kommunalverwaltung/             protected  11.12"
 echo "  │       └── Organisationsangel./        protected  11.12.01"
 echo "  │           ├── Satzungen/              shielded   11.12.01.03  (Aktenschrank)"
-echo "  │           │   ├── Entschädigungssat./ .type_akte 11.12.01.03-01"
-echo "  │           │   │   ├── Fassung 2016/   .type_vorgang  11.12.01.03-01/1"
-echo "  │           │   │   │   ├── Vorlagen/   .type_register 11.12.01.03-01/1#1"
-echo "  │           │   │   │   └── Beanstand./ .type_register 11.12.01.03-01/1#2"
-echo "  │           │   │   └── Fassung 2026/   .type_vorgang  11.12.01.03-01/2"
-echo "  │           │   └── Feuerwehrsatzung/   .type_akte 11.12.01.03-02"
+echo "  │           │   ├── Entschädigungssat./ _type_akte 11.12.01.03-01"
+echo "  │           │   │   ├── Fassung 2016/   _type_vorgang  11.12.01.03-01/1"
+echo "  │           │   │   │   ├── Vorlagen/   _type_register 11.12.01.03-01/1#1"
+echo "  │           │   │   │   └── Beanstand./ _type_register 11.12.01.03-01/1#2"
+echo "  │           │   │   └── Fassung 2026/   _type_vorgang  11.12.01.03-01/2"
+echo "  │           │   └── Feuerwehrsatzung/   _type_akte 11.12.01.03-02"
 echo "  │           └── Landratsamt/            shielded   11.12.01.05"
 echo "  ├── Sicherheit und Ordnung/             protected  12"
 echo "  └── Schulträgeraufgaben/                protected  21"

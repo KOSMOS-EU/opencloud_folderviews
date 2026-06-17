@@ -14,16 +14,16 @@ Space (Typ: aktenplan)
 
 ## Typen (4 Stück, je ein FolderView)
 
-| Typ | `.type_` | FolderView | Kinder | Schutz |
+| Typ | `_type_` | FolderView | Kinder | Schutz |
 |-----|----------|-----------|--------|--------|
-| **Aktenplan** | `.type_aktenplan` | Sachgruppen-Listing | Bei protected: aktenplan. Bei shielded: akte | protected / shielded |
-| **Akte** | `.type_akte` | Akten-Ansicht | vorgang, dokument | — |
-| **Vorgang** | `.type_vorgang` | Vorgangs-Ansicht | register, dokument | — |
-| **Register** | `.type_register` | Register-Ansicht | dokument | — |
+| **Aktenplan** | `_type_aktenplan` | Sachgruppen-Listing | Bei protected: aktenplan. Bei shielded: akte | protected / shielded |
+| **Akte** | `_type_akte` | Akten-Ansicht | vorgang, dokument | — |
+| **Vorgang** | `_type_vorgang` | Vorgangs-Ansicht | register, dokument | — |
+| **Register** | `_type_register` | Register-Ansicht | dokument | — |
 
 ### Aktenplan: Zwei Modi über immutableState
 
-Gleicher Typ `.type_aktenplan`, unterschiedliches Verhalten je nach Schutzstatus:
+Gleicher Typ `_type_aktenplan`, unterschiedliches Verhalten je nach Schutzstatus:
 
 | immutableState | Bedeutung | Erlaubte Kinder | Actions |
 |---------------|-----------|----------------|---------|
@@ -178,7 +178,7 @@ Jeder FolderView hat typ-spezifische Action-Buttons im AppBar:
 2. Für jeden erlaubten Kind-Typ: lade dessen Schema (Label, Icon)
 3. Zeige Action-Button: "Neue(r/s) {label}"
 4. Click → Dialog: Name eingeben, Aktenzeichen wird automatisch generiert
-5. Erstellt: Ordner + `.type_<kind>` + `oy.fileReference` via Metadata PUT
+5. Erstellt: Ordner + `_type_<kind>` + `oy.fileReference` via Metadata PUT
 
 ### Aktenzeichen-Generierung im Dialog
 
@@ -200,25 +200,25 @@ Ordnername = Name-Eingabe. Aktenzeichen wird als `oy.fileReference` gespeichert.
 ## Beispiel: Komplette Struktur
 
 ```
-Archikart DMS/                             .type_aktenplan           oy.fileReference=""
+Archikart DMS/                             _type_aktenplan           oy.fileReference=""
 ├── .space/views/{aktenplan,akte,vorgang,register}.json
-├── Innere Verwaltung/                     .type_aktenplan protected oy.fileReference="11"
-│   ├── Kommunalverwaltung/                .type_aktenplan protected oy.fileReference="11.12"
-│   │   ├── Organisationsangelegenheiten/  .type_aktenplan protected oy.fileReference="11.12.01"
-│   │   │   ├── Satzungen/                 .type_aktenplan shielded  oy.fileReference="11.12.01.03"
-│   │   │   │   ├── Entschädigungssatzung/ .type_akte                oy.fileReference="11.12.01.03-01"
-│   │   │   │   │   ├── Fassung 2016/      .type_vorgang             oy.fileReference="11.12.01.03-01/1"
-│   │   │   │   │   │   ├── Vorlagen/      .type_register            oy.fileReference="11.12.01.03-01/1#1"
+├── Innere Verwaltung/                     _type_aktenplan protected oy.fileReference="11"
+│   ├── Kommunalverwaltung/                _type_aktenplan protected oy.fileReference="11.12"
+│   │   ├── Organisationsangelegenheiten/  _type_aktenplan protected oy.fileReference="11.12.01"
+│   │   │   ├── Satzungen/                 _type_aktenplan shielded  oy.fileReference="11.12.01.03"
+│   │   │   │   ├── Entschädigungssatzung/ _type_akte                oy.fileReference="11.12.01.03-01"
+│   │   │   │   │   ├── Fassung 2016/      _type_vorgang             oy.fileReference="11.12.01.03-01/1"
+│   │   │   │   │   │   ├── Vorlagen/      _type_register            oy.fileReference="11.12.01.03-01/1#1"
 │   │   │   │   │   │   │   ├── Vergleich_A.pdf
 │   │   │   │   │   │   │   └── Arbeitshilfe.docx
 │   │   │   │   │   │   └── Beschluss.pdf
-│   │   │   │   │   └── Fassung 2026/      .type_vorgang             oy.fileReference="11.12.01.03-01/2"
-│   │   │   │   └── Feuerwehrsatzung/      .type_akte                oy.fileReference="11.12.01.03-02"
-│   │   │   └── Landratsamt/               .type_aktenplan shielded  oy.fileReference="11.12.01.05"
-│   │   └── Personalangelegenheiten/       .type_aktenplan protected oy.fileReference="11.12.02"
-│   └── Finanzverwaltung/                  .type_aktenplan protected oy.fileReference="11.13"
-├── Sicherheit und Ordnung/                .type_aktenplan protected oy.fileReference="12"
-└── Schulträgeraufgaben/                   .type_aktenplan protected oy.fileReference="21"
+│   │   │   │   │   └── Fassung 2026/      _type_vorgang             oy.fileReference="11.12.01.03-01/2"
+│   │   │   │   └── Feuerwehrsatzung/      _type_akte                oy.fileReference="11.12.01.03-02"
+│   │   │   └── Landratsamt/               _type_aktenplan shielded  oy.fileReference="11.12.01.05"
+│   │   └── Personalangelegenheiten/       _type_aktenplan protected oy.fileReference="11.12.02"
+│   └── Finanzverwaltung/                  _type_aktenplan protected oy.fileReference="11.13"
+├── Sicherheit und Ordnung/                _type_aktenplan protected oy.fileReference="12"
+└── Schulträgeraufgaben/                   _type_aktenplan protected oy.fileReference="21"
 ```
 
 ## Implementierung
@@ -241,7 +241,7 @@ packages/web-app-files/src/components/TypedViews/
 ```
 PROPFIND → Kinder-Liste
   │
-  ├── .type_* gefunden?
+  ├── _type_* gefunden?
   │   ├── Nein → Standard FolderView
   │   └── Ja → Typ erkennen
   │           ├── immutableState prüfen (protected/shielded)
