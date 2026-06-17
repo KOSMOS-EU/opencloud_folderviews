@@ -48,7 +48,7 @@ def metadata_put(session, graph_url, space_id, item_path, metadata):
     """Set metadata via Graph API. Needs the item ID, so we PROPFIND first."""
     # Get item ID via PROPFIND
     propfind_body = '<?xml version="1.0"?><d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns"><d:prop><oc:fileid/></d:prop></d:propfind>'
-    dav_url = f"{graph_url.rsplit('/graph', 1)[0]}/dav/spaces/{quote(space_id, safe='')}/{quote(item_path, safe='/')}"
+    dav_url = f"{graph_url.rsplit('/graph', 1)[0]}/dav/spaces/{quote(space_id, safe='$!')}/{quote(item_path, safe='/')}"
     r = session.request('PROPFIND', dav_url, data=propfind_body,
                         headers={'Depth': '0', 'Content-Type': 'application/xml'},
                         verify=False)
@@ -64,8 +64,8 @@ def metadata_put(session, graph_url, space_id, item_path, metadata):
         return False
     file_id = match.group(1)
 
-    # PUT metadata
-    url = f"{graph_url}/v1beta1/drives/{quote(space_id, safe='')}/items/{quote(file_id, safe='')}/metadata"
+    # PUT metadata — keep $ and ! in IDs unencoded
+    url = f"{graph_url}/v1beta1/drives/{quote(space_id, safe='$!')}/items/{quote(file_id, safe='$!')}/metadata"
     r = session.put(url, json=metadata, verify=False)
     if r.status_code in (200, 204):
         return True
@@ -77,7 +77,7 @@ def set_immutable(session, graph_url, space_id, item_path):
     """Protect a folder via Graph API."""
     import re
     propfind_body = '<?xml version="1.0"?><d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns"><d:prop><oc:fileid/></d:prop></d:propfind>'
-    dav_url = f"{graph_url.rsplit('/graph', 1)[0]}/dav/spaces/{quote(space_id, safe='')}/{quote(item_path, safe='/')}"
+    dav_url = f"{graph_url.rsplit('/graph', 1)[0]}/dav/spaces/{quote(space_id, safe='$!')}/{quote(item_path, safe='/')}"
     r = session.request('PROPFIND', dav_url, data=propfind_body,
                         headers={'Depth': '0', 'Content-Type': 'application/xml'},
                         verify=False)
@@ -88,7 +88,7 @@ def set_immutable(session, graph_url, space_id, item_path):
         return False
     file_id = match.group(1)
 
-    url = f"{graph_url}/v1beta1/drives/{quote(space_id, safe='')}/items/{quote(file_id, safe='')}/protect"
+    url = f"{graph_url}/v1beta1/drives/{quote(space_id, safe='$!')}/items/{quote(file_id, safe='')}/protect"
     r = session.post(url, verify=False)
     return r.status_code == 204
 
@@ -129,6 +129,9 @@ def process_node(session, base_url, graph_url, space_id, node, parent_path, pare
     if not dry_run:
         if depth > 0:
             webdav_mkcol(session, base_url, path)
+        elif depth == 0 and parent_path == '':
+            # depth=0 is the tree root — create it as a folder in the space
+            webdav_mkcol(session, base_url, name)
 
         # _type_ marker file
         webdav_put(session, base_url, f"{path}/_type_{folder_type}")
