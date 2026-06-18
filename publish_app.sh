@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP=folderviews
-HOST=cloud.brandis.eu
+HOST=cloud.example.com
 DEPLOY_DIR=deploy/folderviews
 REMOTE_BASE=/data/opencloud_podman
 VIEWS_PATH=/var/lib/opencloud/web/assets/views

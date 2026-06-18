@@ -8,7 +8,7 @@ Usage:
 
 Example:
   python3 import_tree_webdav.py trees/Innere_Verwaltung.yaml \
-    https://cloud.brandis.eu/dav/spaces/f7e671d7-36e5-493f-b0c7-ffe5ee4319a5\$f9f939a9-5910-46b8-9abb-eb54e6628b2a \
+    https://cloud.example.com/dav/spaces/STORAGEID\$SPACEID \
     --user admin:admin
 
   The space WebDAV URL can be found in the browser URL or via:

@@ -7,7 +7,7 @@ set -euo pipefail
 #   ./setup_views.sh <space-webdav-url> <user:password>
 #
 # Example:
-#   ./setup_views.sh "https://cloud.brandis.eu/dav/spaces/f7e671d7-36e5-493f-b0c7-ffe5ee4319a5%24f9f939a9-5910-46b8-9abb-eb54e6628b2a" "Tester:password"
+#   ./setup_views.sh "https://cloud.example.com/dav/spaces/STORAGEID%24SPACEID" "Tester:password"
 
 SPACE_URL="${1:?Usage: $0 <space-webdav-url> <user:password>}"
 AUTH="${2:?Usage: $0 <space-webdav-url> <user:password>}"
