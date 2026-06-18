@@ -93,6 +93,22 @@ def set_immutable(session, graph_url, space_id, item_path):
     return r.status_code == 204
 
 
+SCHEMAS = {
+    'aktenplan': '{"label":"Aktenplan","icon":"archive","children":{"protected":["aktenplan"],"shielded":["akte"],"default":["aktenplan","akte"]},"columns":["name","oy.fileReference","typ","anzahl"],"fileReferencePattern":"{parentRef}.{seq:02}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true}}}',
+    'akte': '{"label":"Akte","icon":"folder-open","children":["vorgang"],"columns":["name","oy.fileReference","oy.status","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}-{seq:02}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true},"oy.status":{"label":"Status","type":"enum","values":["offen","gespeichert","geschlossen"],"default":"offen"}}}',
+    'vorgang': '{"label":"Vorgang","icon":"file-list","children":["register"],"columns":["name","oy.fileReference","oy.version","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}/{seq}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true},"oy.version":{"label":"Version","type":"string"}}}',
+    'register': '{"label":"Register","icon":"bookmark","children":[],"columns":["name","oy.fileReference","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}#{seq}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true}}}',
+}
+
+
+def deploy_schemas(session, base_url):
+    """Deploy .views/<typ>.json schema files to space root."""
+    webdav_mkcol(session, base_url, '.views')
+    for name, content in SCHEMAS.items():
+        webdav_put(session, base_url, f'.views/{name}.json', content)
+    print(f"[ok] .views/ schemas deployed: {', '.join(SCHEMAS.keys())}")
+
+
 def sanitize_name(name):
     return name.replace('\n', ' ').replace('\r', '').strip()
 
@@ -153,6 +169,7 @@ def main():
     parser.add_argument('yaml_file', help='YAML tree file')
     parser.add_argument('space_webdav_url', help='Space WebDAV URL (https://host/dav/spaces/SPACEID)')
     parser.add_argument('--user', default='admin:admin', help='user:password (default: admin:admin)')
+    parser.add_argument('--schemas-only', action='store_true', help='Only deploy .views/ schemas, skip folder creation')
     parser.add_argument('--dry-run', action='store_true', help='Only print, do not create')
     args = parser.parse_args()
 
@@ -180,23 +197,22 @@ def main():
     print(f"    Host:  {host_part}")
     print()
 
-    # Create .views/ schemas first
+    # Deploy .views/ schemas
     if not args.dry_run:
-        schemas = {
-            'aktenplan': '{"label":"Aktenplan","icon":"archive","children":{"protected":["aktenplan"],"shielded":["akte"],"default":["aktenplan","akte"]},"columns":["name","oy.fileReference","typ","anzahl"],"fileReferencePattern":"{parentRef}.{seq:02}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true}}}',
-            'akte': '{"label":"Akte","icon":"folder-open","children":["vorgang"],"columns":["name","oy.fileReference","oy.status","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}-{seq:02}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true},"oy.status":{"label":"Status","type":"enum","values":["offen","gespeichert","geschlossen"],"default":"offen"}}}',
-            'vorgang': '{"label":"Vorgang","icon":"file-list","children":["register"],"columns":["name","oy.fileReference","oy.version","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}/{seq}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true},"oy.version":{"label":"Version","type":"string"}}}',
-            'register': '{"label":"Register","icon":"bookmark","children":[],"columns":["name","oy.fileReference","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}#{seq}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true}}}'
-        }
-        webdav_mkcol(session, base_url, '.views')
-        for name, content in schemas.items():
-            webdav_put(session, base_url, f'.views/{name}.json', content)
-        print("[ok] Schema files created")
+        deploy_schemas(session, base_url)
+    else:
+        print("[DRY] would deploy .views/ schemas")
 
-        # Space root type marker
+    if args.schemas_only:
+        print()
+        print("=== Schemas deployed (--schemas-only) ===")
+        return
+
+    # Space root type marker
+    if not args.dry_run:
         webdav_put(session, base_url, '_type_aktenplan')
         print("[ok] Space root _type_aktenplan created")
-        print()
+    print()
 
     protect_queue = []
     process_node(session, base_url, graph_url, space_id, tree, '', '', 0, 0, args.dry_run, protect_queue)
