@@ -34,7 +34,7 @@ npx vite build --mode opencloud
 
 Or manually:
 ```bash
-rsync -avz --delete deploy/folderviews/ root@<host>:/data/opencloud_podman/views/folderviews/
+rsync -avz --delete deploy/folderviews/ root@<host>:<datapath>/web-extensions/folderviews/
 ```
 
 Mount in `extensions.yml`:

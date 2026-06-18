@@ -1,0 +1,7 @@
+HOST=cloud.example.com
+APP=folderviews
+INSTANCE=opencloud_full-opencloud-1
+
+DATAPATH=/data/opencloud_podman
+DEPLOY_DIR=deploy/folderviews
+BUILD_CMD="npx vite build --mode opencloud"
