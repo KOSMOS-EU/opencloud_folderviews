@@ -21,7 +21,7 @@ User durch definierte Workflows, ohne die Flexibilität des Dateisystems einzusc
 ```
 Projekt-Space/
 ├── _type_aktenplan                    ← Space-Root ist ein Aktenplan
-├── .space/
+├── .views/
 │   └── views/
 │       ├── aktenplan.json             ← Schema: was darf auf Root-Ebene?
 │       ├── sachgruppe.json
@@ -66,7 +66,7 @@ Projekt-Space/
 │  → rendert Spalten, Actions, Metadaten pro Typ          │
 ├─────────────────────────────────────────────────────────┤
 │  Schema-Loader (useTypedFolderSchema)                   │
-│  → lädt .space/views/<type>.json, cacht pro Space       │
+│  → lädt .views/<type>.json, cacht pro Space       │
 ├─────────────────────────────────────────────────────────┤
 │  Typ-Erkennung (useTypedFolderDetect)                   │
 │  → erkennt _type_* in PROPFIND-Listing                  │
@@ -81,7 +81,7 @@ Projekt-Space/
 
 ## Schema (`<type>.json`)
 
-Jeder Typ wird durch eine JSON-Datei in `.space/views/` beschrieben:
+Jeder Typ wird durch eine JSON-Datei in `.views/` beschrieben:
 
 ```json
 {
@@ -128,7 +128,7 @@ Jeder Typ wird durch eine JSON-Datei in `.space/views/` beschrieben:
 ## Drei Ebenen der Anpassung
 
 ```
-1. Typ-Schema (.space/views/<type>.json)
+1. Typ-Schema (.views/<type>.json)
    → Gilt für ALLE Ordner dieses Typs im Space
    → Spalten, erlaubte Kinder, Metadaten-Felder
 
@@ -160,7 +160,7 @@ Kinder-Liste durchsuchen
     │   └── Ja → Typ = Dateiname nach "_type_"
     │           │
     │           ▼
-    │       .space/views/<typ>.json geladen? (Cache)
+    │       .views/<typ>.json geladen? (Cache)
     │           │
     │           ├── Nein → Laden via WebDAV getFileContents
     │           │
@@ -206,7 +206,7 @@ Listing refresh → neuer Ordner mit Typ sichtbar
 Manager öffnet Sidebar → Dropdown "Typ"
     │
     ▼
-Typ-Liste aus .space/views/ (gecacht)
+Typ-Liste aus .views/ (gecacht)
     │
     ▼
 Auswahl: "register"
@@ -222,9 +222,9 @@ View aktualisiert sich (anderes Schema)
 ## Performance
 
 - **Kein Extra-Call für Typ-Erkennung**: `_type_*` kommt im normalen PROPFIND-Listing mit
-- **Schema-Cache pro Space**: `.space/views/*.json` wird einmal geladen, dann aus Memory
+- **Schema-Cache pro Space**: `.views/*.json` wird einmal geladen, dann aus Memory
 - **Lazy Schema-Load**: Nur der aktuelle Typ wird geladen, nicht alle
-- **Cache-Invalidierung**: Per etag auf `.space/views/` oder manueller Refresh
+- **Cache-Invalidierung**: Per etag auf `.views/` oder manueller Refresh
 
 ## Dateien im Web-Repo
 
@@ -235,7 +235,7 @@ packages/web-app-files/src/
       types.ts                      ← TypedFolderSchema, TypedFieldDef
       useTypedFolderSchema.ts       ← Schema laden + cachen
       useTypedFolderDetect.ts       ← _type_* aus Listing erkennen
-      useTypedFolderTypes.ts        ← verfügbare Typen aus .space/views/
+      useTypedFolderTypes.ts        ← verfügbare Typen aus .views/
       useTypedFolderActions.ts      ← "Neuer [Kind-Typ]" + Typ setzen
       index.ts
   components/
@@ -251,5 +251,5 @@ packages/web-app-files/src/
 
 - **Untypisierte Spaces**: Keine Änderung, normaler FolderView
 - **Untypisierte Ordner in typisiertem Space**: Normaler View (kein `_type_*` = kein Typ)
-- **Nativer Zugriff**: `_type_*` Dateien sind sichtbar, Schema lesbar aus `.space/views/`
-- **Ältere Clients**: Ignorieren `_type_*` und `.space/` — keine Probleme
+- **Nativer Zugriff**: `_type_*` Dateien sind sichtbar, Schema lesbar aus `.views/`
+- **Ältere Clients**: Ignorieren `_type_*` und ``.views/` — keine Probleme

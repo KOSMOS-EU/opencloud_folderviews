@@ -40,7 +40,7 @@ export function useTypedFolderSchema(
     error.value = null
     try {
       const { getFileContents } = clientService.webdav
-      const viewPath = `.space/views/${type}.json`
+      const viewPath = `.views/${type}.json`
       const { body } = await getFileContents(sp, { path: viewPath })
       const parsed = JSON.parse(body as string) as TypedFolderSchema
 

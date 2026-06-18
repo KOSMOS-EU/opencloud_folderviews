@@ -122,7 +122,7 @@ def main():
 
     space = args.space_root.rstrip('/')
     if not os.path.isdir(os.path.join(space, '.space')):
-        print(f"ERROR: {space} is not a valid space root (.space/ missing)")
+        print(f"ERROR: {space} is not a valid space root (.views/ missing)")
         sys.exit(1)
 
     tree = data['tree']

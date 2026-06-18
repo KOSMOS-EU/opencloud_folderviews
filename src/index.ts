@@ -1,25 +1,16 @@
-import {
-  AppWrapperRoute,
-  defineWebApplication
-} from '@opencloud-eu/web-pkg'
+import { defineWebApplication } from '@opencloud-eu/web-pkg'
+import { markRaw } from 'vue'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
 import RegisterView from './views/RegisterView.vue'
+import ResourceTree from './components/ResourceTree.vue'
+import ResourceMetro from './components/ResourceMetro.vue'
 
 const applicationId = 'folderviews'
 
 export default defineWebApplication({
   setup() {
-    const routes = [
-      {
-        name: 'folderviews',
-        path: '/:driveAliasAndItem(.*)?',
-        component: AppWrapperRoute(AktenplanView, { applicationId }),
-        meta: { authContext: 'hybrid', patchCleanPath: true }
-      }
-    ]
-
     const appInfo = {
       name: 'Folder Views',
       id: applicationId,
@@ -29,17 +20,49 @@ export default defineWebApplication({
       extensions: [] as any[]
     }
 
-    // FolderView handlers keyed by .type_ name
+    // Typed FolderView handlers keyed by _type_ name
     const folderViewHandlers = {
-      aktenplan: AktenplanView,
-      akte: AkteView,
-      vorgang: VorgangView,
-      register: RegisterView
+      aktenplan: markRaw(AktenplanView),
+      akte: markRaw(AkteView),
+      vorgang: markRaw(VorgangView),
+      register: markRaw(RegisterView)
     }
+
+    // New list view modes (Tree + Metro) as FolderViewExtensions
+    const extensions = [
+      {
+        id: 'com.kosmos-eu.folderviews.folder-view.resource-tree',
+        type: 'folderView',
+        extensionPointIds: [
+          'app.files.folder-views.folder',
+          'app.files.folder-views.project-spaces'
+        ],
+        folderView: {
+          name: 'resource-tree',
+          label: 'Tree view',
+          icon: { name: 'node-tree', fillType: 'none' },
+          component: markRaw(ResourceTree)
+        }
+      },
+      {
+        id: 'com.kosmos-eu.folderviews.folder-view.resource-metro',
+        type: 'folderView',
+        extensionPointIds: [
+          'app.files.folder-views.folder',
+          'app.files.folder-views.project-spaces'
+        ],
+        folderView: {
+          name: 'resource-metro',
+          label: 'Metro tiles view',
+          icon: { name: 'dashboard', fillType: 'fill' },
+          component: markRaw(ResourceMetro)
+        }
+      }
+    ]
 
     return {
       appInfo,
-      routes,
+      extensions,
       folderViewHandlers
     }
   }

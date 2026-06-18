@@ -71,9 +71,9 @@ Innere Verwaltung/                  oy.fileReference = "11"
 
 ## FolderViews und Schema-Dateien
 
-Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen FolderView.
+Jeder Typ hat eine Schema-Datei unter `.views/` und einen zugehörigen FolderView.
 
-### .space/views/aktenplan.json
+### .views/aktenplan.json
 ```json
 {
   "label": "Aktenplan",
@@ -95,7 +95,7 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
 - Spalten: Name, Aktenzeichen (aus `oy.fileReference`), Untertyp, Anzahl Kinder
 - Action-Button: "Neue Sachgruppe" (protected, Manager) oder "Neue Akte" (shielded, Editor+)
 
-### .space/views/akte.json
+### .views/akte.json
 ```json
 {
   "label": "Akte",
@@ -118,7 +118,7 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
 - Spalten: Name, Aktenzeichen, Status, abgelegt von/am
 - Action-Button: "Neuer Vorgang", "Dokument hinzufügen"
 
-### .space/views/vorgang.json
+### .views/vorgang.json
 ```json
 {
   "label": "Vorgang",
@@ -137,7 +137,7 @@ Jeder Typ hat eine Schema-Datei unter `.space/views/` und einen zugehörigen Fol
 - Spalten: Name, Aktenzeichen, Version, abgelegt von/am
 - Action-Button: "Neues Register", "Dokument hinzufügen"
 
-### .space/views/register.json
+### .views/register.json
 ```json
 {
   "label": "Register",
@@ -201,7 +201,7 @@ Ordnername = Name-Eingabe. Aktenzeichen wird als `oy.fileReference` gespeichert.
 
 ```
 Archikart DMS/                             _type_aktenplan           oy.fileReference=""
-├── .space/views/{aktenplan,akte,vorgang,register}.json
+├── .views/{aktenplan,akte,vorgang,register}.json
 ├── Innere Verwaltung/                     _type_aktenplan protected oy.fileReference="11"
 │   ├── Kommunalverwaltung/                _type_aktenplan protected oy.fileReference="11.12"
 │   │   ├── Organisationsangelegenheiten/  _type_aktenplan protected oy.fileReference="11.12.01"
@@ -245,7 +245,7 @@ PROPFIND → Kinder-Liste
   │   ├── Nein → Standard FolderView
   │   └── Ja → Typ erkennen
   │           ├── immutableState prüfen (protected/shielded)
-  │           ├── Schema laden (.space/views/<typ>.json)
+  │           ├── Schema laden (.views/<typ>.json)
   │           └── Typed FolderView rendern
   │               ├── Typ-spezifische Spalten
   │               ├── Typ-spezifische Action-Buttons

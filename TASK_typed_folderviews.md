@@ -45,7 +45,7 @@ Dateisystemzugriff (NFS, SMB, lokaler Mount).
 ### Typ-Schema im Space-Root
 
 ```
-.space/
+.views/
   views/
     aktenplan.json     ← Root-Typ des Space
     sachgruppe.json
@@ -99,7 +99,7 @@ Der Typ wird aus der **PROPFIND-Dateiliste** erkannt — kein zusätzlicher API-
 1. PROPFIND liefert alle Kinder des Ordners (wie bisher)
 2. Client sucht in der Liste nach `_type_*` Einträgen
 3. Gefunden → `type = name.substring(6)` (nach `_type_`)
-4. Lade `.space/views/<type>.json` (gecacht pro Space)
+4. Lade `.views/<type>.json` (gecacht pro Space)
 5. Render: Spalten, Actions, Kind-Typen
 
 **Kein Performance-Impact** — die `_type_*` Datei kommt im normalen Listing mit.
@@ -108,14 +108,14 @@ Der Typ wird aus der **PROPFIND-Dateiliste** erkannt — kein zusätzlicher API-
 
 Ein nativer Desktop-Client (z.B. erweiterter Dateimanager) kann:
 1. Ordner öffnen → `_type_akte` sehen → Typ erkannt
-2. Space-Root `.space/views/akte.json` lesen → Schema bekannt
+2. Space-Root `.views/akte.json` lesen → Schema bekannt
 3. "Neuer Vorgang" anbieten → Ordner erstellen + `touch _type_vorgang`
 4. Spalten/Metadaten anzeigen basierend auf Schema
 
 ### Typ setzen/ändern
 
 **Im Web UI** (Manager+):
-- Sidebar Dropdown "Typ" → zeigt verfügbare Typen aus `.space/views/`
+- Sidebar Dropdown "Typ" → zeigt verfügbare Typen aus `.views/`
 - Setzt Typ: alte `_type_*` löschen + neue `_type_<typ>` erstellen
 - Kein Typ: `_type_*` löschen → normaler FolderView
 
@@ -132,14 +132,14 @@ rm _type_*; touch _type_vorgang
 1. User öffnet Ordner → PROPFIND liefert Kinder
 2. Client prüft: Gibt es `_type_*` in der Liste?
 3. Nein → normaler FolderView
-4. Ja → Typ extrahieren, `.space/views/<type>.json` laden (Cache)
+4. Ja → Typ extrahieren, `.views/<type>.json` laden (Cache)
 5. Render: Spalten aus `columns`, Actions aus `children`
 6. "Neu"-Button bietet nur die in `children` definierten Typen an
 7. Beim Anlegen: Ordner erstellen + `_type_<kind>` anlegen
 
 ### Skelett / Initialisierung
 
-- Space-Root bekommt `_type_aktenplan` + `.space/views/*.json` aus Vorlage
+- Space-Root bekommt `_type_aktenplan` + `.views/*.json` aus Vorlage
 - Admin-Action "Aktenplan initialisieren" oder Template-Space
 - Langfristig: Schema-Editor im UI
 
@@ -165,14 +165,14 @@ Typed FolderView Handler unter `views/` (neben `core/` und `apps/`):
 ## Implementierung (Schritte)
 
 ### Phase 1: Grundgerüst ✅ (teilweise, muss auf _type_ umgestellt werden)
-1. ~~Schema-Loader: `useTypedFolderSchema(space, type)` → lädt + cacht `.space/views/<type>.json`~~
+1. ~~Schema-Loader: `useTypedFolderSchema(space, type)` → lädt + cacht `.views/<type>.json`~~
 2. ~~Typed Actions: `useTypedFolderActions` → erstellt Kind-Ordner~~ (muss `_type_` statt xattr setzen)
 3. ~~GenericSpace.vue Integration~~ (muss von Metadata API auf PROPFIND-Dateiliste umgestellt werden)
 4. ~~Typ-Definitionen~~
 
 ### Phase 1b: Umstellung auf _type_ (aktuell)
 5. Typ-Erkennung aus PROPFIND-Dateiliste statt Metadata API
-6. `useTypedFolderTypes` — Typ-Liste per PROPFIND `.space/views/` laden
+6. `useTypedFolderTypes` — Typ-Liste per PROPFIND `.views/` laden
 7. Sidebar Dropdown "Typ" → löscht/erstellt `_type_*` Dateien
 8. "Neuer [Kind-Typ]" Action → erstellt Ordner + `_type_<kind>`
 
@@ -185,7 +185,7 @@ Typed FolderView Handler unter `views/` (neben `core/` und `apps/`):
 ### Phase 3: Views-Deployment
 13. Module Federation Extension Handler unter `views/`
 14. Extension Point für typed views
-15. Admin-UI: Schema-Editor für `.space/views/`
+15. Admin-UI: Schema-Editor für `.views/`
 
 ### Phase 4: Baumansicht
 16. Treeview-Sidebar
@@ -195,12 +195,12 @@ Typed FolderView Handler unter `views/` (neben `core/` und `apps/`):
 ## Offene Fragen
 
 - **Performance**: `_type_*` kommt im Listing gratis mit — kein Extra-Call
-- **Schema-Cache**: Invalidieren per etag auf `.space/views/`?
-- **Rechte**: `.space/views/` editieren → Space-Manager
+- **Schema-Cache**: Invalidieren per etag auf `.views/`?
+- **Rechte**: `.views/` editieren → Space-Manager
 - **Vererbung**: Sub-Space Schema vom Parent erben?
 - **Migration**: Bestehende Ordner typisieren → `find . -type d -exec touch {}/_type_default \;`
 - **Kollision**: Mehrere `_type_*` im gleichen Ordner? → erste Datei zählt, Warning loggen
-- **Versteckte Dateien**: `_type_*` wird im normalen UI ausgeblendet (wie `.space/`)
+- **Versteckte Dateien**: `_type_*` wird im normalen UI ausgeblendet (wie `.views/`)
 
 ## Abhängigkeiten
 

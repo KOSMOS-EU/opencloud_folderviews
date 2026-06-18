@@ -180,7 +180,7 @@ def main():
     print(f"    Host:  {host_part}")
     print()
 
-    # Create .space/views/ schemas first
+    # Create .views/ schemas first
     if not args.dry_run:
         schemas = {
             'aktenplan': '{"label":"Aktenplan","icon":"archive","children":{"protected":["aktenplan"],"shielded":["akte"],"default":["aktenplan","akte"]},"columns":["name","oy.fileReference","typ","anzahl"],"fileReferencePattern":"{parentRef}.{seq:02}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true}}}',
@@ -188,9 +188,9 @@ def main():
             'vorgang': '{"label":"Vorgang","icon":"file-list","children":["register"],"columns":["name","oy.fileReference","oy.version","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}/{seq}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true},"oy.version":{"label":"Version","type":"string"}}}',
             'register': '{"label":"Register","icon":"bookmark","children":[],"columns":["name","oy.fileReference","abgelegt-von","abgelegt-am"],"fileReferencePattern":"{parentRef}#{seq}","metadata":{"oy.fileReference":{"label":"Aktenzeichen","type":"string","auto":true}}}'
         }
-        webdav_mkcol(session, base_url, '.space/views')
+        webdav_mkcol(session, base_url, '.views')
         for name, content in schemas.items():
-            webdav_put(session, base_url, f'.space/views/{name}.json', content)
+            webdav_put(session, base_url, f'.views/{name}.json', content)
         print("[ok] Schema files created")
 
         # Space root type marker
