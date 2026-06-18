@@ -6,8 +6,7 @@
       :view-mode="'resource-table-condensed'"
       :space="space"
       :header-position="headerPosition"
-      :sort-by="'sortWeight'"
-      :sort-dir="'asc'"
+      :sort-fields="[]"
       @file-click="handleFileClick"
       @sort="() => {}"
     >
@@ -57,10 +56,13 @@ const props = defineProps<{
   viewMode?: string
   dragDrop?: boolean
   headerPosition?: number
+  sortBy?: string
+  sortDir?: string
+  sortFields?: any[]
   viewSize?: number
 }>()
 
-const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'update:selectedIds'])
+const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
@@ -68,6 +70,8 @@ const resourcesStore = useResourcesStore()
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
 const loadingSet = ref(new Set<string>())
+const rootResources = ref<Resource[]>([])
+const rootLoaded = ref(false)
 function isExpanded(id: string) { return expanded.value.has(id) }
 function isLoading(id: string) { return loadingSet.value.has(id) }
 
@@ -109,14 +113,26 @@ async function toggleExpand(resource: Resource) {
 
 function handleFileClick(options: any) { emit('fileClick', options) }
 
+// Load root resources ourselves to avoid parent's sort
+async function loadRootResources() {
+  if (rootLoaded.value || !props.space) return
+  rootLoaded.value = true
+  try {
+    const { children } = await clientService.webdav.listFiles(props.space, { path: '' })
+    rootResources.value = children
+    children.forEach(c => resourcesStore.upsertResource(c))
+  } catch {
+    rootResources.value = props.resources
+  }
+}
+
 const visibleResources = computed(() => {
+  const source = rootResources.value.length > 0 ? rootResources.value : props.resources
   const result: Resource[] = []
-  let seq = 0
 
   function walk(resources: Resource[]) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
     for (const r of filtered) {
-      ;(r as any).sortWeight = seq++
       result.push(r)
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!)
@@ -124,14 +140,17 @@ const visibleResources = computed(() => {
     }
   }
 
-  walk(props.resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.')))
+  walk(source.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.')))
   return result
 })
 
-watch(() => props.resources, () => {
+watch(() => props.space?.id, () => {
   expanded.value = new Set()
   childrenMap.value = new Map()
-})
+  rootLoaded.value = false
+  rootResources.value = []
+  loadRootResources()
+}, { immediate: true })
 </script>
 
 <style scoped>
