@@ -6,7 +6,10 @@
       :view-mode="'resource-table-condensed'"
       :space="space"
       :header-position="headerPosition"
+      :sort-by="'_treeSortKey'"
+      :sort-dir="'asc'"
       @file-click="handleFileClick"
+      @sort="() => {}"
     >
       <template #image="{ resource }">
         <span
@@ -108,10 +111,12 @@ function handleFileClick(options: any) { emit('fileClick', options) }
 
 const visibleResources = computed(() => {
   const result: Resource[] = []
+  let seq = 0
 
   function walk(resources: Resource[]) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
     for (const r of filtered) {
+      ;(r as any)._treeSortKey = String(seq++).padStart(8, '0')
       result.push(r)
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!)
