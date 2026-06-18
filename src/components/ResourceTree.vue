@@ -6,11 +6,7 @@
       :view-mode="'resource-table-condensed'"
       :space="space"
       :header-position="headerPosition"
-      :sort-by="sortBy"
-      :sort-dir="sortDir"
-      :sort-fields="sortFields"
       @file-click="handleFileClick"
-      @sort="handleSort"
     >
       <template #image="{ resource }">
         <span
@@ -56,15 +52,12 @@ const props = defineProps<{
   resources: Resource[]
   space: SpaceResource
   viewMode?: string
-  sortBy?: string
-  sortDir?: string
   dragDrop?: boolean
   headerPosition?: number
-  sortFields?: any[]
   viewSize?: number
 }>()
 
-const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
+const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
@@ -112,14 +105,13 @@ async function toggleExpand(resource: Resource) {
 }
 
 function handleFileClick(options: any) { emit('fileClick', options) }
-function handleSort(options: any) { emit('sort', options) }
 
 const visibleResources = computed(() => {
   const result: Resource[] = []
 
   function walk(resources: Resource[]) {
-    for (const r of resources) {
-      if (r.name?.startsWith('_type_')) continue
+    const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
+    for (const r of filtered) {
       result.push(r)
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!)
@@ -127,7 +119,7 @@ const visibleResources = computed(() => {
     }
   }
 
-  walk(props.resources.filter(r => !r.name?.startsWith('_type_')))
+  walk(props.resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.')))
   return result
 })
 
