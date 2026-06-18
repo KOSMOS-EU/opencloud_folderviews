@@ -30,8 +30,12 @@ globalThis[__mfCacheGlobalKey] ||= {
 globalThis[__mfCacheGlobalKey].share ||= {};
 globalThis[__mfCacheGlobalKey].remote ||= {};
 var __mfModuleCache = globalThis[__mfCacheGlobalKey];
-var __mf_12;
+var __mf_83;
+var __mf_89;
+var __mf_91;
 var __mf_146;
+var __mf_228;
+var __mf_306;
 var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["AVATAR_UPLOAD_MAX_FILE_SIZE_MB"];
 	exportModule["AccountCapabilitiesSchema"];
@@ -45,7 +49,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["AppProviderService"];
 	exportModule["AppTopBar"];
 	exportModule["AppWrapper"];
-	__mf_12 = exportModule["AppWrapperRoute"];
+	exportModule["AppWrapperRoute"];
 	exportModule["ArchiverService"];
 	exportModule["Auth"];
 	exportModule["AvatarUpload"];
@@ -116,15 +120,15 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["ResolveStrategy"];
 	exportModule["ResourceConflictModal"];
 	exportModule["ResourceGhostElement"];
-	exportModule["ResourceIcon"];
+	__mf_83 = exportModule["ResourceIcon"];
 	exportModule["ResourceLink"];
 	exportModule["ResourceListItem"];
 	exportModule["ResourceName"];
 	exportModule["ResourcePreview"];
 	exportModule["ResourceSize"];
-	exportModule["ResourceTable"];
+	__mf_89 = exportModule["ResourceTable"];
 	exportModule["ResourceTile"];
-	exportModule["ResourceTiles"];
+	__mf_91 = exportModule["ResourceTiles"];
 	exportModule["ResourceTransfer"];
 	exportModule["RuntimeError"];
 	exportModule["SaveAsModal"];
@@ -261,7 +265,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["useCanListVersions"];
 	exportModule["useCanShare"];
 	exportModule["useCapabilityStore"];
-	exportModule["useClientService"];
+	__mf_228 = exportModule["useClientService"];
 	exportModule["useClipboard"];
 	exportModule["useClipboardStore"];
 	exportModule["useConfigStore"];
@@ -339,7 +343,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["useResourceRouteResolver"];
 	exportModule["useResourceViewDrag"];
 	exportModule["useResourceViewHelpers"];
-	exportModule["useResourcesStore"];
+	__mf_306 = exportModule["useResourcesStore"];
 	exportModule["useRestoreWorker"];
 	exportModule["useRoute"];
 	exportModule["useRouteMeta"];
@@ -391,4 +395,4 @@ if (exportModule === void 0) initPromise.then(() => {
 });
 else __mfApplyHostProvidedExports(exportModule);
 //#endregion
-export { __mf_146 as n, __mf_12 as t };
+export { __mf_89 as a, __mf_83 as i, __mf_228 as n, __mf_91 as o, __mf_306 as r, __mf_146 as t };

@@ -114,3 +114,33 @@
   font-size: 12px;
   color: #888;
 }
+
+.tree-btn[data-v-d34319b8] {
+  background: none; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; margin-right: 2px; border-radius: 4px; flex-shrink: 0;
+}
+.tree-btn[data-v-d34319b8]:hover { background: rgba(0,0,0,0.08);
+}
+.tree-spacer[data-v-d34319b8] { display: inline-block; width: 20px; margin-right: 2px; flex-shrink: 0;
+}
+
+/* Metro: tile fill color, name centered in preview area, bottom bar hidden */
+.metro-view .oc-tile-card {
+  outline-color: var(--oc-role-outline-variant) !important;
+  background: var(--oc-role-outline-variant) !important;
+}
+/* Center the label in the preview area */
+.metro-view .metro-tile-label {
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.4;
+  padding: 8px;
+}
+/* Hide name in bottom bar, push icons to the right */
+.metro-view .resource-name-wrapper { display: none !important;
+}
+.metro-view .oc-card-body > .p-2 > .flex { justify-content: flex-end !important;
+}

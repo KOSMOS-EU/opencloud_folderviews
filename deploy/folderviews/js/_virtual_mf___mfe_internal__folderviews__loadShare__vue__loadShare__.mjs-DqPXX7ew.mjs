@@ -30,18 +30,29 @@ globalThis[__mfCacheGlobalKey] ||= {
 globalThis[__mfCacheGlobalKey].share ||= {};
 globalThis[__mfCacheGlobalKey].remote ||= {};
 var __mfModuleCache = globalThis[__mfCacheGlobalKey];
+var __mf_24;
+var __mf_39;
 var __mf_45;
 var __mf_55;
+var __mf_60;
 var __mf_61;
 var __mf_80;
+var __mf_81;
 var __mf_82;
 var __mf_83;
 var __mf_84;
 var __mf_90;
+var __mf_91;
 var __mf_93;
 var __mf_112;
+var __mf_117;
+var __mf_118;
 var __mf_132;
 var __mf_139;
+var __mf_140;
+var __mf_154;
+var __mf_161;
+var __mf_166;
 var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["compile"];
 	exportModule["Transition"];
@@ -67,7 +78,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["vModelText"];
 	exportModule["vShow"];
 	exportModule["withKeys"];
-	exportModule["withModifiers"];
+	__mf_24 = exportModule["withModifiers"];
 	exportModule["EffectScope"];
 	exportModule["ReactiveEffect"];
 	exportModule["TrackOpTypes"];
@@ -82,7 +93,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["isReadonly"];
 	exportModule["isRef"];
 	exportModule["isShallow"];
-	exportModule["markRaw"];
+	__mf_39 = exportModule["markRaw"];
 	exportModule["onScopeDispose"];
 	exportModule["onWatcherCleanup"];
 	exportModule["proxyRefs"];
@@ -103,7 +114,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["capitalize"];
 	exportModule["normalizeClass"];
 	exportModule["normalizeProps"];
-	exportModule["normalizeStyle"];
+	__mf_60 = exportModule["normalizeStyle"];
 	__mf_61 = exportModule["toDisplayString"];
 	exportModule["toHandlerKey"];
 	exportModule["BaseTransition"];
@@ -124,7 +135,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["cloneVNode"];
 	exportModule["compatUtils"];
 	__mf_80 = exportModule["computed"];
-	exportModule["createBlock"];
+	__mf_81 = exportModule["createBlock"];
 	__mf_82 = exportModule["createCommentVNode"];
 	__mf_83 = exportModule["createElementBlock"];
 	__mf_84 = exportModule["createElementVNode"];
@@ -134,7 +145,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["createSlots"];
 	exportModule["createStaticVNode"];
 	__mf_90 = exportModule["createTextVNode"];
-	exportModule["createVNode"];
+	__mf_91 = exportModule["createVNode"];
 	exportModule["defineAsyncComponent"];
 	__mf_93 = exportModule["defineComponent"];
 	exportModule["defineEmits"];
@@ -160,8 +171,8 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["isRuntimeOnly"];
 	exportModule["isVNode"];
 	exportModule["mergeDefaults"];
-	exportModule["mergeModels"];
-	exportModule["mergeProps"];
+	__mf_117 = exportModule["mergeModels"];
+	__mf_118 = exportModule["mergeProps"];
 	exportModule["nextTick"];
 	exportModule["onActivated"];
 	exportModule["onBeforeMount"];
@@ -183,7 +194,7 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["registerRuntimeCompiler"];
 	exportModule["renderList"];
 	__mf_139 = exportModule["renderSlot"];
-	exportModule["resolveComponent"];
+	__mf_140 = exportModule["resolveComponent"];
 	exportModule["resolveDirective"];
 	exportModule["resolveDynamicComponent"];
 	exportModule["resolveFilter"];
@@ -197,19 +208,19 @@ var __mfApplyHostProvidedExports = (exportModule) => {
 	exportModule["transformVNodeArgs"];
 	exportModule["useAttrs"];
 	exportModule["useId"];
-	exportModule["useModel"];
+	__mf_154 = exportModule["useModel"];
 	exportModule["useSSRContext"];
 	exportModule["useSlots"];
 	exportModule["useTemplateRef"];
 	exportModule["useTransitionState"];
 	exportModule["version"];
 	exportModule["warn"];
-	exportModule["watch"];
+	__mf_161 = exportModule["watch"];
 	exportModule["watchEffect"];
 	exportModule["watchPostEffect"];
 	exportModule["watchSyncEffect"];
 	exportModule["withAsyncContext"];
-	exportModule["withCtx"];
+	__mf_166 = exportModule["withCtx"];
 	exportModule["withDefaults"];
 	exportModule["withDirectives"];
 	exportModule["withMemo"];
@@ -224,4 +235,4 @@ if (exportModule === void 0) initPromise.then(() => {
 });
 else __mfApplyHostProvidedExports(exportModule);
 //#endregion
-export { __mf_55 as a, __mf_82 as c, __mf_90 as d, __mf_93 as f, __mf_45 as i, __mf_83 as l, __mf_132 as n, __mf_61 as o, __mf_139 as r, __mf_80 as s, __mf_112 as t, __mf_84 as u };
+export { __mf_93 as C, __mf_91 as S, __mf_81 as _, __mf_139 as a, __mf_84 as b, __mf_161 as c, __mf_39 as d, __mf_45 as f, __mf_80 as g, __mf_61 as h, __mf_132 as i, __mf_166 as l, __mf_60 as m, __mf_117 as n, __mf_140 as o, __mf_55 as p, __mf_118 as r, __mf_154 as s, __mf_112 as t, __mf_24 as u, __mf_82 as v, __mf_90 as x, __mf_83 as y };
