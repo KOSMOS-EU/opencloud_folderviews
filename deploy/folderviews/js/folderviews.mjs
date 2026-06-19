@@ -2204,8 +2204,8 @@ function useElementRenderer(space) {
 var _hoisted_1$3 = { class: "element-frame" };
 var _hoisted_2$3 = { class: "element-frame-toolbar" };
 var _hoisted_3$1 = { class: "element-frame-name" };
-var _hoisted_4 = { class: "element-frame-menu-wrap" };
-var _hoisted_5 = { class: "element-frame-content" };
+var _hoisted_4 = { class: "element-frame-content" };
+var _hoisted_5 = ["href", "download"];
 //#endregion
 //#region src/components/ElementFrame.vue
 var ElementFrame_default = /* @__PURE__ */ __mf_93({
@@ -2216,91 +2216,95 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 	},
 	setup(__props) {
 		const props = __props;
-		const clientService = __mf_228();
 		const router = __mf_314();
 		const resourcesStore = __mf_306();
 		const menuOpen = __mf_45(false);
 		const menuStyle = __mf_45({});
+		const downloadUrl = __mf_80(() => {
+			if (props.resource.downloadURL) return props.resource.downloadURL;
+			return "/dav" + (props.resource.webDavPath || "");
+		});
 		function toggleMenu(e) {
-			menuOpen.value = !menuOpen.value;
 			if (menuOpen.value) {
-				const rect = e.currentTarget.getBoundingClientRect();
-				menuStyle.value = {
-					position: "fixed",
-					top: rect.bottom + 4 + "px",
-					left: Math.max(0, rect.right - 200) + "px",
-					zIndex: "9999"
-				};
+				close();
+				return;
 			}
+			const rect = e.currentTarget.getBoundingClientRect();
+			menuStyle.value = {
+				top: rect.bottom + 4 + "px",
+				left: Math.max(8, rect.right - 220) + "px"
+			};
+			menuOpen.value = true;
 		}
 		function close() {
 			menuOpen.value = false;
 		}
-		async function doDownload() {
-			close();
-			const url = await clientService.webdav.getFileUrl(props.space, props.resource);
-			if (url) {
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = props.resource.name;
-				a.click();
-			}
-		}
 		function doOpen() {
 			close();
 			if (props.resource.isFolder) {
-				const target = router.currentRoute.value.path.replace(/\/$/, "") + "/" + props.resource.name;
-				router.push({ path: target });
-			} else clientService.webdav.getFileUrl(props.space, props.resource).then((url) => {
-				if (url) window.open(url, "_blank");
-			});
+				const currentPath = router.currentRoute.value.path;
+				router.push({ path: currentPath.replace(/\/$/, "") + "/" + props.resource.name });
+			} else {
+				const fileId = props.resource.fileId || props.resource.id;
+				const folder = router.currentRoute.value.path;
+				router.push({
+					path: folder,
+					query: {
+						fileId,
+						openWithDefault: "true"
+					}
+				});
+			}
 		}
 		function doDetails() {
 			close();
 			resourcesStore.setSelection([props.resource.id]);
 		}
-		function closeOnOutsideClick() {
-			if (menuOpen.value) menuOpen.value = false;
-		}
-		__mf_126(() => document.addEventListener("click", closeOnOutsideClick));
-		__mf_130(() => document.removeEventListener("click", closeOnOutsideClick));
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
-			return __mf_132(), __mf_83$1("div", _hoisted_1$3, [__mf_84("div", _hoisted_2$3, [__mf_84("span", _hoisted_3$1, __mf_61(__props.resource.name), 1), __mf_84("div", _hoisted_4, [__mf_84("button", {
-				class: "element-frame-menu",
-				onClick: _cache[0] || (_cache[0] = __mf_24(($event) => toggleMenu($event), ["stop", "prevent"]))
-			}, [__mf_91$1(_component_oc_icon, {
-				name: "more-2",
-				size: "small"
-			})]), (__mf_132(), __mf_81(__mf_73, { to: "body" }, [menuOpen.value ? (__mf_132(), __mf_83$1("div", {
-				key: 0,
-				class: "element-frame-dropdown",
-				style: __mf_60(menuStyle.value),
-				onClick: _cache[1] || (_cache[1] = __mf_24(() => {}, ["stop"]))
-			}, [
-				!__props.resource.isFolder ? (__mf_132(), __mf_83$1("button", {
+			return __mf_132(), __mf_83$1("div", _hoisted_1$3, [
+				__mf_84("div", _hoisted_2$3, [__mf_84("span", _hoisted_3$1, __mf_61(__props.resource.name), 1), __mf_84("button", {
+					class: "element-frame-menu",
+					onClick: _cache[0] || (_cache[0] = __mf_24(($event) => toggleMenu($event), ["stop", "prevent"]))
+				}, [__mf_91$1(_component_oc_icon, {
+					name: "more-2",
+					size: "small"
+				})])]),
+				__mf_84("div", _hoisted_4, [__mf_139(_ctx.$slots, "default")]),
+				(__mf_132(), __mf_81(__mf_73, { to: "body" }, [menuOpen.value ? (__mf_132(), __mf_83$1("div", {
 					key: 0,
-					class: "element-frame-action",
-					onClick: doDownload
-				}, [__mf_91$1(_component_oc_icon, {
-					name: "file-download",
-					size: "small"
-				}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))])) : __mf_82("", true),
-				__mf_84("button", {
-					class: "element-frame-action",
-					onClick: doOpen
-				}, [__mf_91$1(_component_oc_icon, {
-					name: "external-link",
-					size: "small"
-				}), _cache[3] || (_cache[3] = __mf_84("span", null, "Öffnen", -1))]),
-				__mf_84("button", {
-					class: "element-frame-action",
-					onClick: doDetails
-				}, [__mf_91$1(_component_oc_icon, {
-					name: "information",
-					size: "small"
-				}), _cache[4] || (_cache[4] = __mf_84("span", null, "Details", -1))])
-			], 4)) : __mf_82("", true)]))])]), __mf_84("div", _hoisted_5, [__mf_139(_ctx.$slots, "default")])]);
+					class: "element-ctx-overlay",
+					onClick: close
+				}, [__mf_84("div", {
+					class: "element-ctx-dropdown",
+					style: __mf_60(menuStyle.value),
+					onClick: _cache[1] || (_cache[1] = __mf_24(() => {}, ["stop"]))
+				}, [
+					!__props.resource.isFolder ? (__mf_132(), __mf_83$1("a", {
+						key: 0,
+						class: "element-ctx-action",
+						href: downloadUrl.value,
+						download: __props.resource.name
+					}, [__mf_91$1(_component_oc_icon, {
+						name: "file-download",
+						size: "small"
+					}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))], 8, _hoisted_5)) : __mf_82("", true),
+					__mf_84("button", {
+						class: "element-ctx-action",
+						onClick: doOpen
+					}, [__mf_91$1(_component_oc_icon, {
+						name: "external-link",
+						size: "small"
+					}), __mf_84("span", null, __mf_61(__props.resource.isFolder ? "Öffnen" : "Bearbeiten"), 1)]),
+					__mf_84("button", {
+						class: "element-ctx-action",
+						onClick: doDetails
+					}, [__mf_91$1(_component_oc_icon, {
+						name: "information",
+						size: "small"
+					}), _cache[3] || (_cache[3] = __mf_84("span", null, "Details", -1))])
+				], 4)])) : __mf_82("", true)]))
+			]);
 		};
 	}
 });
