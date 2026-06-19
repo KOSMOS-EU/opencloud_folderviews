@@ -7,6 +7,7 @@ import VorgangView from './views/VorgangView.vue'
 import RegisterView from './views/RegisterView.vue'
 import ResourceTree from './components/ResourceTree.vue'
 import ResourceMetro from './components/ResourceMetro.vue'
+import ResourceElements from './components/ResourceElements.vue'
 
 const applicationId = 'folderviews'
 
@@ -60,6 +61,20 @@ export default defineWebApplication({
           label: 'Metro tiles view',
           icon: { name: 'dashboard', fillType: 'fill' },
           component: markRaw(ResourceMetro)
+        }
+      },
+      {
+        id: 'com.kosmos-eu.folderviews.folder-view.resource-elements',
+        type: 'folderView',
+        extensionPointIds: [
+          'app.files.folder-views.folder',
+          'app.files.folder-views.project-spaces'
+        ],
+        folderView: {
+          name: 'resource-elements',
+          label: 'Element view',
+          icon: { name: 'layout-4', fillType: 'line' },
+          component: markRaw(ResourceElements)
         }
       },
       ...aktzDefs.extensions
