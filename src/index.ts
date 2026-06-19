@@ -1,5 +1,6 @@
-import { defineWebApplication } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService } from '@opencloud-eu/web-pkg'
 import { markRaw } from 'vue'
+import { registerSettingsBundle, loadSettings } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
@@ -59,6 +60,10 @@ export default defineWebApplication({
         }
       }
     ]
+
+    // Register settings bundle and load user preferences
+    const clientService = useClientService()
+    registerSettingsBundle(clientService).then(() => loadSettings(clientService))
 
     return {
       appInfo,
