@@ -1,4 +1,4 @@
-import { a as __mf_306, c as __mf_83, i as __mf_243, l as __mf_89, n as __mf_228, o as __mf_308, r as __mf_241, s as __mf_314, t as __mf_146, u as __mf_91 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-TFCGtDbu.mjs";
+import { a as __mf_243, c as __mf_314, d as __mf_91, i as __mf_241, l as __mf_83, n as __mf_228, o as __mf_306, r as __mf_237, s as __mf_308, t as __mf_146, u as __mf_89 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-BGnPYegr.mjs";
 import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_73, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_61, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_69, y as __mf_60 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-CsPj1B2y.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
@@ -2205,7 +2205,6 @@ var _hoisted_1$3 = { class: "element-frame" };
 var _hoisted_2$3 = { class: "element-frame-toolbar" };
 var _hoisted_3$1 = { class: "element-frame-name" };
 var _hoisted_4 = { class: "element-frame-content" };
-var _hoisted_5 = ["href", "download"];
 //#endregion
 //#region src/components/ElementFrame.vue
 var ElementFrame_default = /* @__PURE__ */ __mf_93({
@@ -2219,12 +2218,13 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 		const router = __mf_314();
 		const resourcesStore = __mf_306();
 		const { triggerDefaultAction } = __mf_243();
+		const { downloadFile } = __mf_237();
 		const menuOpen = __mf_45(false);
 		const menuStyle = __mf_45({});
-		const downloadUrl = __mf_80(() => {
-			if (props.resource.downloadURL) return props.resource.downloadURL;
-			return "/dav" + (props.resource.webDavPath || "");
-		});
+		function doDownload() {
+			close();
+			downloadFile(props.space, props.resource);
+		}
 		function toggleMenu(e) {
 			if (menuOpen.value) {
 				close();
@@ -2252,6 +2252,7 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 		}
 		function doDetails() {
 			close();
+			resourcesStore.upsertResource(props.resource);
 			resourcesStore.setSelection([props.resource.id]);
 		}
 		return (_ctx, _cache) => {
@@ -2274,15 +2275,14 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 					style: __mf_60(menuStyle.value),
 					onClick: _cache[1] || (_cache[1] = __mf_24(() => {}, ["stop"]))
 				}, [
-					!__props.resource.isFolder ? (__mf_132(), __mf_83$1("a", {
+					!__props.resource.isFolder ? (__mf_132(), __mf_83$1("button", {
 						key: 0,
 						class: "element-ctx-action",
-						href: downloadUrl.value,
-						download: __props.resource.name
+						onClick: doDownload
 					}, [__mf_91$1(_component_oc_icon, {
 						name: "file-download",
 						size: "small"
-					}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))], 8, _hoisted_5)) : __mf_82("", true),
+					}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))])) : __mf_82("", true),
 					__mf_84("button", {
 						class: "element-ctx-action",
 						onClick: doOpen

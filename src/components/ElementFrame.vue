@@ -12,10 +12,10 @@
     <Teleport to="body">
       <div v-if="menuOpen" class="element-ctx-overlay" @click="close">
         <div class="element-ctx-dropdown" :style="menuStyle" @click.stop>
-          <a v-if="!resource.isFolder" class="element-ctx-action" :href="downloadUrl" :download="resource.name">
+          <button v-if="!resource.isFolder" class="element-ctx-action" @click="doDownload">
             <oc-icon name="file-download" size="small" />
             <span>Download</span>
-          </a>
+          </button>
           <button class="element-ctx-action" @click="doOpen">
             <oc-icon name="external-link" size="small" />
             <span>{{ resource.isFolder ? 'Öffnen' : 'Bearbeiten' }}</span>
@@ -31,9 +31,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { useRouter, useResourcesStore, useFileActions } from '@opencloud-eu/web-pkg'
+import { useRouter, useResourcesStore, useFileActions, useDownloadFile } from '@opencloud-eu/web-pkg'
 
 const props = defineProps<{
   resource: Resource
@@ -43,15 +43,14 @@ const props = defineProps<{
 const router = useRouter()
 const resourcesStore = useResourcesStore()
 const { triggerDefaultAction } = useFileActions()
+const { downloadFile } = useDownloadFile()
 const menuOpen = ref(false)
 const menuStyle = ref<Record<string, string>>({})
 
-// Build download URL from resource properties
-const downloadUrl = computed(() => {
-  if (props.resource.downloadURL) return props.resource.downloadURL
-  // Fallback: WebDAV path
-  return '/dav' + (props.resource.webDavPath || '')
-})
+function doDownload() {
+  close()
+  downloadFile(props.space, props.resource)
+}
 
 function toggleMenu(e: MouseEvent) {
   if (menuOpen.value) { close(); return }
@@ -78,6 +77,7 @@ function doOpen() {
 
 function doDetails() {
   close()
+  resourcesStore.upsertResource(props.resource)
   resourcesStore.setSelection([props.resource.id])
 }
 </script>
