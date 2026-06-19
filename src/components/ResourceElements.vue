@@ -71,7 +71,12 @@ async function detectRootType() {
   ready.value = true
 }
 
-watch(() => props.resources, () => {
+let lastResourceIds = ''
+watch(() => props.resources, (newRes) => {
+  // Only re-detect if resource list actually changed (avoid infinite loops)
+  const ids = newRes.map(r => r.id).sort().join(',')
+  if (ids === lastResourceIds) return
+  lastResourceIds = ids
   ctx.clearCache()
   detectRootType()
 }, { immediate: true })

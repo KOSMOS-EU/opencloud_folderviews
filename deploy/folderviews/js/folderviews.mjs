@@ -2586,7 +2586,11 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			else rootDivParams.value = rootSchema.value?.elementLayout || null;
 			ready.value = true;
 		}
-		__mf_161(() => props.resources, () => {
+		let lastResourceIds = "";
+		__mf_161(() => props.resources, (newRes) => {
+			const ids = newRes.map((r) => r.id).sort().join(",");
+			if (ids === lastResourceIds) return;
+			lastResourceIds = ids;
 			ctx.clearCache();
 			detectRootType();
 		}, { immediate: true });
@@ -2609,7 +2613,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			]))]);
 		};
 	}
-}), [["__scopeId", "data-v-19ed47a7"]]);
+}), [["__scopeId", "data-v-ad20a312"]]);
 //#endregion
 //#region src/index.ts
 var applicationId = "folderviews";

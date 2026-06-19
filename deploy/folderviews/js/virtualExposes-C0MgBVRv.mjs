@@ -1,4 +1,3 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["../assets/folderviews-DPDWH93B.css"])))=>i.map(i=>d[i]);
 import { t as __vitePreload } from "./preload-helper-CW7Fztz1.mjs";
 //#region virtual:mf-exposes:__mfe_internal__folderviews__remoteEntry_mjs
 var cssAssetMap = {};
@@ -30,7 +29,7 @@ async function injectCssAssets(exposeKey) {
 }
 var virtual_mf_exposes___mfe_internal__folderviews__remoteEntry_mjs_default = { ".": async () => {
 	await injectCssAssets(".");
-	const importModule = await importExposedModule(() => __vitePreload(() => import("./folderviews.mjs"), __vite__mapDeps([0]), import.meta.url));
+	const importModule = await importExposedModule(() => __vitePreload(() => import("./folderviews.mjs"), [], import.meta.url));
 	const exportModule = {};
 	Object.assign(exportModule, importModule);
 	Object.defineProperty(exportModule, "__esModule", {
