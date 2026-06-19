@@ -40,7 +40,9 @@ function getAktenzeichenPreferenceDefinitions() {
 function useFolderviewSettings() {
 	const store = __mf_241();
 	return { showAktzInName: __mf_80(() => {
-		return store.getExtensionPreference(EXTENSION_POINT_ID, [EXT_DISABLED]).selectedExtensionIds.includes(EXT_ENABLED);
+		const pref = store.getExtensionPreference(EXTENSION_POINT_ID, [EXT_DISABLED]);
+		console.log("[FolderviewSettings] pref:", JSON.stringify(pref), "includes enabled:", pref.selectedExtensionIds.includes(EXT_ENABLED));
+		return !pref.selectedExtensionIds.includes(EXT_ENABLED);
 	}) };
 }
 //#endregion
@@ -255,10 +257,13 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		const depthMap = __mf_45(/* @__PURE__ */ new Map());
 		const patchedRefs = __mf_45(/* @__PURE__ */ new Map());
 		async function patchFileReferences(resources) {
+			console.log("[TreeView] patchFileReferences called, showAktz:", showAktzInName.value, "resources:", resources.length);
 			if (!showAktzInName.value) return;
 			const missing = resources.filter((r) => r.type === "folder" && !getFileReference(r) && !patchedRefs.value.has(r.id));
+			console.log("[TreeView] missing fileRefs:", missing.length);
 			if (!missing.length) return;
 			const httpClient = clientService.httpAuthenticated;
+			console.log("[TreeView] httpClient:", !!httpClient);
 			if (!httpClient) return;
 			const spaceId = props.space.id;
 			const patch = new Map(patchedRefs.value);
@@ -389,7 +394,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			])]);
 		};
 	}
-}), [["__scopeId", "data-v-013bbbb8"]]);
+}), [["__scopeId", "data-v-787e14f3"]]);
 //#endregion
 //#region src/components/ResourceMetro.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$7 = { class: "metro-tile-label" };

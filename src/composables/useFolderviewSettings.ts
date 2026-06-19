@@ -48,7 +48,8 @@ export function useFolderviewSettings() {
 
   const showAktzInName = computed(() => {
     const pref = store.getExtensionPreference(EXTENSION_POINT_ID, [EXT_DISABLED])
-    return pref.selectedExtensionIds.includes(EXT_ENABLED)
+    console.log('[FolderviewSettings] pref:', JSON.stringify(pref), 'includes enabled:', pref.selectedExtensionIds.includes(EXT_ENABLED))
+    return !pref.selectedExtensionIds.includes(EXT_ENABLED)
   })
 
   return { showAktzInName }
