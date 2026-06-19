@@ -1,6 +1,6 @@
 import { defineWebApplication, useClientService } from '@opencloud-eu/web-pkg'
-import { markRaw } from 'vue'
-import { registerSettingsBundle, loadSettings } from './composables/useFolderviewSettings'
+import { computed, markRaw } from 'vue'
+import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
@@ -29,8 +29,11 @@ export default defineWebApplication({
       register: markRaw(RegisterView)
     }
 
-    // New list view modes (Tree + Metro) as FolderViewExtensions
-    const extensions = [
+    // Aktenzeichen user preference (checkbox on /account/extensions)
+    const aktzDefs = getAktenzeichenPreferenceDefinitions()
+
+    // Extensions: folder views + aktenzeichen preference toggle
+    const extensions = computed(() => [
       {
         id: 'com.kosmos-eu.folderviews.folder-view.resource-tree',
         type: 'folderView',
@@ -58,19 +61,26 @@ export default defineWebApplication({
           icon: { name: 'dashboard', fillType: 'fill' },
           component: markRaw(ResourceMetro)
         }
-      }
-    ]
+      },
+      ...aktzDefs.extensions
+    ])
 
-    // Register oy.fileReference as extra DAV property so it comes with every listFiles
+    // Extension points: aktenzeichen preference
+    const extensionPoints = computed(() => [aktzDefs.extensionPoint])
+
+    // Register oy.fileReference as extra DAV property so it comes with every PROPFIND
     const clientService = useClientService()
     clientService.webdav.registerExtraProp('oc:oy.fileReference')
 
-    // Register settings bundle and load user preferences
-    registerSettingsBundle(clientService).then(() => loadSettings(clientService))
+    console.log('[folderviews] setup complete')
+    console.log('[folderviews] extensions:', extensions.value)
+    console.log('[folderviews] extensionPoints:', extensionPoints.value)
+    console.log('[folderviews] aktzDefs:', aktzDefs)
 
     return {
       appInfo,
       extensions,
+      extensionPoints,
       folderViewHandlers
     }
   }

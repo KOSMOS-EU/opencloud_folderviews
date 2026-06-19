@@ -2,6 +2,7 @@
   <div class="typed-folder-view akte-view">
     <div class="typed-folder-header">
       <span class="typed-folder-type-badge akte">Akte</span>
+      <span v-if="fileRef && showAktzInName" class="typed-folder-aktz">{{ fileRef }}</span>
       <button class="typed-action-btn" @click="$emit('new-child', 'vorgang')">
         <span class="typed-action-icon">+</span>
         Neuer Vorgang
@@ -12,7 +13,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed, inject, Ref, unref } from 'vue'
+import { Resource } from '@opencloud-eu/web-client'
+import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import { getFileReference } from '../composables/useFileReference'
+
 defineEmits<{ 'new-child': [type: string] }>()
+const resource = inject<Ref<Resource>>('resource')
+const { showAktzInName } = useFolderviewSettings()
+const fileRef = computed(() => { const r = unref(resource); return r ? getFileReference(r) : '' })
 </script>
 
 <style scoped>
@@ -45,4 +54,5 @@ defineEmits<{ 'new-child': [type: string] }>()
 }
 .typed-action-btn:hover { background: #1b5e20; }
 .typed-action-icon { font-size: 16px; font-weight: 700; }
+.typed-folder-aktz { font-size: 13px; font-weight: 600; color: #2e7d32; font-family: monospace; }
 </style>

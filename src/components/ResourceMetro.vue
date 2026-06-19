@@ -18,7 +18,7 @@
     @sort="$emit('sort', $event)"
   >
     <template #image="{ resource }">
-      <span class="metro-tile-label">{{ resource.name }}</span>
+      <span class="metro-tile-label">{{ buildDisplayName(resource, showAktzInName) }}</span>
     </template>
     <template #contextMenu="{ resource }">
       <slot name="contextMenu" :resource="resource" />
@@ -30,6 +30,10 @@
 import { computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTiles } from '@opencloud-eu/web-pkg'
+import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import { displayName as buildDisplayName } from '../composables/useFileReference'
+
+const { showAktzInName } = useFolderviewSettings()
 
 const props = defineProps<{
   resources: Resource[]

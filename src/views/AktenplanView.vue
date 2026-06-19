@@ -2,6 +2,7 @@
   <div class="typed-folder-view aktenplan-view">
     <div class="typed-folder-header">
       <span class="typed-folder-type-badge">{{ isShielded ? 'Aktenschrank' : 'Aktenplan' }}</span>
+      <span v-if="fileRef && showAktzInName" class="typed-folder-aktz">{{ fileRef }}</span>
       <button v-if="canCreateChild" class="typed-action-btn" @click="showNewDialog = true">
         <span class="typed-action-icon">+</span>
         {{ isShielded ? 'Neue Akte' : 'Neue Sachgruppe' }}
@@ -14,13 +15,20 @@
 <script setup lang="ts">
 import { computed, ref, inject, Ref, unref } from 'vue'
 import { Resource } from '@opencloud-eu/web-client'
+import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import { getFileReference } from '../composables/useFileReference'
 
 const resource = inject<Ref<Resource>>('resource')
 const showNewDialog = ref(false)
+const { showAktzInName } = useFolderviewSettings()
 
 const isShielded = computed(() => unref(resource)?.immutableState === 'shielded')
 const isProtected = computed(() => unref(resource)?.immutableState === 'protected')
 const canCreateChild = computed(() => unref(isShielded) || !unref(isProtected))
+const fileRef = computed(() => {
+  const r = unref(resource)
+  return r ? getFileReference(r) : ''
+})
 </script>
 
 <style scoped>
@@ -38,6 +46,12 @@ const canCreateChild = computed(() => unref(isShielded) || !unref(isProtected))
   border-radius: 4px;
   background: #e8eaf6;
   color: #3949ab;
+}
+.typed-folder-aktz {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a73e8;
+  font-family: monospace;
 }
 .typed-action-btn {
   display: inline-flex;
