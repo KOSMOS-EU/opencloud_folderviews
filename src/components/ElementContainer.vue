@@ -61,7 +61,7 @@
         :folder-name="r.name"
       />
       <!-- File: render in frame -->
-      <element-frame v-else-if="r.type !== 'folder'" :resource="r" :space="space">
+      <element-frame v-else-if="r.type !== 'folder'" :resource="r" :space="space" @deleted="onChildDeleted">
         <element-content :resource="r" :schema="schema" />
       </element-frame>
       <!-- Folder without container schema: skip (navigate via markdown links) -->
@@ -191,6 +191,11 @@ async function createMd() {
   } catch (e) {
     console.error('[ElementContainer] create md failed:', e)
   }
+}
+
+function onChildDeleted() {
+  ctx.clearCache()
+  loadAndAnalyze()
 }
 
 onMounted(loadAndAnalyze)

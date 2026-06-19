@@ -2283,12 +2283,15 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 		resource: {},
 		space: {}
 	},
-	setup(__props) {
+	emits: ["deleted"],
+	setup(__props, { emit: __emit }) {
 		const props = __props;
 		const router = __mf_314();
 		const resourcesStore = __mf_306();
+		const clientService = __mf_228();
 		const { triggerDefaultAction } = __mf_243();
 		const { downloadFile } = __mf_237();
+		const emit = __emit;
 		const menuOpen = __mf_45(false);
 		const menuStyle = __mf_45({});
 		function doDownload() {
@@ -2324,6 +2327,16 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 			close();
 			resourcesStore.upsertResource(props.resource);
 			resourcesStore.setSelection([props.resource.id]);
+		}
+		async function doDelete() {
+			close();
+			if (!confirm(`"${props.resource.name}" löschen?`)) return;
+			try {
+				await clientService.webdav.deleteFile(props.space, { path: props.resource.path });
+				emit("deleted");
+			} catch (e) {
+				console.error("[ElementFrame] delete failed:", e);
+			}
 		}
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
@@ -2366,7 +2379,14 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 					}, [__mf_91$1(_component_oc_icon, {
 						name: "information",
 						size: "small"
-					}), _cache[3] || (_cache[3] = __mf_84("span", null, "Details", -1))])
+					}), _cache[3] || (_cache[3] = __mf_84("span", null, "Details", -1))]),
+					__mf_84("button", {
+						class: "element-ctx-action element-ctx-danger",
+						onClick: doDelete
+					}, [__mf_91$1(_component_oc_icon, {
+						name: "delete-bin",
+						size: "small"
+					}), _cache[4] || (_cache[4] = __mf_84("span", null, "Löschen", -1))])
 				], 4)])) : __mf_82("", true)]))
 			]);
 		};
@@ -2594,6 +2614,10 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				console.error("[ElementContainer] create md failed:", e);
 			}
 		}
+		function onChildDeleted() {
+			ctx.clearCache();
+			loadAndAnalyze();
+		}
 		__mf_126(loadAndAnalyze);
 		__mf_161(() => props.path, loadAndAnalyze);
 		return (_ctx, _cache) => {
@@ -2682,7 +2706,8 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 					])) : r.type !== "folder" ? (__mf_132(), __mf_81(ElementFrame_default, {
 						key: 1,
 						resource: r,
-						space: __props.space
+						space: __props.space,
+						onDeleted: onChildDeleted
 					}, {
 						default: __mf_166(() => [__mf_91$1(ElementContent_default, {
 							resource: r,
@@ -2694,7 +2719,7 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			], 2);
 		};
 	}
-}), [["__scopeId", "data-v-876aa84e"]]);
+}), [["__scopeId", "data-v-6390c2bf"]]);
 //#endregion
 //#region src/components/ResourceElements.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1 = { class: "resource-elements" };

@@ -24,6 +24,10 @@
             <oc-icon name="information" size="small" />
             <span>Details</span>
           </button>
+          <button class="element-ctx-action element-ctx-danger" @click="doDelete">
+            <oc-icon name="delete-bin" size="small" />
+            <span>Löschen</span>
+          </button>
         </div>
       </div>
     </Teleport>
@@ -33,7 +37,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { useRouter, useResourcesStore, useFileActions, useDownloadFile } from '@opencloud-eu/web-pkg'
+import { useRouter, useResourcesStore, useFileActions, useDownloadFile, useClientService } from '@opencloud-eu/web-pkg'
 
 const props = defineProps<{
   resource: Resource
@@ -42,8 +46,11 @@ const props = defineProps<{
 
 const router = useRouter()
 const resourcesStore = useResourcesStore()
+const clientService = useClientService()
 const { triggerDefaultAction } = useFileActions()
 const { downloadFile } = useDownloadFile()
+
+const emit = defineEmits<{ deleted: [] }>()
 const menuOpen = ref(false)
 const menuStyle = ref<Record<string, string>>({})
 
@@ -79,6 +86,17 @@ function doDetails() {
   close()
   resourcesStore.upsertResource(props.resource)
   resourcesStore.setSelection([props.resource.id])
+}
+
+async function doDelete() {
+  close()
+  if (!confirm(`"${props.resource.name}" löschen?`)) return
+  try {
+    await clientService.webdav.deleteFile(props.space, { path: props.resource.path })
+    emit('deleted')
+  } catch (e) {
+    console.error('[ElementFrame] delete failed:', e)
+  }
 }
 </script>
 
@@ -127,4 +145,6 @@ function doDetails() {
   color: var(--oc-role-on-surface, #333);
 }
 .element-ctx-action:hover { background: var(--oc-role-surface-variant, #f0f0f0); }
+.element-ctx-danger { color: #c62828; }
+.element-ctx-danger:hover { background: #fbe9e7; }
 </style>
