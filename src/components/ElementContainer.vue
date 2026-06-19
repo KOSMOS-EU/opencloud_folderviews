@@ -19,13 +19,7 @@
       <element-frame v-else-if="r.type !== 'folder'" :resource="r" :space="space">
         <element-content :resource="r" :schema="schema" />
       </element-frame>
-      <!-- Folder without container schema: render as folder card -->
-      <element-frame v-else :resource="r" :space="space">
-        <div class="element-folder-card">
-          <oc-icon name="folder" size="medium" />
-          <span>{{ r.name }}</span>
-        </div>
-      </element-frame>
+      <!-- Folder without container schema: skip (navigate via markdown links) -->
     </template>
   </div>
 </template>
