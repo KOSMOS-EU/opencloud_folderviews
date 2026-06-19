@@ -173,9 +173,12 @@ watch(() => props.space?.id, () => {
 }
 .tree-btn:hover { background: rgba(0,0,0,0.08); }
 .tree-spacer { display: inline-block; width: 20px; margin-right: 2px; flex-shrink: 0; }
-/* Suppress automatic row highlighting in tree view — parent controls selection
-   but we don't want visual highlight on all rows */
-.resource-tree :deep(.oc-table-highlighted) {
+/* Suppress accentuate animation (item-accentuated) and selection highlight
+   (oc-table-highlighted) in tree view. The accentuate effect is triggered by
+   useResourcesViewDefaults on every upsertResource and highlights new rows
+   for 3.5s — not useful in a tree where expanding adds many rows at once. */
+.resource-tree :deep(.oc-table-highlighted),
+.resource-tree :deep(.item-accentuated) {
   background: inherit !important;
 }
 </style>
