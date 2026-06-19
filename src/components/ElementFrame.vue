@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { useRouter, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { useRouter, useResourcesStore, useFileActions } from '@opencloud-eu/web-pkg'
 
 const props = defineProps<{
   resource: Resource
@@ -42,6 +42,7 @@ const props = defineProps<{
 
 const router = useRouter()
 const resourcesStore = useResourcesStore()
+const { triggerDefaultAction } = useFileActions()
 const menuOpen = ref(false)
 const menuStyle = ref<Record<string, string>>({})
 
@@ -71,11 +72,7 @@ function doOpen() {
     const currentPath = router.currentRoute.value.path
     router.push({ path: currentPath.replace(/\/$/, '') + '/' + props.resource.name })
   } else {
-    // Trigger default action (open in editor/viewer)
-    const fileId = props.resource.fileId || props.resource.id
-    const currentPath = router.currentRoute.value.path
-    const folder = currentPath
-    router.push({ path: folder, query: { fileId, openWithDefault: 'true' } })
+    triggerDefaultAction({ resources: [props.resource], space: props.space })
   }
 }
 

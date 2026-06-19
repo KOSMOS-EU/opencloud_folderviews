@@ -1,4 +1,4 @@
-import { a as __mf_308, c as __mf_89, i as __mf_306, l as __mf_91, n as __mf_228, o as __mf_314, r as __mf_241, s as __mf_83, t as __mf_146 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-DfAYUIN-.mjs";
+import { a as __mf_306, c as __mf_83, i as __mf_243, l as __mf_89, n as __mf_228, o as __mf_308, r as __mf_241, s as __mf_314, t as __mf_146, u as __mf_91 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-TFCGtDbu.mjs";
 import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_73, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_61, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_69, y as __mf_60 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-CsPj1B2y.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
@@ -2218,6 +2218,7 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 		const props = __props;
 		const router = __mf_314();
 		const resourcesStore = __mf_306();
+		const { triggerDefaultAction } = __mf_243();
 		const menuOpen = __mf_45(false);
 		const menuStyle = __mf_45({});
 		const downloadUrl = __mf_80(() => {
@@ -2244,17 +2245,10 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 			if (props.resource.isFolder) {
 				const currentPath = router.currentRoute.value.path;
 				router.push({ path: currentPath.replace(/\/$/, "") + "/" + props.resource.name });
-			} else {
-				const fileId = props.resource.fileId || props.resource.id;
-				const folder = router.currentRoute.value.path;
-				router.push({
-					path: folder,
-					query: {
-						fileId,
-						openWithDefault: "true"
-					}
-				});
-			}
+			} else triggerDefaultAction({
+				resources: [props.resource],
+				space: props.space
+			});
 		}
 		function doDetails() {
 			close();
