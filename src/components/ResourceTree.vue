@@ -46,11 +46,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { displayName as buildDisplayName, compareByDisplayName } from '../composables/useFileReference'
+import { displayName as buildDisplayName, compareByDisplayName, getFileReference } from '../composables/useFileReference'
 
 const props = defineProps<{
   resources: Resource[]
@@ -74,6 +74,36 @@ const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
 const loadingSet = ref(new Set<string>())
 const depthMap = ref(new Map<string, number>())
+
+// Patch missing extraProps for root resources (registerExtraProp runs after initial PROPFIND)
+const patchedRefs = ref(new Map<string, string>())
+
+async function patchFileReferences(resources: Resource[]) {
+  if (!showAktzInName.value) return
+  const missing = resources.filter(r => r.type === 'folder' && !getFileReference(r) && !patchedRefs.value.has(r.id))
+  if (!missing.length) return
+
+  const httpClient = (clientService as any).httpAuthenticated
+  if (!httpClient) return
+  const spaceId = props.space.id
+  const patch = new Map(patchedRefs.value)
+
+  for (const r of missing) {
+    try {
+      const itemId = `${spaceId}!${r.id.split('!').pop()}`
+      const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
+      const ref = data?.['oy.fileReference']
+      if (ref) {
+        patch.set(r.id, ref)
+        if (!(r as any).extraProps) (r as any).extraProps = {}
+        ;(r as any).extraProps['oc:oy.fileReference'] = ref
+      }
+    } catch { /* ignore */ }
+  }
+  patchedRefs.value = patch
+}
+
+watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
 function isExpanded(id: string) { return expanded.value.has(id) }
 function isLoading(id: string) { return loadingSet.value.has(id) }

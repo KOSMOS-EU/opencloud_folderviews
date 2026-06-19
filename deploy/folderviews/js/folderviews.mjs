@@ -253,6 +253,28 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		const childrenMap = __mf_45(/* @__PURE__ */ new Map());
 		const loadingSet = __mf_45(/* @__PURE__ */ new Set());
 		const depthMap = __mf_45(/* @__PURE__ */ new Map());
+		const patchedRefs = __mf_45(/* @__PURE__ */ new Map());
+		async function patchFileReferences(resources) {
+			if (!showAktzInName.value) return;
+			const missing = resources.filter((r) => r.type === "folder" && !getFileReference(r) && !patchedRefs.value.has(r.id));
+			if (!missing.length) return;
+			const httpClient = clientService.httpAuthenticated;
+			if (!httpClient) return;
+			const spaceId = props.space.id;
+			const patch = new Map(patchedRefs.value);
+			for (const r of missing) try {
+				const itemId = `${spaceId}!${r.id.split("!").pop()}`;
+				const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`);
+				const ref = data?.["oy.fileReference"];
+				if (ref) {
+					patch.set(r.id, ref);
+					if (!r.extraProps) r.extraProps = {};
+					r.extraProps["oc:oy.fileReference"] = ref;
+				}
+			} catch {}
+			patchedRefs.value = patch;
+		}
+		__mf_161(() => props.resources, (res) => patchFileReferences(res), { immediate: true });
 		function isExpanded(id) {
 			return expanded.value.has(id);
 		}
@@ -367,7 +389,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			])]);
 		};
 	}
-}), [["__scopeId", "data-v-a3b26904"]]);
+}), [["__scopeId", "data-v-013bbbb8"]]);
 //#endregion
 //#region src/components/ResourceMetro.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$7 = { class: "metro-tile-label" };
@@ -398,9 +420,33 @@ var ResourceMetro_default = /* @__PURE__ */ __mf_93({
 	], ["update:selectedIds"]),
 	setup(__props) {
 		const { showAktzInName } = useFolderviewSettings();
+		const clientService = __mf_228();
 		const props = __props;
 		const selectedIds = __mf_154(__props, "selectedIds");
+		const patchedRefs = __mf_45(/* @__PURE__ */ new Map());
+		async function patchFileReferences(resources) {
+			if (!showAktzInName.value) return;
+			const missing = resources.filter((r) => r.type === "folder" && !getFileReference(r) && !patchedRefs.value.has(r.id));
+			if (!missing.length) return;
+			const httpClient = clientService.httpAuthenticated;
+			if (!httpClient) return;
+			const spaceId = props.space.id;
+			const patch = new Map(patchedRefs.value);
+			for (const r of missing) try {
+				const itemId = `${spaceId}!${r.id.split("!").pop()}`;
+				const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`);
+				const ref = data?.["oy.fileReference"];
+				if (ref) {
+					patch.set(r.id, ref);
+					if (!r.extraProps) r.extraProps = {};
+					r.extraProps["oc:oy.fileReference"] = ref;
+				}
+			} catch {}
+			patchedRefs.value = patch;
+		}
+		__mf_161(() => props.resources, (res) => patchFileReferences(res), { immediate: true });
 		const filteredResources = __mf_80(() => {
+			patchedRefs.value;
 			return props.resources.filter((r) => !r.name?.startsWith("_type_"));
 		});
 		return (_ctx, _cache) => {

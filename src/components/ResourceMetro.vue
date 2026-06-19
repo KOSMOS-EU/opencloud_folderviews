@@ -27,13 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { ResourceTiles } from '@opencloud-eu/web-pkg'
+import { ResourceTiles, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { displayName as buildDisplayName } from '../composables/useFileReference'
+import { displayName as buildDisplayName, getFileReference } from '../composables/useFileReference'
 
 const { showAktzInName } = useFolderviewSettings()
+const clientService = useClientService()
 
 const props = defineProps<{
   resources: Resource[]
@@ -50,7 +51,36 @@ const props = defineProps<{
 defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
+const patchedRefs = ref(new Map<string, string>())
+
+async function patchFileReferences(resources: Resource[]) {
+  if (!showAktzInName.value) return
+  const missing = resources.filter(r => r.type === 'folder' && !getFileReference(r) && !patchedRefs.value.has(r.id))
+  if (!missing.length) return
+  const httpClient = (clientService as any).httpAuthenticated
+  if (!httpClient) return
+  const spaceId = props.space.id
+  const patch = new Map(patchedRefs.value)
+  for (const r of missing) {
+    try {
+      const itemId = `${spaceId}!${r.id.split('!').pop()}`
+      const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
+      const ref = data?.['oy.fileReference']
+      if (ref) {
+        patch.set(r.id, ref)
+        if (!(r as any).extraProps) (r as any).extraProps = {}
+        ;(r as any).extraProps['oc:oy.fileReference'] = ref
+      }
+    } catch { /* ignore */ }
+  }
+  patchedRefs.value = patch
+}
+
+watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
+
 const filteredResources = computed(() => {
+  // Force reactivity on patchedRefs
+  void patchedRefs.value
   return props.resources.filter(r => !r.name?.startsWith('_type_'))
 })
 </script>
