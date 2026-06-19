@@ -1,4 +1,4 @@
-import { a as __mf_243, c as __mf_314, d as __mf_91, i as __mf_241, l as __mf_83, n as __mf_228, o as __mf_306, r as __mf_237, s as __mf_308, t as __mf_146, u as __mf_89 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-BGnPYegr.mjs";
+import { a as __mf_243, c as __mf_83, i as __mf_241, l as __mf_89, n as __mf_228, o as __mf_306, r as __mf_237, s as __mf_314, t as __mf_146, u as __mf_91 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-B_bvgBHO.mjs";
 import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_73, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_61, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_69, y as __mf_60 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-CsPj1B2y.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
@@ -2060,11 +2060,17 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 	setup(__props) {
 		const props = __props;
 		const router = __mf_314();
-		const route = __mf_308();
-		const mdRef = __mf_45();
 		const rendered = __mf_80(() => {
+			const renderer = new y();
+			renderer.link = ({ href, text }) => {
+				if (!href || href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) return `<a href="${href}">${text}</a>`;
+				return `<a href="#" data-folder-link="${href}">${text}</a>`;
+			};
 			try {
-				return g.parse(props.content, { async: false });
+				return g.parse(props.content, {
+					async: false,
+					renderer
+				});
 			} catch {
 				return `<pre>${props.content}</pre>`;
 			}
@@ -2072,24 +2078,30 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 		function handleClick(e) {
 			const anchor = e.target.closest("a");
 			if (!anchor) return;
-			const href = anchor.getAttribute("href") || "";
-			if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) return;
+			const folderLink = anchor.dataset.folderLink;
+			if (!folderLink) return;
 			e.preventDefault();
 			e.stopPropagation();
-			const targetPath = route.path.replace(/\/$/, "") + "/" + href.replace(/^\//, "");
-			router.push({ path: targetPath });
+			const current = router.currentRoute.value;
+			const targetPath = (current.path || "").replace(/\/$/, "") + "/" + folderLink.replace(/^\//, "");
+			const query = { ...current.query };
+			delete query.fileId;
+			delete query.scrollTo;
+			delete query.page;
+			router.push({
+				path: targetPath,
+				query
+			});
 		}
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", {
 				class: "markdown-body",
-				ref_key: "mdRef",
-				ref: mdRef,
 				innerHTML: rendered.value,
 				onClick: handleClick
 			}, null, 8, _hoisted_1$6);
 		};
 	}
-}), [["__scopeId", "data-v-899dc54f"]]);
+}), [["__scopeId", "data-v-e0a06b21"]]);
 //#endregion
 //#region src/components/viewers/ImageViewer.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$5 = { class: "image-viewer" };

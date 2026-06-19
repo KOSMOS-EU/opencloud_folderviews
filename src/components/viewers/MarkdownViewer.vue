@@ -1,47 +1,55 @@
 <template>
-  <div class="markdown-body" ref="mdRef" v-html="rendered" @click="handleClick"></div>
+  <div class="markdown-body" v-html="rendered" @click="handleClick"></div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, inject } from 'vue'
-import { marked } from 'marked'
-import { useRouter, useRoute } from '@opencloud-eu/web-pkg'
+import { computed } from 'vue'
+import { marked, Renderer } from 'marked'
+import { useRouter } from '@opencloud-eu/web-pkg'
 
 const props = defineProps<{ content: string; alt?: string }>()
 
 const router = useRouter()
-const route = useRoute()
-const mdRef = ref<HTMLElement>()
 
 const rendered = computed(() => {
+  const renderer = new Renderer()
+
+  renderer.link = ({ href, text }) => {
+    if (!href || href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) {
+      return `<a href="${href}">${text}</a>`
+    }
+    // Mark relative links for click interception
+    return `<a href="#" data-folder-link="${href}">${text}</a>`
+  }
+
   try {
-    return marked.parse(props.content, { async: false }) as string
+    return marked.parse(props.content, { async: false, renderer }) as string
   } catch {
     return `<pre>${props.content}</pre>`
   }
 })
 
 function handleClick(e: MouseEvent) {
-  const target = e.target as HTMLElement
-  const anchor = target.closest('a')
+  const anchor = (e.target as HTMLElement).closest('a')
   if (!anchor) return
 
-  const href = anchor.getAttribute('href') || ''
+  const folderLink = anchor.dataset.folderLink
+  if (!folderLink) return
 
-  // External links: let browser handle
-  if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) return
-
-  // Relative link → navigate to folder
   e.preventDefault()
   e.stopPropagation()
 
-  // Build the target path relative to current route
-  const currentPath = route.path
-  // Current path is like /files/spaces/project/intranet
-  // href is like "News" or "Rechtliches/Impressum"
-  const targetPath = currentPath.replace(/\/$/, '') + '/' + href.replace(/^\//, '')
+  const current = router.currentRoute.value
+  const currentPath = (current.path || '').replace(/\/$/, '')
+  const targetPath = currentPath + '/' + folderLink.replace(/^\//, '')
 
-  router.push({ path: targetPath })
+  // Keep view-mode and other query params, drop fileId/scrollTo (new folder)
+  const query = { ...current.query }
+  delete query.fileId
+  delete query.scrollTo
+  delete query.page
+
+  router.push({ path: targetPath, query })
 }
 </script>
 
