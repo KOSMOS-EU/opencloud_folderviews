@@ -1,13 +1,12 @@
 import { Resource } from '@opencloud-eu/web-client'
 
-const PROP_KEY = 'oc:oy.fileReference'
-
 /**
  * Get the Aktenzeichen (oy.fileReference) from a resource.
- * Requires that registerExtraProp('oc:oy.fileReference') was called on app init.
+ * Available as resource.fileReference after DavProperty.FileReference
+ * was added to DavProperties.Default in web-client.
  */
 export function getFileReference(resource: Resource): string {
-  return ((resource as any).extraProps?.[PROP_KEY] as string) || ''
+  return (resource as any).fileReference || ''
 }
 
 /**
