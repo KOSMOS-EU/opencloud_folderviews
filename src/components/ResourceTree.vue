@@ -66,6 +66,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
+// Clear parent's initial selection — tree handles its own selection
+selectedIds.value = []
 const clientService = useClientService()
 const { showAktzInName } = useFolderviewSettings()
 
