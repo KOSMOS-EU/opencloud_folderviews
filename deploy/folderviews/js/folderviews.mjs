@@ -45,13 +45,13 @@ function useFolderviewSettings() {
 }
 //#endregion
 //#region src/composables/useFileReference.ts
+var PROP_KEY = "oc:oy.fileReference";
 /**
 * Get the Aktenzeichen (oy.fileReference) from a resource.
-* Available as resource.fileReference after DavProperty.FileReference
-* was added to DavProperties.Default in web-client.
+* Requires registerExtraProp('oc:oy.fileReference') + buildPropFindBody fix.
 */
 function getFileReference(resource) {
-	return resource.fileReference || "";
+	return resource.extraProps?.[PROP_KEY] || "";
 }
 /**
 * Build display name: "aktz name" if showAktz and fileReference exists, else just name.
@@ -464,40 +464,43 @@ var src_default = __mf_146({ setup() {
 		register: __mf_39(RegisterView_default)
 	};
 	const aktzDefs = getAktenzeichenPreferenceDefinitions();
+	const extensions = __mf_80(() => [
+		{
+			id: "com.kosmos-eu.folderviews.folder-view.resource-tree",
+			type: "folderView",
+			extensionPointIds: ["app.files.folder-views.folder", "app.files.folder-views.project-spaces"],
+			folderView: {
+				name: "resource-tree",
+				label: "Tree view",
+				icon: {
+					name: "node-tree",
+					fillType: "none"
+				},
+				component: __mf_39(ResourceTree_default)
+			}
+		},
+		{
+			id: "com.kosmos-eu.folderviews.folder-view.resource-metro",
+			type: "folderView",
+			extensionPointIds: ["app.files.folder-views.folder", "app.files.folder-views.project-spaces"],
+			folderView: {
+				name: "resource-metro",
+				label: "Metro tiles view",
+				icon: {
+					name: "dashboard",
+					fillType: "fill"
+				},
+				component: __mf_39(ResourceMetro_default)
+			}
+		},
+		...aktzDefs.extensions
+	]);
+	const extensionPoints = __mf_80(() => [aktzDefs.extensionPoint]);
+	__mf_228().webdav.registerExtraProp("oc:oy.fileReference");
 	return {
 		appInfo,
-		extensions: __mf_80(() => [
-			{
-				id: "com.kosmos-eu.folderviews.folder-view.resource-tree",
-				type: "folderView",
-				extensionPointIds: ["app.files.folder-views.folder", "app.files.folder-views.project-spaces"],
-				folderView: {
-					name: "resource-tree",
-					label: "Tree view",
-					icon: {
-						name: "node-tree",
-						fillType: "none"
-					},
-					component: __mf_39(ResourceTree_default)
-				}
-			},
-			{
-				id: "com.kosmos-eu.folderviews.folder-view.resource-metro",
-				type: "folderView",
-				extensionPointIds: ["app.files.folder-views.folder", "app.files.folder-views.project-spaces"],
-				folderView: {
-					name: "resource-metro",
-					label: "Metro tiles view",
-					icon: {
-						name: "dashboard",
-						fillType: "fill"
-					},
-					component: __mf_39(ResourceMetro_default)
-				}
-			},
-			...aktzDefs.extensions
-		]),
-		extensionPoints: __mf_80(() => [aktzDefs.extensionPoint]),
+		extensions,
+		extensionPoints,
 		folderViewHandlers
 	};
 } });

@@ -1,4 +1,4 @@
-import { defineWebApplication } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService } from '@opencloud-eu/web-pkg'
 import { computed, markRaw } from 'vue'
 import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
@@ -68,8 +68,9 @@ export default defineWebApplication({
     // Extension points: aktenzeichen preference
     const extensionPoints = computed(() => [aktzDefs.extensionPoint])
 
-    // oy.fileReference is now a standard DavProperty in web-client (DavProperty.FileReference)
-    // No registerExtraProp needed — it's included in every PROPFIND automatically
+    // Register oy.fileReference as extra DAV property
+    const clientService = useClientService()
+    clientService.webdav.registerExtraProp('oc:oy.fileReference')
 
     return {
       appInfo,
