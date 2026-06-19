@@ -1,12 +1,17 @@
 <template>
-  <div class="markdown-body" v-html="rendered"></div>
+  <div class="markdown-body" ref="mdRef" v-html="rendered" @click="handleClick"></div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, inject } from 'vue'
 import { marked } from 'marked'
+import { useRouter, useRoute } from '@opencloud-eu/web-pkg'
 
-const props = defineProps<{ content: string }>()
+const props = defineProps<{ content: string; alt?: string }>()
+
+const router = useRouter()
+const route = useRoute()
+const mdRef = ref<HTMLElement>()
 
 const rendered = computed(() => {
   try {
@@ -15,6 +20,29 @@ const rendered = computed(() => {
     return `<pre>${props.content}</pre>`
   }
 })
+
+function handleClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  const anchor = target.closest('a')
+  if (!anchor) return
+
+  const href = anchor.getAttribute('href') || ''
+
+  // External links: let browser handle
+  if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) return
+
+  // Relative link → navigate to folder
+  e.preventDefault()
+  e.stopPropagation()
+
+  // Build the target path relative to current route
+  const currentPath = route.path
+  // Current path is like /files/spaces/project/intranet
+  // href is like "News" or "Rechtliches/Impressum"
+  const targetPath = currentPath.replace(/\/$/, '') + '/' + href.replace(/^\//, '')
+
+  router.push({ path: targetPath })
+}
 </script>
 
 <style scoped>
@@ -42,5 +70,6 @@ const rendered = computed(() => {
   border-radius: 3px;
   font-size: 0.9em;
 }
-.markdown-body :deep(a) { color: #1a73e8; }
+.markdown-body :deep(a) { color: #1a73e8; cursor: pointer; }
+.markdown-body :deep(a):hover { text-decoration: underline; }
 </style>

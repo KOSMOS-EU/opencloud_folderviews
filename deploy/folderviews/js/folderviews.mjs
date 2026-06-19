@@ -1,5 +1,5 @@
-import { a as __mf_83, i as __mf_306, n as __mf_228, o as __mf_89, r as __mf_241, s as __mf_91, t as __mf_146 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-DkSQ3XkM.mjs";
-import { C as __mf_81, D as __mf_90, E as __mf_84, O as __mf_91$1, S as __mf_80, T as __mf_83$1, _ as __mf_45, a as __mf_130, b as __mf_61, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_93, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_82, x as __mf_69, y as __mf_60 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-BppJ4rmS.mjs";
+import { a as __mf_308, c as __mf_89, i as __mf_306, l as __mf_91, n as __mf_228, o as __mf_314, r as __mf_241, s as __mf_83, t as __mf_146 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-DfAYUIN-.mjs";
+import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_69, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_60, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_61, y as __mf_58 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-cF_-h9XT.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
 var EXT_ENABLED = "com.kosmos-eu.folderviews.aktenzeichen-enabled";
@@ -2053,9 +2053,15 @@ var _hoisted_1$6 = ["innerHTML"];
 //#region src/components/viewers/MarkdownViewer.vue
 var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
 	__name: "MarkdownViewer",
-	props: { content: {} },
+	props: {
+		content: {},
+		alt: {}
+	},
 	setup(__props) {
 		const props = __props;
+		const router = __mf_314();
+		const route = __mf_308();
+		const mdRef = __mf_45();
 		const rendered = __mf_80(() => {
 			try {
 				return g.parse(props.content, { async: false });
@@ -2063,14 +2069,27 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 				return `<pre>${props.content}</pre>`;
 			}
 		});
+		function handleClick(e) {
+			const anchor = e.target.closest("a");
+			if (!anchor) return;
+			const href = anchor.getAttribute("href") || "";
+			if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("mailto:")) return;
+			e.preventDefault();
+			e.stopPropagation();
+			const targetPath = route.path.replace(/\/$/, "") + "/" + href.replace(/^\//, "");
+			router.push({ path: targetPath });
+		}
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", {
 				class: "markdown-body",
-				innerHTML: rendered.value
+				ref_key: "mdRef",
+				ref: mdRef,
+				innerHTML: rendered.value,
+				onClick: handleClick
 			}, null, 8, _hoisted_1$6);
 		};
 	}
-}), [["__scopeId", "data-v-dc956bbc"]]);
+}), [["__scopeId", "data-v-899dc54f"]]);
 //#endregion
 //#region src/components/viewers/ImageViewer.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$5 = { class: "image-viewer" };
@@ -2182,29 +2201,77 @@ function useElementRenderer(space) {
 }
 //#endregion
 //#region src/components/ElementFrame.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$3 = { class: "element-frame" };
-var _hoisted_2$3 = { class: "element-frame-toolbar" };
-var _hoisted_3$1 = { class: "element-frame-name" };
+var _hoisted_1$3 = { class: "element-frame-toolbar" };
+var _hoisted_2$3 = { class: "element-frame-name" };
+var _hoisted_3$1 = { class: "element-frame-menu-wrap" };
 var _hoisted_4 = { class: "element-frame-content" };
 //#endregion
 //#region src/components/ElementFrame.vue
 var ElementFrame_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
 	__name: "ElementFrame",
-	props: { resource: {} },
-	emits: ["contextMenu"],
+	props: {
+		resource: {},
+		space: {}
+	},
 	setup(__props) {
+		const props = __props;
+		const clientService = __mf_228();
+		const menuOpen = __mf_45(false);
+		const menuStyle = __mf_45({});
+		function toggleMenu(e) {
+			menuOpen.value = !menuOpen.value;
+			if (menuOpen.value) {
+				const rect = e.currentTarget.getBoundingClientRect();
+				menuStyle.value = {
+					position: "fixed",
+					top: rect.bottom + 4 + "px",
+					left: rect.right - 160 + "px",
+					zIndex: "9999"
+				};
+			}
+		}
+		function doDownload() {
+			menuOpen.value = false;
+			const url = clientService.webdav.getFileUrl(props.space, props.resource);
+			if (url) window.open(url, "_blank");
+		}
+		function doOpenSidebar() {
+			menuOpen.value = false;
+		}
+		function closeOnOutsideClick() {
+			if (menuOpen.value) menuOpen.value = false;
+		}
+		__mf_126(() => document.addEventListener("click", closeOnOutsideClick));
+		__mf_130(() => document.removeEventListener("click", closeOnOutsideClick));
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
-			return __mf_132(), __mf_83$1("div", _hoisted_1$3, [__mf_84("div", _hoisted_2$3, [__mf_84("span", _hoisted_3$1, __mf_61(__props.resource.name), 1), __mf_84("button", {
+			return __mf_132(), __mf_83$1("div", { class: __mf_58(["element-frame", { "menu-open": menuOpen.value }]) }, [__mf_84("div", _hoisted_1$3, [__mf_84("span", _hoisted_2$3, __mf_61(__props.resource.name), 1), __mf_84("div", _hoisted_3$1, [__mf_84("button", {
 				class: "element-frame-menu",
-				onClick: _cache[0] || (_cache[0] = __mf_24(($event) => _ctx.$emit("contextMenu", __props.resource, $event), ["stop"]))
+				onClick: _cache[0] || (_cache[0] = __mf_24(($event) => toggleMenu($event), ["stop", "prevent"]))
 			}, [__mf_91$1(_component_oc_icon, {
 				name: "more-2",
 				size: "small"
-			})])]), __mf_84("div", _hoisted_4, [__mf_139(_ctx.$slots, "default", {}, void 0, true)])]);
+			})]), menuOpen.value ? (__mf_132(), __mf_83$1("div", {
+				key: 0,
+				class: "element-frame-dropdown",
+				style: __mf_60(menuStyle.value),
+				onClick: _cache[1] || (_cache[1] = __mf_24(() => {}, ["stop"]))
+			}, [__mf_84("button", {
+				class: "element-frame-action",
+				onClick: doDownload
+			}, [__mf_91$1(_component_oc_icon, {
+				name: "download",
+				size: "small"
+			}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))]), __mf_84("button", {
+				class: "element-frame-action",
+				onClick: doOpenSidebar
+			}, [__mf_91$1(_component_oc_icon, {
+				name: "information",
+				size: "small"
+			}), _cache[3] || (_cache[3] = __mf_84("span", null, "Details", -1))])], 4)) : __mf_82("", true)])]), __mf_84("div", _hoisted_4, [__mf_139(_ctx.$slots, "default", {}, void 0, true)])], 2);
 		};
 	}
-}), [["__scopeId", "data-v-b8763872"]]);
+}), [["__scopeId", "data-v-039dbd3d"]]);
 //#endregion
 //#region src/components/ElementContent.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$2 = {
@@ -2321,10 +2388,8 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 		space: {},
 		folderName: {}
 	},
-	emits: ["contextMenu"],
-	setup(__props, { emit: __emit }) {
+	setup(__props) {
 		const props = __props;
-		const emit = __emit;
 		const ctx = __mf_112(ELEMENT_RENDERER_KEY);
 		const loading = __mf_45(false);
 		const children = __mf_45([]);
@@ -2375,9 +2440,6 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				loading.value = false;
 			}
 		}
-		function onContextMenu(resource, event) {
-			emit("contextMenu", resource, event);
-		}
 		__mf_126(loadAndAnalyze);
 		__mf_161(() => props.path, loadAndAnalyze);
 		return (_ctx, _cache) => {
@@ -2407,28 +2469,28 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				])) : r.type !== "folder" ? (__mf_132(), __mf_81(ElementFrame_default, {
 					key: 1,
 					resource: r,
-					onContextMenu
+					space: __props.space
 				}, {
 					default: __mf_166(() => [__mf_91$1(ElementContent_default, {
 						resource: r,
 						schema: __props.schema
 					}, null, 8, ["resource", "schema"])]),
 					_: 2
-				}, 1032, ["resource"])) : (__mf_132(), __mf_81(ElementFrame_default, {
+				}, 1032, ["resource", "space"])) : (__mf_132(), __mf_81(ElementFrame_default, {
 					key: 2,
 					resource: r,
-					onContextMenu
+					space: __props.space
 				}, {
 					default: __mf_166(() => [__mf_84("div", _hoisted_2$1, [__mf_91$1(_component_oc_icon, {
 						name: "folder",
 						size: "medium"
 					}), __mf_84("span", null, __mf_61(r.name), 1)])]),
 					_: 2
-				}, 1032, ["resource"]))], 64);
+				}, 1032, ["resource", "space"]))], 64);
 			}), 128))], 4);
 		};
 	}
-}), [["__scopeId", "data-v-1419658e"]]);
+}), [["__scopeId", "data-v-859788aa"]]);
 //#endregion
 //#region src/components/ResourceElements.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1 = { class: "resource-elements" };
@@ -2460,7 +2522,6 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 	],
 	setup(__props, { emit: __emit }) {
 		const props = __props;
-		const emit = __emit;
 		const resourcesStore = __mf_306();
 		const ctx = useElementRenderer(__mf_80(() => props.space));
 		__mf_134(ELEMENT_RENDERER_KEY, ctx);
@@ -2483,12 +2544,6 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			else rootDivParams.value = rootSchema.value?.elementLayout || null;
 			ready.value = true;
 		}
-		function onContextMenu(resource, event) {
-			emit("fileClick", {
-				resources: [resource],
-				event
-			});
-		}
 		__mf_161(() => props.resources, () => {
 			ctx.clearCache();
 			detectRootType();
@@ -2502,8 +2557,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				depth: 0,
 				schema: rootSchema.value,
 				"div-params": rootDivParams.value,
-				space: __props.space,
-				onContextMenu
+				space: __props.space
 			}, null, 8, [
 				"resources",
 				"path",
@@ -2513,7 +2567,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			]))]);
 		};
 	}
-}), [["__scopeId", "data-v-401fb935"]]);
+}), [["__scopeId", "data-v-19ed47a7"]]);
 //#endregion
 //#region src/index.ts
 var applicationId = "folderviews";

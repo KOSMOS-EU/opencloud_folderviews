@@ -16,11 +16,11 @@
         :folder-name="r.name"
       />
       <!-- File: render in frame -->
-      <element-frame v-else-if="r.type !== 'folder'" :resource="r" @context-menu="onContextMenu">
+      <element-frame v-else-if="r.type !== 'folder'" :resource="r" :space="space">
         <element-content :resource="r" :schema="schema" />
       </element-frame>
       <!-- Folder without container schema: render as folder card -->
-      <element-frame v-else :resource="r" @context-menu="onContextMenu">
+      <element-frame v-else :resource="r" :space="space">
         <div class="element-folder-card">
           <oc-icon name="folder" size="medium" />
           <span>{{ r.name }}</span>
@@ -48,7 +48,6 @@ const props = defineProps<{
   folderName?: string
 }>()
 
-const emit = defineEmits<{ contextMenu: [resource: Resource, event: MouseEvent] }>()
 
 const ctx = inject(ELEMENT_RENDERER_KEY)!
 const loading = ref(false)
@@ -115,10 +114,6 @@ async function loadAndAnalyze() {
   } finally {
     loading.value = false
   }
-}
-
-function onContextMenu(resource: Resource, event: MouseEvent) {
-  emit('contextMenu', resource, event)
 }
 
 onMounted(loadAndAnalyze)

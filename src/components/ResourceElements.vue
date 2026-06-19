@@ -11,7 +11,6 @@
       :schema="rootSchema"
       :div-params="rootDivParams"
       :space="space"
-      @context-menu="onContextMenu"
     />
   </div>
 </template>
@@ -70,10 +69,6 @@ async function detectRootType() {
     rootDivParams.value = rootSchema.value?.elementLayout || null
   }
   ready.value = true
-}
-
-function onContextMenu(resource: Resource, event: MouseEvent) {
-  emit('fileClick', { resources: [resource], event })
 }
 
 watch(() => props.resources, () => {
