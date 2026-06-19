@@ -49,6 +49,8 @@
 import { ref, computed, watch } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import { displayName as buildDisplayName } from '../composables/useFileReference'
 
 const props = defineProps<{
   resources: Resource[]
@@ -66,6 +68,7 @@ const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'up
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
+const { showAktzInName } = useFolderviewSettings()
 
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
@@ -133,7 +136,13 @@ const visibleResources = computed(() => {
   function walk(resources: Resource[]) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
     for (const r of filtered) {
-      result.push(r)
+      // Override display name based on user setting
+      const display = buildDisplayName(r, showAktzInName.value)
+      if (display !== r.name) {
+        result.push({ ...r, name: display } as Resource)
+      } else {
+        result.push(r)
+      }
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!)
       }

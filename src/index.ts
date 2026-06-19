@@ -61,8 +61,11 @@ export default defineWebApplication({
       }
     ]
 
-    // Register settings bundle and load user preferences
+    // Register oy.fileReference as extra DAV property so it comes with every listFiles
     const clientService = useClientService()
+    clientService.webdav.registerExtraProp('oc:oy.fileReference')
+
+    // Register settings bundle and load user preferences
     registerSettingsBundle(clientService).then(() => loadSettings(clientService))
 
     return {
