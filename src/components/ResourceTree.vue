@@ -1,7 +1,7 @@
 <template>
   <div class="resource-tree">
     <resource-table
-      v-model:selected-ids="selectedIds"
+      :selected-ids="[]"
       :resources="visibleResources"
       :view-mode="'resource-table-condensed'"
       :space="space"
