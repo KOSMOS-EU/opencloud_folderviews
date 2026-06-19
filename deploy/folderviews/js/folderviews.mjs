@@ -2599,6 +2599,27 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				console.error("[ElementContainer] save div params failed:", e);
 			}
 		}
+		async function createDiv() {
+			const name = prompt("Container-Name:");
+			if (!name) return;
+			const dirPath = props.path + "/" + name.trim();
+			const typePath = dirPath + "/_type_div";
+			try {
+				await clientService.webdav.createFolder(props.space, { path: dirPath });
+				await clientService.webdav.putFileContents(props.space, {
+					path: typePath,
+					content: JSON.stringify({
+						display: "flex",
+						direction: "column",
+						gap: "8px"
+					})
+				});
+				ctx.clearCache();
+				await loadAndAnalyze();
+			} catch (e) {
+				console.error("[ElementContainer] create div failed:", e);
+			}
+		}
 		async function createMd() {
 			const name = prompt("Dateiname (ohne .md):");
 			if (!name) return;
@@ -2641,16 +2662,23 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 					}, [__mf_91$1(_component_oc_icon, {
 						name: "add",
 						size: "small"
-					}), _cache[7] || (_cache[7] = __mf_84("span", null, "md", -1))])
+					}), _cache[7] || (_cache[7] = __mf_84("span", null, "+md", -1))]),
+					__mf_84("button", {
+						class: "element-container-add",
+						onClick: __mf_24(createDiv, ["stop"])
+					}, [__mf_91$1(_component_oc_icon, {
+						name: "add",
+						size: "small"
+					}), _cache[8] || (_cache[8] = __mf_84("span", null, "+div", -1))])
 				])) : __mf_82("", true),
 				editOpen.value && __props.divParams ? (__mf_132(), __mf_83$1("div", {
 					key: 1,
 					class: "element-div-editor",
 					onClick: _cache[6] || (_cache[6] = __mf_24(() => {}, ["stop"]))
 				}, [
-					__mf_84("label", null, [_cache[9] || (_cache[9] = __mf_90("Display ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => editParams.display = $event) }, [..._cache[8] || (_cache[8] = [__mf_84("option", { value: "flex" }, "flex", -1), __mf_84("option", { value: "grid" }, "grid", -1)])], 512), [[__mf_20, editParams.display]])]),
-					editParams.display === "flex" ? (__mf_132(), __mf_83$1("label", _hoisted_3, [_cache[11] || (_cache[11] = __mf_90("Direction ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => editParams.direction = $event) }, [..._cache[10] || (_cache[10] = [__mf_84("option", { value: "column" }, "column", -1), __mf_84("option", { value: "row" }, "row", -1)])], 512), [[__mf_20, editParams.direction]])])) : __mf_82("", true),
-					editParams.display === "grid" ? (__mf_132(), __mf_83$1("label", _hoisted_4, [_cache[12] || (_cache[12] = __mf_90("Columns ", -1)), __mf_168(__mf_84("input", {
+					__mf_84("label", null, [_cache[10] || (_cache[10] = __mf_90("Display ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => editParams.display = $event) }, [..._cache[9] || (_cache[9] = [__mf_84("option", { value: "flex" }, "flex", -1), __mf_84("option", { value: "grid" }, "grid", -1)])], 512), [[__mf_20, editParams.display]])]),
+					editParams.display === "flex" ? (__mf_132(), __mf_83$1("label", _hoisted_3, [_cache[12] || (_cache[12] = __mf_90("Direction ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => editParams.direction = $event) }, [..._cache[11] || (_cache[11] = [__mf_84("option", { value: "column" }, "column", -1), __mf_84("option", { value: "row" }, "row", -1)])], 512), [[__mf_20, editParams.direction]])])) : __mf_82("", true),
+					editParams.display === "grid" ? (__mf_132(), __mf_83$1("label", _hoisted_4, [_cache[13] || (_cache[13] = __mf_90("Columns ", -1)), __mf_168(__mf_84("input", {
 						type: "number",
 						"onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => editParams.columns = $event),
 						min: "1",
@@ -2661,12 +2689,12 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 						void 0,
 						{ number: true }
 					]])])) : __mf_82("", true),
-					__mf_84("label", null, [_cache[13] || (_cache[13] = __mf_90("Gap ", -1)), __mf_168(__mf_84("input", {
+					__mf_84("label", null, [_cache[14] || (_cache[14] = __mf_90("Gap ", -1)), __mf_168(__mf_84("input", {
 						type: "text",
 						"onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => editParams.gap = $event),
 						placeholder: "8px"
 					}, null, 512), [[__mf_21, editParams.gap]])]),
-					__mf_84("label", null, [_cache[14] || (_cache[14] = __mf_90("Padding ", -1)), __mf_168(__mf_84("input", {
+					__mf_84("label", null, [_cache[15] || (_cache[15] = __mf_90("Padding ", -1)), __mf_168(__mf_84("input", {
 						type: "text",
 						"onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => editParams.padding = $event),
 						placeholder: "0"
@@ -2676,17 +2704,23 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 						onClick: saveDivParams
 					}, "Speichern")
 				])) : __mf_82("", true),
-				__props.depth === 0 && !loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_5, [__mf_84("button", {
+				!loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_5, [__mf_84("button", {
 					class: "element-container-add",
 					onClick: __mf_24(createMd, ["stop"])
 				}, [__mf_91$1(_component_oc_icon, {
 					name: "add",
 					size: "small"
-				}), _cache[15] || (_cache[15] = __mf_84("span", null, "Neues Dokument", -1))])])) : __mf_82("", true),
+				}), _cache[16] || (_cache[16] = __mf_84("span", null, "+md", -1))]), __mf_84("button", {
+					class: "element-container-add",
+					onClick: __mf_24(createDiv, ["stop"])
+				}, [__mf_91$1(_component_oc_icon, {
+					name: "add",
+					size: "small"
+				}), _cache[17] || (_cache[17] = __mf_84("span", null, "+div", -1))])])) : __mf_82("", true),
 				__mf_84("div", {
 					class: "element-container",
 					style: __mf_60(containerStyle.value)
-				}, [loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_6, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[16] || (_cache[16] = __mf_90(" Laden... ", -1))])) : (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(visibleChildren.value, (r) => {
+				}, [loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_6, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[18] || (_cache[18] = __mf_90(" Laden... ", -1))])) : (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(visibleChildren.value, (r) => {
 					return __mf_132(), __mf_83$1(__mf_69, { key: r.id }, [r.type === "folder" && containerTypes.value.has(r.id) ? (__mf_132(), __mf_81(_component_element_container, {
 						key: 0,
 						resources: [],
@@ -2719,7 +2753,7 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			], 2);
 		};
 	}
-}), [["__scopeId", "data-v-6390c2bf"]]);
+}), [["__scopeId", "data-v-ccba6185"]]);
 //#endregion
 //#region src/components/ResourceElements.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1 = { class: "resource-elements" };

@@ -8,7 +8,11 @@
       </button>
       <button class="element-container-add" @click.stop="createMd">
         <oc-icon name="add" size="small" />
-        <span>md</span>
+        <span>+md</span>
+      </button>
+      <button class="element-container-add" @click.stop="createDiv">
+        <oc-icon name="add" size="small" />
+        <span>+div</span>
       </button>
     </div>
     <!-- Div params editor -->
@@ -36,11 +40,15 @@
       </label>
       <button class="element-div-save" @click="saveDivParams">Speichern</button>
     </div>
-    <!-- Add md button at root level -->
-    <div v-if="depth === 0 && !loading" class="element-container-actions">
+    <!-- Add buttons -->
+    <div v-if="!loading" class="element-container-actions">
       <button class="element-container-add" @click.stop="createMd">
         <oc-icon name="add" size="small" />
-        <span>Neues Dokument</span>
+        <span>+md</span>
+      </button>
+      <button class="element-container-add" @click.stop="createDiv">
+        <oc-icon name="add" size="small" />
+        <span>+div</span>
       </button>
     </div>
     <!-- Content area with grid/flex layout -->
@@ -174,6 +182,24 @@ async function saveDivParams() {
     await loadAndAnalyze()
   } catch (e) {
     console.error('[ElementContainer] save div params failed:', e)
+  }
+}
+
+async function createDiv() {
+  const name = prompt('Container-Name:')
+  if (!name) return
+  const dirPath = props.path + '/' + name.trim()
+  const typePath = dirPath + '/_type_div'
+  try {
+    await clientService.webdav.createFolder(props.space, { path: dirPath })
+    await clientService.webdav.putFileContents(props.space, {
+      path: typePath,
+      content: JSON.stringify({ display: 'flex', direction: 'column', gap: '8px' })
+    })
+    ctx.clearCache()
+    await loadAndAnalyze()
+  } catch (e) {
+    console.error('[ElementContainer] create div failed:', e)
   }
 }
 
