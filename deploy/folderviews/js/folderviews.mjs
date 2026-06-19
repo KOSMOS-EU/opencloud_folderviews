@@ -2773,7 +2773,7 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			], 2);
 		};
 	}
-}), [["__scopeId", "data-v-7888d16f"]]);
+}), [["__scopeId", "data-v-dd871a0b"]]);
 //#endregion
 //#region src/components/ResourceElements.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1 = { class: "resource-elements" };

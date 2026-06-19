@@ -290,15 +290,15 @@ watch(() => props.path, loadAndAnalyze)
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border: 1px solid #c62828;
+  border: 1px solid var(--oc-role-outline-variant, #ccc);
   border-radius: 4px;
   background: none;
   cursor: pointer;
   font-size: 11px;
-  color: #c62828;
+  color: var(--oc-role-on-surface-variant, #888);
   margin-left: auto;
 }
-.element-container-del:hover { background: #fbe9e7; }
+.element-container-del:hover { color: #c62828; border-color: #c62828; }
 .element-div-editor {
   display: flex;
   flex-wrap: wrap;
