@@ -65,9 +65,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
-const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
-// Clear parent's initial selection — tree handles its own selection
-selectedIds.value = []
 const clientService = useClientService()
 const { showAktzInName } = useFolderviewSettings()
 
@@ -105,8 +102,11 @@ async function toggleExpand(resource: Resource) {
     loadingSet.value = new Set([...loadingSet.value, id])
     try {
       const { children } = await clientService.webdav.listFiles(props.space, { path: resource.path })
-      childrenMap.value = new Map([...childrenMap.value, [id, children]])
-      // Don't upsertResource — tree manages its own children via childrenMap
+      // Sort children alphabetically on insert
+      const sorted = [...children].sort((a, b) =>
+        (a.name || '').localeCompare(b.name || '', undefined, { numeric: true })
+      )
+      childrenMap.value = new Map([...childrenMap.value, [id, sorted]])
     } catch {
       childrenMap.value = new Map([...childrenMap.value, [id, []]])
     } finally {
@@ -123,7 +123,9 @@ async function loadRootResources() {
   rootLoaded.value = true
   try {
     const { children } = await clientService.webdav.listFiles(props.space, { path: '' })
-    rootResources.value = children
+    rootResources.value = [...children].sort((a, b) =>
+      (a.name || '').localeCompare(b.name || '', undefined, { numeric: true })
+    )
     // Don't upsertResource — tree manages its own children via childrenMap
   } catch {
     rootResources.value = props.resources
@@ -171,4 +173,9 @@ watch(() => props.space?.id, () => {
 }
 .tree-btn:hover { background: rgba(0,0,0,0.08); }
 .tree-spacer { display: inline-block; width: 20px; margin-right: 2px; flex-shrink: 0; }
+/* Suppress automatic row highlighting in tree view — parent controls selection
+   but we don't want visual highlight on all rows */
+.resource-tree :deep(.oc-table-highlighted) {
+  background: inherit !important;
+}
 </style>
