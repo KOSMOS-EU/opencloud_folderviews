@@ -15,37 +15,45 @@ Listeneintraegen der Kindverzeichnisse.
 
 ## Ergebnis der Voruntersuchung
 
-### Datenquelle: Metadata-API (nicht PROPFIND)
+### Datenquelle: PROPFIND (geloest!)
 
-**PROPFIND liefert KEIN `oy.fileReference`.**
-`arbitrary-metadata` und `metadata` kommen als 404 im PROPFIND zurueck.
+**Reva-Patch deployed (PR #693, Image 20260619):**
+`oy.fileReference` ist jetzt direkt per PROPFIND lesbar:
 
-**Metadata-API liefert `oy.fileReference` korrekt:**
+```xml
+<d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+  <d:prop>
+    <oc:name/>
+    <oc:oy.fileReference/>
+  </d:prop>
+</d:propfind>
 ```
-GET /graph/v1beta1/drives/{driveID}/items/{driveID}!{nodeID}/metadata
-→ { "oy.fileReference": "11.03" }
+
+Ergebnis (Space "77 Aktenplan" → Innere Verwaltung):
+```
+11.03    Finanzverwaltung
+11.05    Verwaltungssteuerung und -service
+11.04    Innere Verwaltungsanglegenheiten
+11.01    Einrichtungen fuer die gesamte Verwaltung...
 ```
 
-### Testdaten
+Ergebnis (Space "Innere Verwaltung"):
+```
+11.13    Finanzverwaltung
+11.12    Innere Verwaltungsanglegenheiten
+11.11    Verwaltungssteuerung und -service
+11.16    Einrichtungen fuer die gesamte Verwaltung...
+```
 
-**Space "77 Aktenplan" → Innere Verwaltung** (Ordner ohne Prefix im Namen):
-- `Finanzverwaltung` → metadata: `oy.fileReference: "11.03"`
-- `Verwaltungssteuerung und -service` → metadata: `oy.fileReference: "11.05"`
+**Kein N+1 Problem mehr.** Ein PROPFIND-Call pro Verzeichnis genuegt.
 
-**Space "11 Innere Verwaltung"** (Ordner MIT Prefix im Namen):
-- `11.13 Finanzverwaltung` → metadata: `oy.fileReference: "11.13"`
+### Reva-Patch Details (4 Stellen in propfind.go + 1 in proppatch.go)
 
-### Konsequenz: N+1 Problem
-
-Pro Folder-Listing muss fuer jedes Kind-Verzeichnis ein separater
-Metadata-API-Call erfolgen. Loesung:
-
-1. PROPFIND liefert Listing mit `oc:id` pro Resource
-2. Parallel: Metadata-API-Calls fuer alle Folder-Resources (Promise.allSettled)
-3. fileReference-Map aufbauen: `Map<resourceId, fileReference>`
-4. Anzeigenamen zusammenbauen + sortieren
-
-Batch-Groesse begrenzen (z.B. max 50 parallel) um Server nicht zu ueberlasten.
+1. `requiresExplicitFetching`: oc: default → `true` (war `false`)
+2. `metadataKeyOf`: `n.Local` fuer oc: statt volle URI
+3. oc: default in `mdToPropResponse`: ArbitraryMetadata-Lookup statt sofort 404
+4. allprop: Custom-Metadata in Response einschliessen
+5. `proppatch.go`: gleiche Key-Aenderung fuer Konsistenz
 
 ## Anforderungen
 
@@ -55,11 +63,11 @@ Batch-Groesse begrenzen (z.B. max 50 parallel) um Server nicht zu ueberlasten.
 - [ ] Default: aus
 - [ ] Einstellung gilt global (alle Typed-Folder-Views)
 
-### 2. Metadata-Loading
-- [ ] Nach PROPFIND: fileReference per Metadata-API laden fuer alle Folder-Kinder
-- [ ] Parallel laden mit Promise.allSettled, max 20 concurrent
-- [ ] Cache pro Space (fileReference aendert sich selten)
-- [ ] Nur laden wenn Einstellung aktiv UND Typed-Folder (isTyped)
+### 2. PROPFIND-Integration
+- [x] `oy.fileReference` per PROPFIND abfragbar (Reva-Patch deployed)
+- [ ] Web-Client: `oy.fileReference` als DavProperty registrieren
+- [ ] PROPFIND-Request um `<oc:oy.fileReference/>` erweitern
+- [ ] fileReference aus PROPFIND-Response parsen und auf Resource-Objekt mappen
 
 ### 3. Anzeige im Typed-Folder-Header
 - [ ] Wenn aktiv: Header-Titel = `${fileReference} ${folderName}`
@@ -78,7 +86,7 @@ Batch-Groesse begrenzen (z.B. max 50 parallel) um Server nicht zu ueberlasten.
 
 ## Dateien (voraussichtlich)
 
-- `src/composables/useFileReferenceDisplay.ts` — Metadata laden, Cache, Zusammenbau
+- `src/composables/useFileReferenceDisplay.ts` — PROPFIND-Property + Zusammenbau
 - `src/composables/useExtensionSettings.ts` — Persistente Nutzereinstellung (localStorage)
 - `src/components/TypedFolderHeader.vue` — Header-Anpassung
-- `src/index.ts` — Setting registrieren
+- `src/index.ts` — Setting + DavProperty registrieren
