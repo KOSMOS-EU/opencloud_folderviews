@@ -1,9 +1,9 @@
 <template>
-  <div class="markdown-body" v-html="rendered" @click="handleClick"></div>
+  <div class="markdown-body" ref="mdRef" v-html="rendered" @click="handleClick"></div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onUnmounted } from 'vue'
+import { computed, ref, inject, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { marked, Renderer } from 'marked'
 import { useRouter } from '@opencloud-eu/web-pkg'
 import { ELEMENT_RENDERER_KEY } from '../../composables/useElementRenderer'
@@ -12,45 +12,74 @@ const props = defineProps<{ content: string; alt?: string }>()
 
 const router = useRouter()
 const ctx = inject(ELEMENT_RENDERER_KEY)
+const mdRef = ref<HTMLElement>()
 
-// Track blob URLs for cleanup
 const blobUrls: string[] = []
 onUnmounted(() => blobUrls.forEach(u => URL.revokeObjectURL(u)))
+
+function preprocessTags(md: string): string {
+  // Replace [[directory:path]] with placeholder divs
+  return md.replace(/\[\[directory:([^\]]+)\]\]/g, (_, path) => {
+    return `<div data-directory="${path.trim()}" class="md-directory">Laden...</div>`
+  })
+}
 
 const rendered = computed(() => {
   const renderer = new Renderer()
   const currentPath = (router.currentRoute.value?.path || '').replace(/\/$/, '')
 
-  // Links: folder navigation or file download
   renderer.link = ({ href, text }) => {
     if (!href || href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) {
       return `<a href="${href}" target="_blank">${text}</a>`
     }
-    // Check if it looks like a file (has extension with 2-4 chars)
     const isFile = /\.\w{2,4}$/.test(href)
     if (isFile) {
       return `<a href="#" data-file-link="${href}">📄 ${text}</a>`
     }
-    // Folder link
     return `<a href="#" data-folder-link="${href}">${text}</a>`
   }
 
-  // Images: resolve relative paths to WebDAV blob URLs
   renderer.image = ({ href, text }) => {
     if (!href) return ''
     if (href.startsWith('http://') || href.startsWith('https://')) {
       return `<img src="${href}" alt="${text || ''}" />`
     }
-    // Relative image → load async, show placeholder for now
     return `<img data-src="${href}" alt="${text || ''}" class="md-img-placeholder" />`
   }
 
   try {
-    return marked.parse(props.content, { async: false, renderer }) as string
+    const preprocessed = preprocessTags(props.content)
+    return marked.parse(preprocessed, { async: false, renderer }) as string
   } catch {
     return `<pre>${props.content}</pre>`
   }
 })
+
+// After render, populate [[directory:...]] placeholders
+async function populateDirectories() {
+  if (!mdRef.value || !ctx) return
+  const placeholders = mdRef.value.querySelectorAll('[data-directory]')
+  for (const el of placeholders) {
+    const dirPath = el.getAttribute('data-directory')
+    if (!dirPath) continue
+    try {
+      const children = await ctx.loadChildren(dirPath)
+      const files = children.filter(r => r.type !== 'folder' && !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
+      if (files.length === 0) {
+        el.innerHTML = '<em>Keine Dateien gefunden.</em>'
+        continue
+      }
+      el.innerHTML = '<ul class="md-directory-list">' +
+        files.map(f => `<li><a href="#" data-file-link="${dirPath}/${f.name}">📄 ${f.name}</a></li>`).join('') +
+        '</ul>'
+    } catch (err) {
+      el.innerHTML = `<em>Verzeichnis "${dirPath}" nicht gefunden.</em>`
+    }
+  }
+}
+
+watch(rendered, () => nextTick(populateDirectories))
+onMounted(() => nextTick(populateDirectories))
 
 function handleClick(e: MouseEvent) {
   const target = e.target as HTMLElement
@@ -76,9 +105,6 @@ function handleClick(e: MouseEvent) {
   if (fileLink && ctx) {
     e.preventDefault()
     e.stopPropagation()
-    // Resolve file path relative to current folder
-    const currentFolder = router.currentRoute.value?.path?.replace(/\/$/, '') || ''
-    // Use the content loader to download
     ctx.loadContent(fileLink, true).then(entry => {
       const blob = new Blob([entry.content])
       const url = URL.createObjectURL(blob)
@@ -143,4 +169,20 @@ function handleClick(e: MouseEvent) {
   min-height: 60px;
   display: block;
 }
+.markdown-body :deep(.md-directory) {
+  padding: 8px;
+  border: 1px solid var(--oc-role-outline-variant, #e0e0e0);
+  border-radius: 6px;
+  margin: 0.5em 0;
+}
+.markdown-body :deep(.md-directory-list) {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.markdown-body :deep(.md-directory-list li) {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--oc-role-outline-variant, #eee);
+}
+.markdown-body :deep(.md-directory-list li:last-child) { border-bottom: none; }
 </style>

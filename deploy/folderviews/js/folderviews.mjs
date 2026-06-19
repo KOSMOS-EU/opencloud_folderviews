@@ -1,5 +1,5 @@
 import { a as __mf_243, c as __mf_83, i as __mf_241, l as __mf_89, n as __mf_228, o as __mf_306, r as __mf_237, s as __mf_314, t as __mf_146, u as __mf_91 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-B_bvgBHO.mjs";
-import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_73, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_61, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_69, y as __mf_60 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-CsPj1B2y.mjs";
+import { A as __mf_91$1, C as __mf_73, D as __mf_83$1, E as __mf_82, O as __mf_84, S as __mf_69, T as __mf_81, _ as __mf_39, a as __mf_126, b as __mf_60, c as __mf_134, d as __mf_140, f as __mf_142, g as __mf_24, h as __mf_166, i as __mf_119, j as __mf_93, k as __mf_90, l as __mf_138, m as __mf_161, n as __mf_117, o as __mf_130, p as __mf_154, r as __mf_118, s as __mf_132, t as __mf_112, u as __mf_139, v as __mf_45, w as __mf_80, x as __mf_61, y as __mf_55 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-CS_vUUzz.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
 var EXT_ENABLED = "com.kosmos-eu.folderviews.aktenzeichen-enabled";
@@ -2061,8 +2061,14 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 		const props = __props;
 		const router = __mf_314();
 		const ctx = __mf_112(ELEMENT_RENDERER_KEY);
+		const mdRef = __mf_45();
 		const blobUrls = [];
 		__mf_130(() => blobUrls.forEach((u) => URL.revokeObjectURL(u)));
+		function preprocessTags(md) {
+			return md.replace(/\[\[directory:([^\]]+)\]\]/g, (_, path) => {
+				return `<div data-directory="${path.trim()}" class="md-directory">Laden...</div>`;
+			});
+		}
 		const rendered = __mf_80(() => {
 			const renderer = new y();
 			(router.currentRoute.value?.path || "").replace(/\/$/, "");
@@ -2077,7 +2083,8 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 				return `<img data-src="${href}" alt="${text || ""}" class="md-img-placeholder" />`;
 			};
 			try {
-				return g.parse(props.content, {
+				const preprocessed = preprocessTags(props.content);
+				return g.parse(preprocessed, {
 					async: false,
 					renderer
 				});
@@ -2085,6 +2092,26 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 				return `<pre>${props.content}</pre>`;
 			}
 		});
+		async function populateDirectories() {
+			if (!mdRef.value || !ctx) return;
+			const placeholders = mdRef.value.querySelectorAll("[data-directory]");
+			for (const el of placeholders) {
+				const dirPath = el.getAttribute("data-directory");
+				if (!dirPath) continue;
+				try {
+					const files = (await ctx.loadChildren(dirPath)).filter((r) => r.type !== "folder" && !r.name?.startsWith("_type_") && !r.name?.startsWith("."));
+					if (files.length === 0) {
+						el.innerHTML = "<em>Keine Dateien gefunden.</em>";
+						continue;
+					}
+					el.innerHTML = "<ul class=\"md-directory-list\">" + files.map((f) => `<li><a href="#" data-file-link="${dirPath}/${f.name}">📄 ${f.name}</a></li>`).join("") + "</ul>";
+				} catch (err) {
+					el.innerHTML = `<em>Verzeichnis "${dirPath}" nicht gefunden.</em>`;
+				}
+			}
+		}
+		__mf_161(rendered, () => __mf_119(populateDirectories));
+		__mf_126(() => __mf_119(populateDirectories));
 		function handleClick(e) {
 			const anchor = e.target.closest("a");
 			if (!anchor) return;
@@ -2107,7 +2134,6 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 			if (fileLink && ctx) {
 				e.preventDefault();
 				e.stopPropagation();
-				router.currentRoute.value?.path?.replace(/\/$/, "");
 				ctx.loadContent(fileLink, true).then((entry) => {
 					const blob = new Blob([entry.content]);
 					const url = URL.createObjectURL(blob);
@@ -2126,12 +2152,14 @@ var MarkdownViewer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", {
 				class: "markdown-body",
+				ref_key: "mdRef",
+				ref: mdRef,
 				innerHTML: rendered.value,
 				onClick: handleClick
 			}, null, 8, _hoisted_1$6);
 		};
 	}
-}), [["__scopeId", "data-v-cc198fdc"]]);
+}), [["__scopeId", "data-v-e49f68ae"]]);
 //#endregion
 //#region src/components/viewers/ImageViewer.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$5 = { class: "image-viewer" };
