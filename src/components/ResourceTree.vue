@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { ResourceTable, ResourceIcon, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { displayName as buildDisplayName } from '../composables/useFileReference'
 
@@ -67,7 +67,6 @@ const props = defineProps<{
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
-const resourcesStore = useResourcesStore()
 const { showAktzInName } = useFolderviewSettings()
 
 const expanded = ref(new Set<string>())
@@ -105,7 +104,7 @@ async function toggleExpand(resource: Resource) {
     try {
       const { children } = await clientService.webdav.listFiles(props.space, { path: resource.path })
       childrenMap.value = new Map([...childrenMap.value, [id, children]])
-      children.forEach(c => resourcesStore.upsertResource(c))
+      // Don't upsertResource — tree manages its own children via childrenMap
     } catch {
       childrenMap.value = new Map([...childrenMap.value, [id, []]])
     } finally {
@@ -123,7 +122,7 @@ async function loadRootResources() {
   try {
     const { children } = await clientService.webdav.listFiles(props.space, { path: '' })
     rootResources.value = children
-    children.forEach(c => resourcesStore.upsertResource(c))
+    // Don't upsertResource — tree manages its own children via childrenMap
   } catch {
     rootResources.value = props.resources
   }
