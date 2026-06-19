@@ -1,5 +1,5 @@
 import { a as __mf_308, c as __mf_89, i as __mf_306, l as __mf_91, n as __mf_228, o as __mf_314, r as __mf_241, s as __mf_83, t as __mf_146 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-DfAYUIN-.mjs";
-import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_69, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_60, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_61, y as __mf_58 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-cF_-h9XT.mjs";
+import { A as __mf_93, C as __mf_80, D as __mf_84, E as __mf_83$1, O as __mf_90, S as __mf_73, T as __mf_82, _ as __mf_45, a as __mf_130, b as __mf_61, c as __mf_138, d as __mf_142, f as __mf_154, g as __mf_39, h as __mf_24, i as __mf_126, k as __mf_91$1, l as __mf_139, m as __mf_166, n as __mf_117, o as __mf_132, p as __mf_161, r as __mf_118, s as __mf_134, t as __mf_112, u as __mf_140, v as __mf_55, w as __mf_81, x as __mf_69, y as __mf_60 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-CsPj1B2y.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
 var EXT_ENABLED = "com.kosmos-eu.folderviews.aktenzeichen-enabled";
@@ -2201,13 +2201,14 @@ function useElementRenderer(space) {
 }
 //#endregion
 //#region src/components/ElementFrame.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$3 = { class: "element-frame-toolbar" };
-var _hoisted_2$3 = { class: "element-frame-name" };
-var _hoisted_3$1 = { class: "element-frame-menu-wrap" };
-var _hoisted_4 = { class: "element-frame-content" };
+var _hoisted_1$3 = { class: "element-frame" };
+var _hoisted_2$3 = { class: "element-frame-toolbar" };
+var _hoisted_3$1 = { class: "element-frame-name" };
+var _hoisted_4 = { class: "element-frame-menu-wrap" };
+var _hoisted_5 = { class: "element-frame-content" };
 //#endregion
 //#region src/components/ElementFrame.vue
-var ElementFrame_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
+var ElementFrame_default = /* @__PURE__ */ __mf_93({
 	__name: "ElementFrame",
 	props: {
 		resource: {},
@@ -2216,6 +2217,8 @@ var ElementFrame_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 	setup(__props) {
 		const props = __props;
 		const clientService = __mf_228();
+		const router = __mf_314();
+		const resourcesStore = __mf_306();
 		const menuOpen = __mf_45(false);
 		const menuStyle = __mf_45({});
 		function toggleMenu(e) {
@@ -2225,18 +2228,36 @@ var ElementFrame_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 				menuStyle.value = {
 					position: "fixed",
 					top: rect.bottom + 4 + "px",
-					left: rect.right - 160 + "px",
+					left: Math.max(0, rect.right - 200) + "px",
 					zIndex: "9999"
 				};
 			}
 		}
-		function doDownload() {
+		function close() {
 			menuOpen.value = false;
-			const url = clientService.webdav.getFileUrl(props.space, props.resource);
-			if (url) window.open(url, "_blank");
 		}
-		function doOpenSidebar() {
-			menuOpen.value = false;
+		async function doDownload() {
+			close();
+			const url = await clientService.webdav.getFileUrl(props.space, props.resource);
+			if (url) {
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = props.resource.name;
+				a.click();
+			}
+		}
+		function doOpen() {
+			close();
+			if (props.resource.isFolder) {
+				const target = router.currentRoute.value.path.replace(/\/$/, "") + "/" + props.resource.name;
+				router.push({ path: target });
+			} else clientService.webdav.getFileUrl(props.space, props.resource).then((url) => {
+				if (url) window.open(url, "_blank");
+			});
+		}
+		function doDetails() {
+			close();
+			resourcesStore.setSelection([props.resource.id]);
 		}
 		function closeOnOutsideClick() {
 			if (menuOpen.value) menuOpen.value = false;
@@ -2245,33 +2266,44 @@ var ElementFrame_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		__mf_130(() => document.removeEventListener("click", closeOnOutsideClick));
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
-			return __mf_132(), __mf_83$1("div", { class: __mf_58(["element-frame", { "menu-open": menuOpen.value }]) }, [__mf_84("div", _hoisted_1$3, [__mf_84("span", _hoisted_2$3, __mf_61(__props.resource.name), 1), __mf_84("div", _hoisted_3$1, [__mf_84("button", {
+			return __mf_132(), __mf_83$1("div", _hoisted_1$3, [__mf_84("div", _hoisted_2$3, [__mf_84("span", _hoisted_3$1, __mf_61(__props.resource.name), 1), __mf_84("div", _hoisted_4, [__mf_84("button", {
 				class: "element-frame-menu",
 				onClick: _cache[0] || (_cache[0] = __mf_24(($event) => toggleMenu($event), ["stop", "prevent"]))
 			}, [__mf_91$1(_component_oc_icon, {
 				name: "more-2",
 				size: "small"
-			})]), menuOpen.value ? (__mf_132(), __mf_83$1("div", {
+			})]), (__mf_132(), __mf_81(__mf_73, { to: "body" }, [menuOpen.value ? (__mf_132(), __mf_83$1("div", {
 				key: 0,
 				class: "element-frame-dropdown",
 				style: __mf_60(menuStyle.value),
 				onClick: _cache[1] || (_cache[1] = __mf_24(() => {}, ["stop"]))
-			}, [__mf_84("button", {
-				class: "element-frame-action",
-				onClick: doDownload
-			}, [__mf_91$1(_component_oc_icon, {
-				name: "download",
-				size: "small"
-			}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))]), __mf_84("button", {
-				class: "element-frame-action",
-				onClick: doOpenSidebar
-			}, [__mf_91$1(_component_oc_icon, {
-				name: "information",
-				size: "small"
-			}), _cache[3] || (_cache[3] = __mf_84("span", null, "Details", -1))])], 4)) : __mf_82("", true)])]), __mf_84("div", _hoisted_4, [__mf_139(_ctx.$slots, "default", {}, void 0, true)])], 2);
+			}, [
+				!__props.resource.isFolder ? (__mf_132(), __mf_83$1("button", {
+					key: 0,
+					class: "element-frame-action",
+					onClick: doDownload
+				}, [__mf_91$1(_component_oc_icon, {
+					name: "file-download",
+					size: "small"
+				}), _cache[2] || (_cache[2] = __mf_84("span", null, "Download", -1))])) : __mf_82("", true),
+				__mf_84("button", {
+					class: "element-frame-action",
+					onClick: doOpen
+				}, [__mf_91$1(_component_oc_icon, {
+					name: "external-link",
+					size: "small"
+				}), _cache[3] || (_cache[3] = __mf_84("span", null, "Öffnen", -1))]),
+				__mf_84("button", {
+					class: "element-frame-action",
+					onClick: doDetails
+				}, [__mf_91$1(_component_oc_icon, {
+					name: "information",
+					size: "small"
+				}), _cache[4] || (_cache[4] = __mf_84("span", null, "Details", -1))])
+			], 4)) : __mf_82("", true)]))])]), __mf_84("div", _hoisted_5, [__mf_139(_ctx.$slots, "default")])]);
 		};
 	}
-}), [["__scopeId", "data-v-039dbd3d"]]);
+});
 //#endregion
 //#region src/components/ElementContent.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$2 = {
