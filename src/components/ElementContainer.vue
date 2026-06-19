@@ -1,7 +1,7 @@
 <template>
   <div class="element-container-wrap" :class="{ 'element-container-nested': depth > 0 }">
     <!-- Container header OUTSIDE the grid/flex flow -->
-    <div v-if="depth > 0 && folderName" class="element-container-header">
+    <div v-if="folderName" class="element-container-header">
       <span class="element-container-label">{{ folderName }}</span>
       <button v-if="divParams" class="element-container-edit" @click.stop="editOpen = !editOpen">
         <oc-icon name="settings-3" size="small" />
@@ -13,6 +13,10 @@
       <button class="element-container-add" @click.stop="createDiv">
         <oc-icon name="add" size="small" />
         <span>+div</span>
+      </button>
+      <button v-if="depth > 0" class="element-container-del" @click.stop="deleteContainer">
+        <oc-icon name="delete-bin" size="small" />
+        <span>del</span>
       </button>
     </div>
     <!-- Div params editor -->
@@ -40,8 +44,8 @@
       </label>
       <button class="element-div-save" @click="saveDivParams">Speichern</button>
     </div>
-    <!-- Add buttons -->
-    <div v-if="!loading" class="element-container-actions">
+    <!-- Add buttons for root when no folderName -->
+    <div v-if="!folderName && !loading" class="element-container-actions">
       <button class="element-container-add" @click.stop="createMd">
         <oc-icon name="add" size="small" />
         <span>+md</span>
@@ -67,6 +71,7 @@
         :div-params="containerTypes.get(r.id)!.params"
         :space="space"
         :folder-name="r.name"
+        @deleted="onChildDeleted"
       />
       <!-- File: render in frame -->
       <element-frame v-else-if="r.type !== 'folder'" :resource="r" :space="space" @deleted="onChildDeleted">
@@ -185,6 +190,18 @@ async function saveDivParams() {
   }
 }
 
+const emit = defineEmits<{ deleted: [] }>()
+
+async function deleteContainer() {
+  if (!confirm(`Container "${props.folderName}" mit allen Inhalten löschen?`)) return
+  try {
+    await clientService.webdav.deleteFile(props.space, { path: props.path })
+    emit('deleted')
+  } catch (e) {
+    console.error('[ElementContainer] delete failed:', e)
+  }
+}
+
 async function createDiv() {
   const name = prompt('Container-Name:')
   if (!name) return
@@ -268,6 +285,20 @@ watch(() => props.path, loadAndAnalyze)
 .element-container-add:hover, .element-container-edit:hover {
   background: var(--oc-role-surface-variant, #f0f0f0);
 }
+.element-container-del {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid #c62828;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #c62828;
+  margin-left: auto;
+}
+.element-container-del:hover { background: #fbe9e7; }
 .element-div-editor {
   display: flex;
   flex-wrap: wrap;
