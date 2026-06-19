@@ -79,14 +79,11 @@ const depthMap = ref(new Map<string, number>())
 const patchedRefs = ref(new Map<string, string>())
 
 async function patchFileReferences(resources: Resource[]) {
-  console.log('[TreeView] patchFileReferences called, showAktz:', showAktzInName.value, 'resources:', resources.length)
   if (!showAktzInName.value) return
   const missing = resources.filter(r => r.type === 'folder' && !getFileReference(r) && !patchedRefs.value.has(r.id))
-  console.log('[TreeView] missing fileRefs:', missing.length)
   if (!missing.length) return
 
   const httpClient = (clientService as any).httpAuthenticated
-  console.log('[TreeView] httpClient:', !!httpClient)
   if (!httpClient) return
   const spaceId = props.space.id
   const patch = new Map(patchedRefs.value)
