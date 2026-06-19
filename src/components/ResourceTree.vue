@@ -13,7 +13,7 @@
       <template #image="{ resource }">
         <span
           class="tree-indent-block"
-          :style="{ width: calcDepth(resource) * 20 + 'px', display: 'inline-block', flexShrink: 0 }"
+          :style="{ width: depthMap.get(resource.id) * 20 + 'px', display: 'inline-block', flexShrink: 0 }"
         />
         <button
           v-if="resource.type === 'folder'"
@@ -50,7 +50,7 @@ import { ref, computed, watch } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { displayName as buildDisplayName } from '../composables/useFileReference'
+import { displayName as buildDisplayName, compareByDisplayName } from '../composables/useFileReference'
 
 const props = defineProps<{
   resources: Resource[]
@@ -65,31 +65,18 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
+const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
+selectedIds.value = []
 const clientService = useClientService()
 const { showAktzInName } = useFolderviewSettings()
 
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
 const loadingSet = ref(new Set<string>())
-const rootResources = ref<Resource[]>([])
-const rootLoaded = ref(false)
+const depthMap = ref(new Map<string, number>())
+
 function isExpanded(id: string) { return expanded.value.has(id) }
 function isLoading(id: string) { return loadingSet.value.has(id) }
-
-// Calculate depth from path segments relative to root resources
-function calcDepth(resource: Resource): number {
-  if (!resource.path) return 0
-  const rootPaths = props.resources.filter(r => !r.name?.startsWith('_type_')).map(r => r.path)
-  const segments = resource.path.split('/').filter(Boolean)
-  // Find the shortest root path segment count
-  let minRootSegments = Infinity
-  for (const rp of rootPaths) {
-    const cnt = rp.split('/').filter(Boolean).length
-    if (cnt < minRootSegments) minRootSegments = cnt
-  }
-  if (minRootSegments === Infinity) return 0
-  return segments.length - minRootSegments
-}
 
 async function toggleExpand(resource: Resource) {
   const id = resource.id
@@ -102,11 +89,12 @@ async function toggleExpand(resource: Resource) {
     loadingSet.value = new Set([...loadingSet.value, id])
     try {
       const { children } = await clientService.webdav.listFiles(props.space, { path: resource.path })
-      // Sort children alphabetically on insert
-      const sorted = [...children].sort((a, b) =>
-        (a.name || '').localeCompare(b.name || '', undefined, { numeric: true })
-      )
-      childrenMap.value = new Map([...childrenMap.value, [id, sorted]])
+      // Set depth for children = parent depth + 1
+      const parentDepth = depthMap.value.get(id) || 0
+      const dm = new Map(depthMap.value)
+      for (const c of children) { dm.set(c.id, parentDepth + 1) }
+      depthMap.value = dm
+      childrenMap.value = new Map([...childrenMap.value, [id, children]])
     } catch {
       childrenMap.value = new Map([...childrenMap.value, [id, []]])
     } finally {
@@ -117,29 +105,13 @@ async function toggleExpand(resource: Resource) {
 
 function handleFileClick(options: any) { emit('fileClick', options) }
 
-// Load root resources ourselves to avoid parent's sort
-async function loadRootResources() {
-  if (rootLoaded.value || !props.space) return
-  rootLoaded.value = true
-  try {
-    const { children } = await clientService.webdav.listFiles(props.space, { path: '' })
-    rootResources.value = [...children].sort((a, b) =>
-      (a.name || '').localeCompare(b.name || '', undefined, { numeric: true })
-    )
-    // Don't upsertResource — tree manages its own children via childrenMap
-  } catch {
-    rootResources.value = props.resources
-  }
-}
-
 const visibleResources = computed(() => {
-  const source = rootResources.value.length > 0 ? rootResources.value : props.resources
   const result: Resource[] = []
 
   function walk(resources: Resource[]) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
-    for (const r of filtered) {
-      // Override display name based on user setting
+    const sorted = [...filtered].sort((a, b) => compareByDisplayName(a, b, showAktzInName.value))
+    for (const r of sorted) {
       const display = buildDisplayName(r, showAktzInName.value)
       if (display !== r.name) {
         result.push({ ...r, name: display } as Resource)
@@ -152,17 +124,23 @@ const visibleResources = computed(() => {
     }
   }
 
-  walk(source.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.')))
+  // Root resources from props get depth 0
+  const dm = new Map(depthMap.value)
+  for (const r of props.resources) {
+    if (!dm.has(r.id)) dm.set(r.id, 0)
+  }
+  depthMap.value = dm
+
+  walk(props.resources)
   return result
 })
 
-watch(() => props.space?.id, () => {
+// Reset when folder changes
+watch(() => props.resources, () => {
   expanded.value = new Set()
   childrenMap.value = new Map()
-  rootLoaded.value = false
-  rootResources.value = []
-  loadRootResources()
-}, { immediate: true })
+  depthMap.value = new Map()
+})
 </script>
 
 <style scoped>
@@ -173,12 +151,4 @@ watch(() => props.space?.id, () => {
 }
 .tree-btn:hover { background: rgba(0,0,0,0.08); }
 .tree-spacer { display: inline-block; width: 20px; margin-right: 2px; flex-shrink: 0; }
-/* Suppress accentuate animation (item-accentuated) and selection highlight
-   (oc-table-highlighted) in tree view. The accentuate effect is triggered by
-   useResourcesViewDefaults on every upsertResource and highlights new rows
-   for 3.5s — not useful in a tree where expanding adds many rows at once. */
-.resource-tree :deep(.oc-table-highlighted),
-.resource-tree :deep(.item-accentuated) {
-  background: inherit !important;
-}
 </style>

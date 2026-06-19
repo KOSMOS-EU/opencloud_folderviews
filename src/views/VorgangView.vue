@@ -13,15 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, Ref, unref } from 'vue'
-import { Resource } from '@opencloud-eu/web-client'
+import { computed } from 'vue'
+import { useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { getFileReference } from '../composables/useFileReference'
 
 defineEmits<{ 'new-child': [type: string] }>()
-const resource = inject<Ref<Resource>>('resource')
+const resourcesStore = useResourcesStore()
 const { showAktzInName } = useFolderviewSettings()
-const fileRef = computed(() => { const r = unref(resource); return r ? getFileReference(r) : '' })
+const fileRef = computed(() => { const r = resourcesStore.currentFolder; return r ? getFileReference(r) : '' })
 </script>
 
 <style scoped>

@@ -1,5 +1,5 @@
-import { a as __mf_89, i as __mf_83, n as __mf_228, o as __mf_91, r as __mf_241, t as __mf_146 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-BORI0ssk.mjs";
-import { C as __mf_93, S as __mf_91$1, _ as __mf_81, a as __mf_139, b as __mf_84, c as __mf_161, d as __mf_39, f as __mf_45, g as __mf_80, h as __mf_61, i as __mf_132, l as __mf_166, m as __mf_60, n as __mf_117, o as __mf_140, p as __mf_55, r as __mf_118, s as __mf_154, t as __mf_112, u as __mf_24, v as __mf_82, x as __mf_90, y as __mf_83$1 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-DqPXX7ew.mjs";
+import { a as __mf_83, i as __mf_306, n as __mf_228, o as __mf_89, r as __mf_241, s as __mf_91, t as __mf_146 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-DkSQ3XkM.mjs";
+import { S as __mf_93, _ as __mf_82, a as __mf_140, b as __mf_90, c as __mf_166, d as __mf_45, f as __mf_55, g as __mf_81, h as __mf_80, i as __mf_139, l as __mf_24, m as __mf_61, n as __mf_118, o as __mf_154, p as __mf_60, r as __mf_132, s as __mf_161, t as __mf_117, u as __mf_39, v as __mf_83$1, x as __mf_91$1, y as __mf_84 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-D9ZPPCcs.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
 var EXT_ENABLED = "com.kosmos-eu.folderviews.aktenzeichen-enabled";
@@ -62,6 +62,14 @@ function displayName(resource, showAktz) {
 	if (aktz) return `${aktz} ${resource.name}`;
 	return resource.name || "";
 }
+/**
+* Sort comparator using displayName (with optional aktz prefix).
+*/
+function compareByDisplayName(a, b, showAktz) {
+	const na = displayName(a, showAktz).toLowerCase();
+	const nb = displayName(b, showAktz).toLowerCase();
+	return na.localeCompare(nb, void 0, { numeric: true });
+}
 //#endregion
 //#region src/views/AktenplanView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$5 = { class: "typed-folder-view aktenplan-view" };
@@ -74,14 +82,16 @@ var _hoisted_4 = {
 var AktenplanView_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ __mf_93({
 	__name: "AktenplanView",
 	setup(__props) {
-		const resource = __mf_112("resource");
+		const resourcesStore = __mf_306();
 		const showNewDialog = __mf_45(false);
 		const { showAktzInName } = useFolderviewSettings();
-		const isShielded = __mf_80(() => __mf_55(resource)?.immutableState === "shielded");
-		const isProtected = __mf_80(() => __mf_55(resource)?.immutableState === "protected");
+		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
+		const isShielded = __mf_80(() => __mf_55(currentFolder)?.immutableState === "shielded");
+		const isProtected = __mf_80(() => __mf_55(currentFolder)?.immutableState === "protected");
 		const canCreateChild = __mf_80(() => __mf_55(isShielded) || !__mf_55(isProtected));
 		const fileRef = __mf_80(() => {
-			const r = __mf_55(resource);
+			const r = __mf_55(currentFolder);
+			console.log("[AktenplanView] currentFolder:", r?.name, "extraProps:", r?.extraProps);
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
@@ -106,7 +116,7 @@ var _plugin_vue_export_helper_default = (sfc, props) => {
 };
 //#endregion
 //#region src/views/AktenplanView.vue
-var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-6beca0fe"]]);
+var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-e6a8c74a"]]);
 //#endregion
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$4 = { class: "typed-folder-view akte-view" };
@@ -121,10 +131,10 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 	__name: "AkteView",
 	emits: ["new-child"],
 	setup(__props) {
-		const resource = __mf_112("resource");
+		const resourcesStore = __mf_306();
 		const { showAktzInName } = useFolderviewSettings();
 		const fileRef = __mf_80(() => {
-			const r = __mf_55(resource);
+			const r = resourcesStore.currentFolder;
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
@@ -138,7 +148,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
 	}
-}), [["__scopeId", "data-v-a36d5fb3"]]);
+}), [["__scopeId", "data-v-33620925"]]);
 //#endregion
 //#region src/views/VorgangView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$3 = { class: "typed-folder-view vorgang-view" };
@@ -153,10 +163,10 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 	__name: "VorgangView",
 	emits: ["new-child"],
 	setup(__props) {
-		const resource = __mf_112("resource");
+		const resourcesStore = __mf_306();
 		const { showAktzInName } = useFolderviewSettings();
 		const fileRef = __mf_80(() => {
-			const r = __mf_55(resource);
+			const r = resourcesStore.currentFolder;
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
@@ -170,7 +180,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
 	}
-}), [["__scopeId", "data-v-c99e5612"]]);
+}), [["__scopeId", "data-v-067c0a42"]]);
 //#endregion
 //#region src/views/RegisterView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$2 = { class: "typed-folder-view register-view" };
@@ -184,10 +194,10 @@ var _hoisted_3$1 = {
 var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
 	__name: "RegisterView",
 	setup(__props) {
-		const resource = __mf_112("resource");
+		const resourcesStore = __mf_306();
 		const { showAktzInName } = useFolderviewSettings();
 		const fileRef = __mf_80(() => {
-			const r = __mf_55(resource);
+			const r = resourcesStore.currentFolder;
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
@@ -198,7 +208,7 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
 	}
-}), [["__scopeId", "data-v-1e745a0a"]]);
+}), [["__scopeId", "data-v-3013caf1"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$1 = { class: "resource-tree" };
@@ -211,7 +221,7 @@ var _hoisted_3 = {
 //#region src/components/ResourceTree.vue
 var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
 	__name: "ResourceTree",
-	props: {
+	props: /*@__PURE__*/ __mf_117({
 		resources: {},
 		space: {},
 		viewMode: {},
@@ -221,41 +231,33 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		sortDir: {},
 		sortFields: {},
 		viewSize: {}
-	},
-	emits: [
+	}, {
+		"selectedIds": { default: () => [] },
+		"selectedIdsModifiers": {}
+	}),
+	emits: /*@__PURE__*/ __mf_117([
 		"fileClick",
 		"fileDropped",
 		"itemVisible",
 		"sort",
 		"update:selectedIds"
-	],
+	], ["update:selectedIds"]),
 	setup(__props, { emit: __emit }) {
 		const props = __props;
 		const emit = __emit;
+		const selectedIds = __mf_154(__props, "selectedIds");
+		selectedIds.value = [];
 		const clientService = __mf_228();
 		const { showAktzInName } = useFolderviewSettings();
 		const expanded = __mf_45(/* @__PURE__ */ new Set());
 		const childrenMap = __mf_45(/* @__PURE__ */ new Map());
 		const loadingSet = __mf_45(/* @__PURE__ */ new Set());
-		const rootResources = __mf_45([]);
-		const rootLoaded = __mf_45(false);
+		const depthMap = __mf_45(/* @__PURE__ */ new Map());
 		function isExpanded(id) {
 			return expanded.value.has(id);
 		}
 		function isLoading(id) {
 			return loadingSet.value.has(id);
-		}
-		function calcDepth(resource) {
-			if (!resource.path) return 0;
-			const rootPaths = props.resources.filter((r) => !r.name?.startsWith("_type_")).map((r) => r.path);
-			const segments = resource.path.split("/").filter(Boolean);
-			let minRootSegments = Infinity;
-			for (const rp of rootPaths) {
-				const cnt = rp.split("/").filter(Boolean).length;
-				if (cnt < minRootSegments) minRootSegments = cnt;
-			}
-			if (minRootSegments === Infinity) return 0;
-			return segments.length - minRootSegments;
 		}
 		async function toggleExpand(resource) {
 			const id = resource.id;
@@ -271,8 +273,11 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 				loadingSet.value = new Set([...loadingSet.value, id]);
 				try {
 					const { children } = await clientService.webdav.listFiles(props.space, { path: resource.path });
-					const sorted = [...children].sort((a, b) => (a.name || "").localeCompare(b.name || "", void 0, { numeric: true }));
-					childrenMap.value = new Map([...childrenMap.value, [id, sorted]]);
+					const parentDepth = depthMap.value.get(id) || 0;
+					const dm = new Map(depthMap.value);
+					for (const c of children) dm.set(c.id, parentDepth + 1);
+					depthMap.value = dm;
+					childrenMap.value = new Map([...childrenMap.value, [id, children]]);
 				} catch {
 					childrenMap.value = new Map([...childrenMap.value, [id, []]]);
 				} finally {
@@ -285,22 +290,11 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		function handleFileClick(options) {
 			emit("fileClick", options);
 		}
-		async function loadRootResources() {
-			if (rootLoaded.value || !props.space) return;
-			rootLoaded.value = true;
-			try {
-				const { children } = await clientService.webdav.listFiles(props.space, { path: "" });
-				rootResources.value = [...children].sort((a, b) => (a.name || "").localeCompare(b.name || "", void 0, { numeric: true }));
-			} catch {
-				rootResources.value = props.resources;
-			}
-		}
 		const visibleResources = __mf_80(() => {
-			const source = rootResources.value.length > 0 ? rootResources.value : props.resources;
 			const result = [];
 			function walk(resources) {
-				const filtered = resources.filter((r) => !r.name?.startsWith("_type_") && !r.name?.startsWith("."));
-				for (const r of filtered) {
+				const sorted = [...resources.filter((r) => !r.name?.startsWith("_type_") && !r.name?.startsWith("."))].sort((a, b) => compareByDisplayName(a, b, showAktzInName.value));
+				for (const r of sorted) {
 					const display = displayName(r, showAktzInName.value);
 					if (display !== r.name) result.push({
 						...r,
@@ -310,16 +304,17 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 					if (r.type === "folder" && expanded.value.has(r.id) && childrenMap.value.has(r.id)) walk(childrenMap.value.get(r.id));
 				}
 			}
-			walk(source.filter((r) => !r.name?.startsWith("_type_") && !r.name?.startsWith(".")));
+			const dm = new Map(depthMap.value);
+			for (const r of props.resources) if (!dm.has(r.id)) dm.set(r.id, 0);
+			depthMap.value = dm;
+			walk(props.resources);
 			return result;
 		});
-		__mf_161(() => props.space?.id, () => {
+		__mf_161(() => props.resources, () => {
 			expanded.value = /* @__PURE__ */ new Set();
 			childrenMap.value = /* @__PURE__ */ new Map();
-			rootLoaded.value = false;
-			rootResources.value = [];
-			loadRootResources();
-		}, { immediate: true });
+			depthMap.value = /* @__PURE__ */ new Map();
+		});
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
 			const _component_oc_spinner = __mf_140("oc-spinner");
@@ -337,7 +332,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 					__mf_84("span", {
 						class: "tree-indent-block",
 						style: __mf_60({
-							width: calcDepth(resource) * 20 + "px",
+							width: depthMap.value.get(resource.id) * 20 + "px",
 							display: "inline-block",
 							flexShrink: 0
 						})
@@ -372,7 +367,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			])]);
 		};
 	}
-}), [["__scopeId", "data-v-7b62810c"]]);
+}), [["__scopeId", "data-v-a3b26904"]]);
 //#endregion
 //#region src/components/ResourceMetro.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1 = { class: "metro-tile-label" };

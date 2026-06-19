@@ -13,20 +13,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, inject, Ref, unref } from 'vue'
-import { Resource } from '@opencloud-eu/web-client'
+import { computed, ref, unref } from 'vue'
+import { useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { getFileReference } from '../composables/useFileReference'
 
-const resource = inject<Ref<Resource>>('resource')
+const resourcesStore = useResourcesStore()
 const showNewDialog = ref(false)
 const { showAktzInName } = useFolderviewSettings()
 
-const isShielded = computed(() => unref(resource)?.immutableState === 'shielded')
-const isProtected = computed(() => unref(resource)?.immutableState === 'protected')
+const currentFolder = computed(() => resourcesStore.currentFolder)
+const isShielded = computed(() => unref(currentFolder)?.immutableState === 'shielded')
+const isProtected = computed(() => unref(currentFolder)?.immutableState === 'protected')
 const canCreateChild = computed(() => unref(isShielded) || !unref(isProtected))
 const fileRef = computed(() => {
-  const r = unref(resource)
+  const r = unref(currentFolder)
+  console.log('[AktenplanView] currentFolder:', r?.name, 'extraProps:', (r as any)?.extraProps)
   return r ? getFileReference(r) : ''
 })
 </script>
