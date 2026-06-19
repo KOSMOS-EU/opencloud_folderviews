@@ -2482,7 +2482,7 @@ var _hoisted_5 = {
 	class: "element-container-actions"
 };
 var _hoisted_6 = {
-	key: 3,
+	key: 0,
 	class: "element-container-loading"
 };
 //#endregion
@@ -2600,10 +2600,7 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			const _component_oc_icon = __mf_140("oc-icon");
 			const _component_oc_spinner = __mf_140("oc-spinner");
 			const _component_element_container = __mf_140("element-container", true);
-			return __mf_132(), __mf_83$1("div", {
-				class: __mf_58(["element-container", { "element-container-nested": __props.depth > 0 }]),
-				style: __mf_60(containerStyle.value)
-			}, [
+			return __mf_132(), __mf_83$1("div", { class: __mf_58(["element-container-wrap", { "element-container-nested": __props.depth > 0 }]) }, [
 				__props.depth > 0 && __props.folderName ? (__mf_132(), __mf_83$1("div", _hoisted_1$1, [
 					__mf_84("span", _hoisted_2$1, __mf_61(__props.folderName), 1),
 					__props.divParams ? (__mf_132(), __mf_83$1("button", {
@@ -2662,7 +2659,10 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 					name: "add",
 					size: "small"
 				}), _cache[15] || (_cache[15] = __mf_84("span", null, "Neues Dokument", -1))])])) : __mf_82("", true),
-				loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_6, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[16] || (_cache[16] = __mf_90(" Laden... ", -1))])) : (__mf_132(true), __mf_83$1(__mf_69, { key: 4 }, __mf_138(visibleChildren.value, (r) => {
+				__mf_84("div", {
+					class: "element-container",
+					style: __mf_60(containerStyle.value)
+				}, [loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_6, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[16] || (_cache[16] = __mf_90(" Laden... ", -1))])) : (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(visibleChildren.value, (r) => {
 					return __mf_132(), __mf_83$1(__mf_69, { key: r.id }, [r.type === "folder" && containerTypes.value.has(r.id) ? (__mf_132(), __mf_81(_component_element_container, {
 						key: 0,
 						resources: [],
@@ -2690,11 +2690,11 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 						}, null, 8, ["resource", "schema"])]),
 						_: 2
 					}, 1032, ["resource", "space"])) : __mf_82("", true)], 64);
-				}), 128))
-			], 6);
+				}), 128))], 4)
+			], 2);
 		};
 	}
-}), [["__scopeId", "data-v-1ee72901"]]);
+}), [["__scopeId", "data-v-876aa84e"]]);
 //#endregion
 //#region src/components/ResourceElements.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1 = { class: "resource-elements" };

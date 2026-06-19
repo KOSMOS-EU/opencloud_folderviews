@@ -1,6 +1,6 @@
 <template>
-  <div class="element-container" :class="{ 'element-container-nested': depth > 0 }" :style="containerStyle">
-    <!-- Container header for nested divs -->
+  <div class="element-container-wrap" :class="{ 'element-container-nested': depth > 0 }">
+    <!-- Container header OUTSIDE the grid/flex flow -->
     <div v-if="depth > 0 && folderName" class="element-container-header">
       <span class="element-container-label">{{ folderName }}</span>
       <button v-if="divParams" class="element-container-edit" @click.stop="editOpen = !editOpen">
@@ -43,10 +43,12 @@
         <span>Neues Dokument</span>
       </button>
     </div>
-    <div v-if="loading" class="element-container-loading">
-      <oc-spinner size="small" /> Laden...
-    </div>
-    <template v-else v-for="r in visibleChildren" :key="r.id">
+    <!-- Content area with grid/flex layout -->
+    <div class="element-container" :style="containerStyle">
+      <div v-if="loading" class="element-container-loading">
+        <oc-spinner size="small" /> Laden...
+      </div>
+      <template v-else v-for="r in visibleChildren" :key="r.id">
       <!-- Folder with container schema: recurse -->
       <element-container
         v-if="r.type === 'folder' && containerTypes.has(r.id)"
@@ -64,6 +66,7 @@
       </element-frame>
       <!-- Folder without container schema: skip (navigate via markdown links) -->
     </template>
+    </div>
   </div>
 </template>
 
