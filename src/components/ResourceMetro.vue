@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <typed-folder-toolbar :space="space" />
   <resource-tiles
     v-bind="$attrs"
     v-model:selected-ids="selectedIds"
@@ -24,11 +26,13 @@
       <slot name="contextMenu" :resource="resource" />
     </template>
   </resource-tiles>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
+import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import { ResourceTiles, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { displayName as buildDisplayName, getFileReference } from '../composables/useFileReference'

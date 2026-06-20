@@ -1,5 +1,6 @@
 <template>
   <div class="resource-tree">
+    <typed-folder-toolbar :space="space" />
     <resource-table
       :selected-ids="[]"
       :resources="visibleResources"
@@ -50,6 +51,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import { displayName as buildDisplayName, compareByDisplayName, getFileReference } from '../composables/useFileReference'
 
 const props = defineProps<{

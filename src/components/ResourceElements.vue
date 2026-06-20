@@ -3,16 +3,18 @@
     <div v-if="!ready" class="resource-elements-loading">
       <oc-spinner size="small" /> Laden...
     </div>
-    <!-- Typed container: recursive element rendering -->
-    <element-container
-      v-else-if="rootSchema"
-      :resources="resources"
-      :path="currentPath"
-      :depth="0"
-      :schema="rootSchema"
-      :div-params="rootDivParams"
-      :space="space"
-    />
+    <!-- Typed container: toolbar + recursive element rendering -->
+    <template v-else-if="rootSchema">
+      <typed-folder-toolbar :space="space" />
+      <element-container
+        :resources="resources"
+        :path="currentPath"
+        :depth="0"
+        :schema="rootSchema"
+        :div-params="rootDivParams"
+        :space="space"
+      />
+    </template>
     <!-- Untyped: space overview or plain folder → clickable cards -->
     <div v-else class="element-cards">
       <div
@@ -35,6 +37,7 @@ import { useResourcesStore, useRouter, createFileRouteOptions, createLocationSpa
 import { useElementRenderer, ELEMENT_RENDERER_KEY } from '../composables/useElementRenderer'
 import { type TypedFolderSchema, type ElementLayout } from '../composables/types'
 import ElementContainer from './ElementContainer.vue'
+import TypedFolderToolbar from './TypedFolderToolbar.vue'
 
 const props = defineProps<{
   resources: Resource[]

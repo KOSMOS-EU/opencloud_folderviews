@@ -228,8 +228,8 @@ function useTypedFolderSchema(space, folderType) {
 }
 //#endregion
 //#region src/views/AktenplanView.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$12 = { class: "typed-folder-view aktenplan-view" };
-var _hoisted_2$9 = { class: "typed-folder-header" };
+var _hoisted_1$13 = { class: "typed-folder-view aktenplan-view" };
+var _hoisted_2$10 = { class: "typed-folder-header" };
 var _hoisted_3$8 = { class: "typed-folder-type-badge" };
 var _hoisted_4$3 = {
 	key: 0,
@@ -259,7 +259,7 @@ var AktenplanView_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ __
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$9, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$13, [__mf_84("div", _hoisted_2$10, [
 				__mf_84("span", _hoisted_3$8, __mf_61(badgeLabel.value), 1),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_4$3, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(__mf_55(allowedChildren), (childType) => {
@@ -285,8 +285,8 @@ var _plugin_vue_export_helper_default = (sfc, props) => {
 var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-d2ae2426"]]);
 //#endregion
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$11 = { class: "typed-folder-view akte-view" };
-var _hoisted_2$8 = { class: "typed-folder-header" };
+var _hoisted_1$12 = { class: "typed-folder-view akte-view" };
+var _hoisted_2$9 = { class: "typed-folder-header" };
 var _hoisted_3$7 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -314,7 +314,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$8, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$9, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Akte", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$7, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
@@ -328,8 +328,8 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 }), [["__scopeId", "data-v-ff8fa053"]]);
 //#endregion
 //#region src/views/VorgangView.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$10 = { class: "typed-folder-view vorgang-view" };
-var _hoisted_2$7 = { class: "typed-folder-header" };
+var _hoisted_1$11 = { class: "typed-folder-view vorgang-view" };
+var _hoisted_2$8 = { class: "typed-folder-header" };
 var _hoisted_3$6 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -357,7 +357,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$7, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$8, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Vorgang", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$6, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
@@ -371,8 +371,8 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 }), [["__scopeId", "data-v-a2e80d90"]]);
 //#endregion
 //#region src/views/RegisterView.vue?vue&type=script&setup=true&lang.ts
-var _hoisted_1$9 = { class: "typed-folder-view register-view" };
-var _hoisted_2$6 = { class: "typed-folder-header" };
+var _hoisted_1$10 = { class: "typed-folder-view register-view" };
+var _hoisted_2$7 = { class: "typed-folder-header" };
 var _hoisted_3$5 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -389,7 +389,7 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$9, [__mf_84("div", _hoisted_2$6, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$7, [
 				_cache[0] || (_cache[0] = __mf_84("span", { class: "typed-folder-type-badge register" }, "Register", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$5, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				_cache[1] || (_cache[1] = __mf_84("span", { class: "typed-folder-hint" }, "Dokumente ablegen", -1))
@@ -397,6 +397,63 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		};
 	}
 }), [["__scopeId", "data-v-3013caf1"]]);
+//#endregion
+//#region src/components/TypedFolderToolbar.vue?vue&type=script&setup=true&lang.ts
+var _hoisted_1$9 = {
+	key: 0,
+	class: "typed-toolbar"
+};
+var _hoisted_2$6 = ["onClick"];
+//#endregion
+//#region src/components/TypedFolderToolbar.vue
+var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
+	__name: "TypedFolderToolbar",
+	props: { space: {} },
+	setup(__props) {
+		const props = __props;
+		const resourcesStore = __mf_306();
+		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
+		const currentType = __mf_80(() => {
+			const typeFile = (resourcesStore.resources || []).find((r) => r.name?.startsWith("_type_"));
+			return typeFile ? typeFile.name.substring(6) : void 0;
+		});
+		const isTyped = __mf_80(() => !!__mf_55(currentType));
+		const spaceRef = __mf_80(() => props.space);
+		const { schema } = useTypedFolderSchema(spaceRef, currentType);
+		const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(spaceRef, currentFolder, schema);
+		const typeLabels = {
+			aktenplan: "Neue Aktenstruktur",
+			akte: "Neue Akte",
+			vorgang: "Neuer Vorgang",
+			register: "Neues Register"
+		};
+		const childButtons = __mf_80(() => {
+			return __mf_55(allowedChildren).map((childType) => ({
+				type: childType,
+				label: typeLabels[childType] || `Neu: ${childType}`,
+				action: () => {
+					const label = typeLabels[childType] || childType;
+					const name = prompt(`Name (${label}):`);
+					if (!name) return;
+					createTypedChild(childType, name.trim());
+				}
+			}));
+		});
+		return (_ctx, _cache) => {
+			const _component_oc_icon = __mf_140("oc-icon");
+			return isTyped.value && __mf_55(canCreate) ? (__mf_132(), __mf_83$1("div", _hoisted_1$9, [(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(childButtons.value, (child) => {
+				return __mf_132(), __mf_83$1("button", {
+					key: child.type,
+					class: "typed-toolbar-btn",
+					onClick: ($event) => child.action()
+				}, [__mf_91$1(_component_oc_icon, {
+					name: "add",
+					size: "small"
+				}), __mf_84("span", null, __mf_61(child.label), 1)], 8, _hoisted_2$6);
+			}), 128))])) : __mf_82("", true);
+		};
+	}
+}), [["__scopeId", "data-v-910952ca"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };
@@ -528,7 +585,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
 			const _component_oc_spinner = __mf_140("oc-spinner");
-			return __mf_132(), __mf_83$1("div", _hoisted_1$8, [__mf_91$1(__mf_55(__mf_89), {
+			return __mf_132(), __mf_83$1("div", _hoisted_1$8, [__mf_91$1(TypedFolderToolbar_default, { space: __props.space }, null, 8, ["space"]), __mf_91$1(__mf_55(__mf_89), {
 				"selected-ids": [],
 				resources: visibleResources.value,
 				"view-mode": "resource-table-condensed",
@@ -577,7 +634,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			])]);
 		};
 	}
-}), [["__scopeId", "data-v-013bbbb8"]]);
+}), [["__scopeId", "data-v-ad4f3a66"]]);
 //#endregion
 //#region src/components/ResourceMetro.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$7 = { class: "metro-tile-label" };
@@ -638,7 +695,7 @@ var ResourceMetro_default = /* @__PURE__ */ __mf_93({
 			return props.resources.filter((r) => !r.name?.startsWith("_type_"));
 		});
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_81(__mf_55(__mf_91), __mf_118(_ctx.$attrs, {
+			return __mf_132(), __mf_83$1("div", null, [__mf_91$1(TypedFolderToolbar_default, { space: __props.space }, null, 8, ["space"]), __mf_91$1(__mf_55(__mf_91), __mf_118(_ctx.$attrs, {
 				"selected-ids": selectedIds.value,
 				"onUpdate:selectedIds": _cache[0] || (_cache[0] = ($event) => selectedIds.value = $event),
 				resources: filteredResources.value,
@@ -670,7 +727,7 @@ var ResourceMetro_default = /* @__PURE__ */ __mf_93({
 				"header-position",
 				"view-size",
 				"drag-drop"
-			]);
+			])]);
 		};
 	}
 });
@@ -3103,8 +3160,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 		return (_ctx, _cache) => {
 			const _component_oc_spinner = __mf_140("oc-spinner");
 			const _component_oc_icon = __mf_140("oc-icon");
-			return __mf_132(), __mf_83$1("div", _hoisted_1, [!ready.value ? (__mf_132(), __mf_83$1("div", _hoisted_2, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[0] || (_cache[0] = __mf_90(" Laden... ", -1))])) : rootSchema.value ? (__mf_132(), __mf_81(ElementContainer_default, {
-				key: 1,
+			return __mf_132(), __mf_83$1("div", _hoisted_1, [!ready.value ? (__mf_132(), __mf_83$1("div", _hoisted_2, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[0] || (_cache[0] = __mf_90(" Laden... ", -1))])) : rootSchema.value ? (__mf_132(), __mf_83$1(__mf_69, { key: 1 }, [__mf_91$1(TypedFolderToolbar_default, { space: __props.space }, null, 8, ["space"]), __mf_91$1(ElementContainer_default, {
 				resources: __props.resources,
 				path: currentPath.value,
 				depth: 0,
@@ -3117,7 +3173,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				"schema",
 				"div-params",
 				"space"
-			])) : (__mf_132(), __mf_83$1("div", _hoisted_3, [(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(filteredResources.value, (r) => {
+			])], 64)) : (__mf_132(), __mf_83$1("div", _hoisted_3, [(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(filteredResources.value, (r) => {
 				return __mf_132(), __mf_83$1("div", {
 					key: r.id,
 					class: "element-card",
@@ -3129,7 +3185,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			}), 128))]))]);
 		};
 	}
-}), [["__scopeId", "data-v-2e1ade4a"]]);
+}), [["__scopeId", "data-v-280c009d"]]);
 //#endregion
 //#region src/index.ts
 var applicationId = "folderviews";

@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["../assets/folderviews-CzQcS_l6.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["../assets/folderviews-BKrHivNI.css"])))=>i.map(i=>d[i]);
 import { t as __vitePreload } from "./preload-helper-CW7Fztz1.mjs";
 //#region virtual:mf-exposes:__mfe_internal__folderviews__remoteEntry_mjs
 var cssAssetMap = {};
