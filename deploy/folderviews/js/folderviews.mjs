@@ -1,4 +1,4 @@
-import { a as __mf_237, c as __mf_306, d as __mf_89, f as __mf_91, i as __mf_228, l as __mf_314, n as __mf_143, o as __mf_241, r as __mf_146, s as __mf_243, t as __mf_137, u as __mf_83 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-Cls8eazl.mjs";
+import { a as __mf_237, c as __mf_291, d as __mf_83, f as __mf_89, i as __mf_228, l as __mf_306, n as __mf_143, o as __mf_241, p as __mf_91, r as __mf_146, s as __mf_243, t as __mf_137, u as __mf_314 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-DSszk_j_.mjs";
 import { A as __mf_81, C as __mf_55, D as __mf_69, E as __mf_61, F as __mf_91$1, I as __mf_93, M as __mf_83$1, N as __mf_84, O as __mf_73, P as __mf_90, S as __mf_45, T as __mf_60, _ as __mf_20, a as __mf_126, b as __mf_39, c as __mf_134, d as __mf_140, f as __mf_142, g as __mf_168, h as __mf_166, i as __mf_119, j as __mf_82, k as __mf_80, l as __mf_138, m as __mf_161, n as __mf_117, o as __mf_130, p as __mf_154, r as __mf_118, s as __mf_132, t as __mf_112, u as __mf_139, v as __mf_21, w as __mf_58, x as __mf_43, y as __mf_24 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-DkSBazTV.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
@@ -71,6 +71,162 @@ function compareByDisplayName(a, b, showAktz) {
 	return na.localeCompare(nb, void 0, { numeric: true });
 }
 //#endregion
+//#region src/composables/useTypedFolderActions.ts
+function useTypedFolderActions(space, currentFolder, schema) {
+	const clientService = __mf_228();
+	const { showMessage, showErrorMessage } = __mf_291();
+	const resourcesStore = __mf_306();
+	/**
+	* Compute the next file reference (Aktenzeichen) based on the schema pattern
+	* and existing siblings.
+	*/
+	async function computeNextFileReference(childType) {
+		const sp = __mf_55(space);
+		const folder = __mf_55(currentFolder);
+		const s = __mf_55(schema);
+		if (!sp || !folder || !s) return "";
+		const parentRef = getFileReference(folder);
+		if (!parentRef) return "";
+		try {
+			const { body } = await clientService.webdav.getFileContents(sp, { path: `.views/${childType}.json` });
+			const pattern = JSON.parse(typeof body === "string" ? body : new TextDecoder().decode(body))?.fileReferencePattern || "";
+			if (!pattern) return "";
+			const { children } = await clientService.webdav.listFiles(sp, { path: folder.path });
+			let maxSeq = 0;
+			pattern.includes("-") || pattern.includes("/") || pattern.includes("#");
+			for (const child of children) {
+				if (child.type !== "folder") continue;
+				const ref = getFileReference(child);
+				if (!ref || !ref.startsWith(parentRef)) continue;
+				const parts = ref.substring(parentRef.length).split(/[.\-/#]/).filter(Boolean);
+				if (parts.length > 0) {
+					const num = parseInt(parts[parts.length - 1], 10);
+					if (!isNaN(num) && num > maxSeq) maxSeq = num;
+				}
+			}
+			const nextSeq = maxSeq + 1;
+			return pattern.replace("{parentRef}", parentRef).replace(/\{seq:(\d+)\}/g, (_, digits) => String(nextSeq).padStart(parseInt(digits), "0")).replace("{seq}", String(nextSeq));
+		} catch {
+			return "";
+		}
+	}
+	/**
+	* Create a typed child folder with type marker and file reference.
+	*/
+	async function createTypedChild(childType, name) {
+		const sp = __mf_55(space);
+		const folder = __mf_55(currentFolder);
+		if (!sp || !folder) return;
+		const path = folder.path.replace(/\/?$/, `/${name}`);
+		try {
+			await clientService.webdav.createFolder(sp, { path });
+			await clientService.webdav.putFileContents(sp, {
+				path: path + `/_type_${childType}`,
+				content: ""
+			});
+			const { children } = await clientService.webdav.listFiles(sp, { path: folder.path });
+			const newFolder = children.find((r) => r.name === name);
+			if (!newFolder) throw new Error("Folder not found after creation");
+			const fileRef = await computeNextFileReference(childType);
+			if (fileRef) {
+				const httpClient = clientService.httpAuthenticated;
+				if (httpClient) {
+					const itemId = `${sp.id}!${newFolder.id.split("!").pop()}`;
+					await httpClient.put(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/metadata`, { "oy.fileReference": fileRef });
+				}
+			}
+			resourcesStore.upsertResource(newFolder);
+			showMessage({ title: `${name} erstellt` });
+		} catch (e) {
+			showErrorMessage({
+				title: "Fehler beim Erstellen",
+				errors: [e]
+			});
+		}
+	}
+	return {
+		createTypedChild,
+		computeNextFileReference,
+		allowedChildren: __mf_80(() => {
+			const s = __mf_55(schema);
+			if (!s?.children) return [];
+			if (Array.isArray(s.children)) return s.children;
+			const state = __mf_55(currentFolder)?.immutableState || "";
+			if (state === "protected" && s.children.protected) return s.children.protected;
+			if (state === "shielded" && s.children.shielded) return s.children.shielded;
+			return s.children.default || [];
+		}),
+		canCreate: __mf_80(() => {
+			const folder = __mf_55(currentFolder);
+			if (!folder) return false;
+			const perms = folder.permissions || "";
+			return perms.includes("C") || perms.includes("K");
+		})
+	};
+}
+//#endregion
+//#region src/composables/useTypedFolderSchema.ts
+var schemaCache = /* @__PURE__ */ new Map();
+function useTypedFolderSchema(space, folderType) {
+	const clientService = __mf_228();
+	const schema = __mf_45(null);
+	const loading = __mf_45(false);
+	const error = __mf_45(null);
+	const isTyped = __mf_80(() => !!__mf_55(folderType));
+	async function loadSchema() {
+		const type = __mf_55(folderType);
+		const sp = __mf_55(space);
+		if (!type || !sp) {
+			schema.value = null;
+			return;
+		}
+		const spaceId = sp.id;
+		if (!schemaCache.has(spaceId)) schemaCache.set(spaceId, /* @__PURE__ */ new Map());
+		const spaceSchemas = schemaCache.get(spaceId);
+		if (spaceSchemas.has(type)) {
+			schema.value = spaceSchemas.get(type);
+			return;
+		}
+		loading.value = true;
+		error.value = null;
+		try {
+			const { getFileContents } = clientService.webdav;
+			const { body } = await getFileContents(sp, { path: `.views/${type}.json` });
+			const parsed = JSON.parse(body);
+			if (!parsed.label || !Array.isArray(parsed.children)) {
+				error.value = `Invalid schema for type "${type}": missing label or children`;
+				schema.value = null;
+				spaceSchemas.set(type, null);
+				return;
+			}
+			schema.value = parsed;
+			spaceSchemas.set(type, parsed);
+		} catch (e) {
+			if (e?.statusCode === 404 || e?.response?.status === 404) {
+				schema.value = null;
+				spaceSchemas.set(type, null);
+			} else {
+				error.value = `Failed to load schema for type "${type}": ${e.message || e}`;
+				schema.value = null;
+			}
+		} finally {
+			loading.value = false;
+		}
+	}
+	function invalidateCache(spaceId) {
+		if (spaceId) schemaCache.delete(spaceId);
+		else schemaCache.clear();
+	}
+	__mf_161([folderType, space], () => loadSchema(), { immediate: true });
+	return {
+		schema,
+		isTyped,
+		loading,
+		error,
+		invalidateCache
+	};
+}
+//#endregion
 //#region src/views/AktenplanView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$12 = { class: "typed-folder-view aktenplan-view" };
 var _hoisted_2$9 = { class: "typed-folder-header" };
@@ -79,30 +235,40 @@ var _hoisted_4$3 = {
 	key: 0,
 	class: "typed-folder-aktz"
 };
+var _hoisted_5$2 = ["onClick"];
 var AktenplanView_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ __mf_93({
 	__name: "AktenplanView",
+	props: { space: {} },
 	setup(__props) {
+		const props = __props;
 		const resourcesStore = __mf_306();
-		const showNewDialog = __mf_45(false);
 		const { showAktzInName } = useFolderviewSettings();
 		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
+		const spaceRef = __mf_80(() => props.space || resourcesStore.currentFolder);
+		const { schema } = useTypedFolderSchema(spaceRef, __mf_45("aktenplan"));
+		const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(spaceRef, currentFolder, schema);
 		const isShielded = __mf_80(() => __mf_55(currentFolder)?.immutableState === "shielded");
-		const isProtected = __mf_80(() => __mf_55(currentFolder)?.immutableState === "protected");
-		const canCreateChild = __mf_80(() => __mf_55(isShielded) || !__mf_55(isProtected));
+		const badgeLabel = __mf_80(() => __mf_55(isShielded) ? "Aktenschrank" : "Aktenplan");
 		const fileRef = __mf_80(() => {
 			const r = __mf_55(currentFolder);
-			console.log("[AktenplanView] currentFolder:", r?.name, "extraProps:", r?.extraProps);
 			return r ? getFileReference(r) : "";
 		});
+		function createChild(childType) {
+			const name = prompt(childType === "aktenplan" ? "Name der Aktenstruktur:" : "Name der Akte:");
+			if (!name) return;
+			createTypedChild(childType, name.trim());
+		}
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$9, [
-				__mf_84("span", _hoisted_3$8, __mf_61(isShielded.value ? "Aktenschrank" : "Aktenplan"), 1),
+				__mf_84("span", _hoisted_3$8, __mf_61(badgeLabel.value), 1),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_4$3, __mf_61(fileRef.value), 1)) : __mf_82("", true),
-				canCreateChild.value ? (__mf_132(), __mf_83$1("button", {
-					key: 1,
-					class: "typed-action-btn",
-					onClick: _cache[0] || (_cache[0] = ($event) => showNewDialog.value = true)
-				}, [_cache[1] || (_cache[1] = __mf_84("span", { class: "typed-action-icon" }, "+", -1)), __mf_90(" " + __mf_61(isShielded.value ? "Neue Akte" : "Neue Sachgruppe"), 1)])) : __mf_82("", true)
+				__mf_55(canCreate) ? (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(__mf_55(allowedChildren), (childType) => {
+					return __mf_132(), __mf_83$1("button", {
+						key: childType,
+						class: "typed-action-btn",
+						onClick: ($event) => createChild(childType)
+					}, [_cache[0] || (_cache[0] = __mf_84("span", { class: "typed-action-icon" }, "+", -1)), __mf_90(" " + __mf_61(childType === "aktenplan" ? "Neue Aktenstruktur" : "Neue Akte"), 1)], 8, _hoisted_5$2);
+				}), 128)) : __mf_82("", true)
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
 	}
@@ -116,7 +282,7 @@ var _plugin_vue_export_helper_default = (sfc, props) => {
 };
 //#endregion
 //#region src/views/AktenplanView.vue
-var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-e6a8c74a"]]);
+var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-3139d58e"]]);
 //#endregion
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$11 = { class: "typed-folder-view akte-view" };
@@ -129,26 +295,37 @@ var _hoisted_3$7 = {
 //#region src/views/AkteView.vue
 var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
 	__name: "AkteView",
-	emits: ["new-child"],
+	props: { space: {} },
 	setup(__props) {
+		const props = __props;
 		const resourcesStore = __mf_306();
 		const { showAktzInName } = useFolderviewSettings();
+		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
+		const spaceRef = __mf_80(() => props.space || resourcesStore.currentFolder);
+		const { schema } = useTypedFolderSchema(spaceRef, __mf_45("akte"));
+		const { createTypedChild, canCreate } = useTypedFolderActions(spaceRef, currentFolder, schema);
 		const fileRef = __mf_80(() => {
-			const r = resourcesStore.currentFolder;
+			const r = __mf_55(currentFolder);
 			return r ? getFileReference(r) : "";
 		});
+		function createChild(childType) {
+			const name = prompt("Name des Vorgangs:");
+			if (!name) return;
+			createTypedChild(childType, name.trim());
+		}
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$8, [
-				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge akte" }, "Akte", -1)),
+				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Akte", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$7, __mf_61(fileRef.value), 1)) : __mf_82("", true),
-				__mf_84("button", {
+				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
+					key: 1,
 					class: "typed-action-btn",
-					onClick: _cache[0] || (_cache[0] = ($event) => _ctx.$emit("new-child", "vorgang"))
-				}, [..._cache[1] || (_cache[1] = [__mf_84("span", { class: "typed-action-icon" }, "+", -1), __mf_90(" Neuer Vorgang ", -1)])])
+					onClick: _cache[0] || (_cache[0] = ($event) => createChild("vorgang"))
+				}, [..._cache[1] || (_cache[1] = [__mf_84("span", { class: "typed-action-icon" }, "+", -1), __mf_90(" Neuer Vorgang ", -1)])])) : __mf_82("", true)
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
 	}
-}), [["__scopeId", "data-v-33620925"]]);
+}), [["__scopeId", "data-v-ff8fa053"]]);
 //#endregion
 //#region src/views/VorgangView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$10 = { class: "typed-folder-view vorgang-view" };
@@ -161,26 +338,37 @@ var _hoisted_3$6 = {
 //#region src/views/VorgangView.vue
 var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
 	__name: "VorgangView",
-	emits: ["new-child"],
+	props: { space: {} },
 	setup(__props) {
+		const props = __props;
 		const resourcesStore = __mf_306();
 		const { showAktzInName } = useFolderviewSettings();
+		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
+		const spaceRef = __mf_80(() => props.space || resourcesStore.currentFolder);
+		const { schema } = useTypedFolderSchema(spaceRef, __mf_45("vorgang"));
+		const { createTypedChild, canCreate } = useTypedFolderActions(spaceRef, currentFolder, schema);
 		const fileRef = __mf_80(() => {
-			const r = resourcesStore.currentFolder;
+			const r = __mf_55(currentFolder);
 			return r ? getFileReference(r) : "";
 		});
+		function createChild(childType) {
+			const name = prompt("Name des Registers:");
+			if (!name) return;
+			createTypedChild(childType, name.trim());
+		}
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$7, [
-				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge vorgang" }, "Vorgang", -1)),
+				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Vorgang", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$6, __mf_61(fileRef.value), 1)) : __mf_82("", true),
-				__mf_84("button", {
+				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
+					key: 1,
 					class: "typed-action-btn",
-					onClick: _cache[0] || (_cache[0] = ($event) => _ctx.$emit("new-child", "register"))
-				}, [..._cache[1] || (_cache[1] = [__mf_84("span", { class: "typed-action-icon" }, "+", -1), __mf_90(" Neues Register ", -1)])])
+					onClick: _cache[0] || (_cache[0] = ($event) => createChild("register"))
+				}, [..._cache[1] || (_cache[1] = [__mf_84("span", { class: "typed-action-icon" }, "+", -1), __mf_90(" Neues Register ", -1)])])) : __mf_82("", true)
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
 	}
-}), [["__scopeId", "data-v-067c0a42"]]);
+}), [["__scopeId", "data-v-a2e80d90"]]);
 //#endregion
 //#region src/views/RegisterView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$9 = { class: "typed-folder-view register-view" };

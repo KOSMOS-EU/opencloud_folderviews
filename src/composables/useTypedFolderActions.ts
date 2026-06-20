@@ -1,21 +1,77 @@
 import { computed, unref, Ref } from 'vue'
 import { SpaceResource, Resource } from '@opencloud-eu/web-client'
 import { useClientService, useMessages, useResourcesStore } from '@opencloud-eu/web-pkg'
-import { useGettext } from 'vue3-gettext'
 import { TypedFolderSchema } from './types'
+import { getFileReference } from './useFileReference'
 
 export function useTypedFolderActions(
   space: Ref<SpaceResource>,
   currentFolder: Ref<Resource>,
-  schema: Ref<TypedFolderSchema | null>,
-  childSchemas: Ref<Map<string, TypedFolderSchema>>
+  schema: Ref<TypedFolderSchema | null>
 ) {
   const clientService = useClientService()
-  const { $gettext } = useGettext()
   const { showMessage, showErrorMessage } = useMessages()
   const resourcesStore = useResourcesStore()
 
-  async function createTypedFolder(childType: string, name: string) {
+  /**
+   * Compute the next file reference (Aktenzeichen) based on the schema pattern
+   * and existing siblings.
+   */
+  async function computeNextFileReference(childType: string): Promise<string> {
+    const sp = unref(space)
+    const folder = unref(currentFolder)
+    const s = unref(schema)
+    if (!sp || !folder || !s) return ''
+
+    const parentRef = getFileReference(folder)
+    if (!parentRef) return ''
+
+    // Load child schema to get its fileReferencePattern
+    try {
+      const { body } = await clientService.webdav.getFileContents(sp, {
+        path: `.views/${childType}.json`
+      }) as any
+      const childSchema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body))
+      const pattern = childSchema?.fileReferencePattern || ''
+      if (!pattern) return ''
+
+      // Find highest sequence among siblings
+      const { children } = await clientService.webdav.listFiles(sp, { path: folder.path })
+      let maxSeq = 0
+      const separator = pattern.includes('-') ? '-' : pattern.includes('/') ? '/' : pattern.includes('#') ? '#' : '.'
+
+      for (const child of children) {
+        if (child.type !== 'folder') continue
+        const ref = getFileReference(child)
+        if (!ref || !ref.startsWith(parentRef)) continue
+        const suffix = ref.substring(parentRef.length)
+        // Extract the last numeric part after the separator
+        const parts = suffix.split(/[.\-/#]/).filter(Boolean)
+        if (parts.length > 0) {
+          const num = parseInt(parts[parts.length - 1], 10)
+          if (!isNaN(num) && num > maxSeq) maxSeq = num
+        }
+      }
+
+      const nextSeq = maxSeq + 1
+
+      // Build the reference from pattern
+      // Patterns: {parentRef}.{seq:02}, {parentRef}-{seq:02}, {parentRef}/{seq}, {parentRef}#{seq}
+      let ref = pattern
+        .replace('{parentRef}', parentRef)
+        .replace(/\{seq:(\d+)\}/g, (_, digits) => String(nextSeq).padStart(parseInt(digits), '0'))
+        .replace('{seq}', String(nextSeq))
+
+      return ref
+    } catch {
+      return ''
+    }
+  }
+
+  /**
+   * Create a typed child folder with type marker and file reference.
+   */
+  async function createTypedChild(childType: string, name: string) {
     const sp = unref(space)
     const folder = unref(currentFolder)
     if (!sp || !folder) return
@@ -23,56 +79,74 @@ export function useTypedFolderActions(
     const path = folder.path.replace(/\/?$/, `/${name}`)
 
     try {
-      // Create folder
+      // 1. Create folder
       await clientService.webdav.createFolder(sp, { path })
 
-      // Set type xattr via metadata API
-      const httpClient = clientService.httpAuthenticated
-      // We need the new folder's ID — re-fetch the parent to find it
+      // 2. Create _type_ marker
+      await clientService.webdav.putFileContents(sp, {
+        path: path + `/_type_${childType}`,
+        content: ''
+      })
+
+      // 3. Get the new folder's ID
       const { children } = await clientService.webdav.listFiles(sp, { path: folder.path })
       const newFolder = children.find((r) => r.name === name)
+      if (!newFolder) throw new Error('Folder not found after creation')
 
-      if (newFolder) {
-        await httpClient.put(
-          `/graph/v1beta1/drives/${sp.id}/items/${newFolder.id}/metadata`,
-          { type: childType }
-        )
-
-        // Update local state
-        resourcesStore.upsertResource(newFolder)
+      // 4. Compute and set file reference
+      const fileRef = await computeNextFileReference(childType)
+      if (fileRef) {
+        const httpClient = (clientService as any).httpAuthenticated
+        if (httpClient) {
+          const itemId = `${sp.id}!${newFolder.id.split('!').pop()}`
+          await httpClient.put(
+            `/graph/v1beta1/drives/${sp.id}/items/${itemId}/metadata`,
+            { 'oy.fileReference': fileRef }
+          )
+        }
       }
 
-      const childSchema = unref(childSchemas).get(childType)
-      const label = childSchema?.label || childType
-      showMessage({ title: $gettext('%{label} "%{name}" created', { label, name }) })
+      // 5. Update store
+      resourcesStore.upsertResource(newFolder)
+      showMessage({ title: `${name} erstellt` })
     } catch (e) {
       showErrorMessage({
-        title: $gettext('Failed to create folder'),
+        title: 'Fehler beim Erstellen',
         errors: [e as Error]
       })
     }
   }
 
-  const childActions = computed(() => {
+  /**
+   * Get the allowed child types for the current folder.
+   */
+  const allowedChildren = computed(() => {
     const s = unref(schema)
-    if (!s?.children?.length) return []
+    if (!s?.children) return []
+    // children can be string[] or { protected: string[], shielded: string[], default: string[] }
+    if (Array.isArray(s.children)) return s.children
+    const folder = unref(currentFolder)
+    const state = (folder as any)?.immutableState || ''
+    if (state === 'protected' && (s.children as any).protected) return (s.children as any).protected
+    if (state === 'shielded' && (s.children as any).shielded) return (s.children as any).shielded
+    return (s.children as any).default || []
+  })
 
-    return s.children.map((childType) => {
-      const childSchema = unref(childSchemas).get(childType)
-      const label = childSchema?.label || childType
-      const icon = childSchema?.icon || 'folder'
-
-      return {
-        type: childType,
-        label: $gettext('New %{label}', { label }),
-        icon,
-        handler: (name: string) => createTypedFolder(childType, name)
-      }
-    })
+  /**
+   * Check if the current user can create children.
+   */
+  const canCreate = computed(() => {
+    const folder = unref(currentFolder)
+    if (!folder) return false
+    // Check permissions string for CK (create)
+    const perms = (folder as any).permissions || ''
+    return perms.includes('C') || perms.includes('K')
   })
 
   return {
-    childActions,
-    createTypedFolder
+    createTypedChild,
+    computeNextFileReference,
+    allowedChildren,
+    canCreate
   }
 }

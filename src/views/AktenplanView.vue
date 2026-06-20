@@ -1,11 +1,17 @@
 <template>
   <div class="typed-folder-view aktenplan-view">
     <div class="typed-folder-header">
-      <span class="typed-folder-type-badge">{{ isShielded ? 'Aktenschrank' : 'Aktenplan' }}</span>
+      <span class="typed-folder-type-badge">{{ badgeLabel }}</span>
       <span v-if="fileRef && showAktzInName" class="typed-folder-aktz">{{ fileRef }}</span>
-      <button v-if="canCreateChild" class="typed-action-btn" @click="showNewDialog = true">
+      <button
+        v-for="childType in allowedChildren"
+        :key="childType"
+        v-if="canCreate"
+        class="typed-action-btn"
+        @click="createChild(childType)"
+      >
         <span class="typed-action-icon">+</span>
-        {{ isShielded ? 'Neue Akte' : 'Neue Sachgruppe' }}
+        {{ childType === 'aktenplan' ? 'Neue Aktenstruktur' : 'Neue Akte' }}
       </button>
     </div>
     <slot />
@@ -17,20 +23,36 @@ import { computed, ref, unref } from 'vue'
 import { useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { getFileReference } from '../composables/useFileReference'
+import { useTypedFolderActions } from '../composables/useTypedFolderActions'
+import { useTypedFolderSchema } from '../composables/useTypedFolderSchema'
+
+const props = defineProps<{ space?: any }>()
 
 const resourcesStore = useResourcesStore()
-const showNewDialog = ref(false)
 const { showAktzInName } = useFolderviewSettings()
 
 const currentFolder = computed(() => resourcesStore.currentFolder)
-const isShielded = computed(() => unref(currentFolder)?.immutableState === 'shielded')
-const isProtected = computed(() => unref(currentFolder)?.immutableState === 'protected')
-const canCreateChild = computed(() => unref(isShielded) || !unref(isProtected))
+const spaceRef = computed(() => props.space || resourcesStore.currentFolder)
+const currentType = ref('aktenplan')
+const { schema } = useTypedFolderSchema(spaceRef, currentType)
+
+const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(
+  spaceRef, currentFolder, schema
+)
+
+const isShielded = computed(() => (unref(currentFolder) as any)?.immutableState === 'shielded')
+const badgeLabel = computed(() => unref(isShielded) ? 'Aktenschrank' : 'Aktenplan')
+
 const fileRef = computed(() => {
   const r = unref(currentFolder)
-  console.log('[AktenplanView] currentFolder:', r?.name, 'extraProps:', (r as any)?.extraProps)
   return r ? getFileReference(r) : ''
 })
+
+function createChild(childType: string) {
+  const name = prompt(childType === 'aktenplan' ? 'Name der Aktenstruktur:' : 'Name der Akte:')
+  if (!name) return
+  createTypedChild(childType, name.trim())
+}
 </script>
 
 <style scoped>
