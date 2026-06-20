@@ -32,7 +32,7 @@
         class="metro-tile-content"
         :style="tileStyle(resource)"
       >
-        <span class="metro-tile-label">{{ buildDisplayName(resource, showAktzInName) }}</span>
+        <span class="metro-tile-label">{{ metaDisplayName(resource) }}</span>
         <span v-if="getNote(resource)" class="metro-tile-note">{{ getNote(resource) }}</span>
       </div>
     </template>
@@ -51,7 +51,7 @@
     >
       <div class="metro-tile-content" :style="tileStyle(r)">
         <oc-icon name="book-open" size="large" class="metro-leaf-icon" />
-        <span class="metro-tile-label">{{ buildDisplayName(r, showAktzInName) }}</span>
+        <span class="metro-tile-label">{{ metaDisplayName(r) }}</span>
         <span v-if="getTaskCount(r)" class="metro-tile-badge">{{ getTaskCount(r) }} Aufgaben</span>
       </div>
     </div>
@@ -90,6 +90,8 @@ const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'up
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const patchedRefs = ref(new Map<string, string>())
+// Store metadata values reactively (extraProps mutations aren't tracked by Vue)
+const metaCache = ref(new Map<string, Record<string, string>>())
 const leafFolder = ref<Resource | null>(null)
 // Cache: childType → isLeaf
 const leafSchemaCache = ref(new Map<string, boolean>())
@@ -100,12 +102,16 @@ const taskCountCache = ref(new Map<string, number>())
 // Trigger reactivity when leaf detection completes
 const leafDetectGeneration = ref(0)
 
+function getMeta(resource: Resource, key: string): string {
+  return metaCache.value.get(resource.id)?.[key] || ''
+}
+
 function getColor(resource: Resource): string {
-  return (resource as any).extraProps?.['oc:oy.color'] || ''
+  return getMeta(resource, 'oy.color')
 }
 
 function getNote(resource: Resource): string {
-  return (resource as any).extraProps?.['oc:oy.note'] || ''
+  return getMeta(resource, 'oy.note')
 }
 
 function tileStyle(resource: Resource): Record<string, string> {
@@ -178,30 +184,33 @@ async function patchFileReferences(resources: Resource[]) {
     try {
       const itemId = `${spaceId}!${r.id.split('!').pop()}`
       const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
-      if (!(r as any).extraProps) (r as any).extraProps = {}
-      if (data?.['oy.fileReference']) {
-        ;(r as any).extraProps['oc:oy.fileReference'] = data['oy.fileReference']
-      }
-      if (data?.['oy.color']) {
-        ;(r as any).extraProps['oc:oy.color'] = data['oy.color']
-      }
-      if (data?.['oy.note']) {
-        ;(r as any).extraProps['oc:oy.note'] = data['oy.note']
-      }
+      const meta: Record<string, string> = {}
+      if (data?.['oy.fileReference']) meta['oy.fileReference'] = data['oy.fileReference']
+      if (data?.['oy.color']) meta['oy.color'] = data['oy.color']
+      if (data?.['oy.note']) meta['oy.note'] = data['oy.note']
+      metaCache.value.set(r.id, meta)
       patch.set(r.id, 'done')
       // Check child type for leaf detection
       checkChildType(r)
     } catch { /* ignore */ }
   }
   patchedRefs.value = patch
+  // Trigger reactive update for metaCache (new Map reference)
+  metaCache.value = new Map(metaCache.value)
 }
 
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
+function metaDisplayName(resource: Resource): string {
+  const ref = getMeta(resource, 'oy.fileReference')
+  if (ref) return `${ref} ${resource.name || ''}`
+  return buildDisplayName(resource, showAktzInName.value)
+}
+
 function sortByDisplayName(resources: Resource[]): Resource[] {
   return [...resources].sort((a, b) => {
-    const na = buildDisplayName(a, showAktzInName.value).toLowerCase()
-    const nb = buildDisplayName(b, showAktzInName.value).toLowerCase()
+    const na = metaDisplayName(a).toLowerCase()
+    const nb = metaDisplayName(b).toLowerCase()
     return na.localeCompare(nb, undefined, { numeric: true })
   })
 }
@@ -209,6 +218,7 @@ function sortByDisplayName(resources: Resource[]): Resource[] {
 const filteredResources = computed(() => {
   void patchedRefs.value
   void leafDetectGeneration.value
+  void metaCache.value
   return sortByDisplayName(props.resources.filter(r => !r.name?.startsWith('_type_')))
 })
 
