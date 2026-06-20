@@ -24,29 +24,19 @@ export function useTypedFolderActions(
     if (!sp || !folder || !s) return ''
 
     const parentRef = getFileReference(folder)
-    if (!parentRef) return ''
+    const isRoot = !folder.path || folder.path === '/'
 
-    // Load child schema to get its fileReferencePattern
     try {
-      const { body } = await clientService.webdav.getFileContents(sp, {
-        path: `.views/${childType}.json`
-      }) as any
-      const childSchema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body))
-      const pattern = childSchema?.fileReferencePattern || ''
-      if (!pattern) return ''
-
       // Find highest sequence among siblings
       const { children } = await clientService.webdav.listFiles(sp, { path: folder.path })
       let maxSeq = 0
-      const separator = pattern.includes('-') ? '-' : pattern.includes('/') ? '/' : pattern.includes('#') ? '#' : '.'
 
       for (const child of children) {
         if (child.type !== 'folder') continue
         const ref = getFileReference(child)
-        if (!ref || !ref.startsWith(parentRef)) continue
-        const suffix = ref.substring(parentRef.length)
-        // Extract the last numeric part after the separator
-        const parts = suffix.split(/[.\-/#]/).filter(Boolean)
+        if (!ref) continue
+        // Extract the last numeric part
+        const parts = ref.split(/[.\-/#]/).filter(Boolean)
         if (parts.length > 0) {
           const num = parseInt(parts[parts.length - 1], 10)
           if (!isNaN(num) && num > maxSeq) maxSeq = num
@@ -55,14 +45,13 @@ export function useTypedFolderActions(
 
       const nextSeq = maxSeq + 1
 
-      // Build the reference from pattern
-      // Patterns: {parentRef}.{seq:02}, {parentRef}-{seq:02}, {parentRef}/{seq}, {parentRef}#{seq}
-      let ref = pattern
-        .replace('{parentRef}', parentRef)
-        .replace(/\{seq:(\d+)\}/g, (_, digits) => String(nextSeq).padStart(parseInt(digits), '0'))
-        .replace('{seq}', String(nextSeq))
+      if (isRoot || !parentRef) {
+        // Top-level: just a zero-padded sequence number
+        return String(nextSeq).padStart(2, '0')
+      }
 
-      return ref
+      // Nested: parentRef + separator + sequence
+      return `${parentRef}.${String(nextSeq).padStart(2, '0')}`
     } catch {
       return ''
     }
