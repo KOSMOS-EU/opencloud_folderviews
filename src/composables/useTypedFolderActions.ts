@@ -114,12 +114,19 @@ export function useTypedFolderActions(
         }
       }
 
-      // 5. Protect the new folder (Aktenstruktur gets protected)
-      if (childType === 'aktenplan' && httpClient) {
-        const newItemId = `${sp.id}!${newFolder.id.split('!').pop()}`
+      // 5. Protect the new folder if its schema has protectButtonVisible
+      //    (Aktenstruktur / Lernplan — child folders get protected on creation)
+      if (httpClient) {
         try {
-          await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${newItemId}/protect`)
-        } catch { /* ignore if protect fails */ }
+          const { body: childBody } = await clientService.webdav.getFileContents(sp, {
+            path: `.views/${childType}.json`
+          }) as any
+          const childSchema = JSON.parse(typeof childBody === 'string' ? childBody : new TextDecoder().decode(childBody))
+          if (childSchema?.protectButtonVisible) {
+            const newItemId = `${sp.id}!${newFolder.id.split('!').pop()}`
+            await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${newItemId}/protect`)
+          }
+        } catch { /* ignore if protect fails or schema not found */ }
       }
 
       // 6. Re-protect parent if we unprotected it

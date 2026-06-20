@@ -20,7 +20,13 @@
     @sort="$emit('sort', $event)"
   >
     <template #image="{ resource }">
-      <span class="metro-tile-label">{{ buildDisplayName(resource, showAktzInName) }}</span>
+      <div
+        class="metro-tile-content"
+        :style="tileStyle(resource)"
+      >
+        <span class="metro-tile-label">{{ buildDisplayName(resource, showAktzInName) }}</span>
+        <span v-if="getNote(resource)" class="metro-tile-note">{{ getNote(resource) }}</span>
+      </div>
     </template>
     <template #contextMenu="{ resource }">
       <slot name="contextMenu" :resource="resource" />
@@ -57,9 +63,25 @@ const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const patchedRefs = ref(new Map<string, string>())
 
+function getColor(resource: Resource): string {
+  return (resource as any).extraProps?.['oc:oy.color'] || ''
+}
+
+function getNote(resource: Resource): string {
+  return (resource as any).extraProps?.['oc:oy.note'] || ''
+}
+
+function tileStyle(resource: Resource): Record<string, string> {
+  const color = getColor(resource)
+  if (!color) return {}
+  return {
+    backgroundColor: color,
+    color: '#fff'
+  }
+}
+
 async function patchFileReferences(resources: Resource[]) {
-  if (!showAktzInName.value) return
-  const missing = resources.filter(r => r.type === 'folder' && !getFileReference(r) && !patchedRefs.value.has(r.id))
+  const missing = resources.filter(r => r.type === 'folder' && !patchedRefs.value.has(r.id))
   if (!missing.length) return
   const httpClient = (clientService as any).httpAuthenticated
   if (!httpClient) return
@@ -69,12 +91,17 @@ async function patchFileReferences(resources: Resource[]) {
     try {
       const itemId = `${spaceId}!${r.id.split('!').pop()}`
       const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
-      const ref = data?.['oy.fileReference']
-      if (ref) {
-        patch.set(r.id, ref)
-        if (!(r as any).extraProps) (r as any).extraProps = {}
-        ;(r as any).extraProps['oc:oy.fileReference'] = ref
+      if (!(r as any).extraProps) (r as any).extraProps = {}
+      if (data?.['oy.fileReference']) {
+        ;(r as any).extraProps['oc:oy.fileReference'] = data['oy.fileReference']
       }
+      if (data?.['oy.color']) {
+        ;(r as any).extraProps['oc:oy.color'] = data['oy.color']
+      }
+      if (data?.['oy.note']) {
+        ;(r as any).extraProps['oc:oy.note'] = data['oy.note']
+      }
+      patch.set(r.id, 'done')
     } catch { /* ignore */ }
   }
   patchedRefs.value = patch
@@ -95,6 +122,17 @@ const filteredResources = computed(() => {
   outline-color: var(--oc-role-outline-variant) !important;
   background: var(--oc-role-outline-variant) !important;
 }
+/* Tile content container */
+.metro-view .metro-tile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  border-radius: 4px;
+}
 /* Center the label in the preview area */
 .metro-view .metro-tile-label {
   font-weight: 700;
@@ -102,7 +140,18 @@ const filteredResources = computed(() => {
   text-align: center;
   word-break: break-word;
   line-height: 1.4;
-  padding: 8px;
+}
+/* Note/description under tile title */
+.metro-view .metro-tile-note {
+  font-size: 11px;
+  opacity: 0.85;
+  text-align: center;
+  line-height: 1.3;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 /* Hide name in bottom bar, push icons to the right */
 .metro-view .resource-name-wrapper { display: none !important; }

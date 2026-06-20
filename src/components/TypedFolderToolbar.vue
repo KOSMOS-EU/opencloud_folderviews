@@ -50,7 +50,6 @@ const currentFolder = computed(() => resourcesStore.currentFolder)
 const currentType = computed(() => {
   const resources = resourcesStore.resources || []
   const typeFile = resources.find(r => r.name?.startsWith('_type_'))
-  console.log('[TypedToolbar] resources:', resources.length, 'names:', resources.map(r => r.name).filter(n => n?.startsWith('_type_')), 'found:', typeFile?.name)
   return typeFile ? typeFile.name.substring(6) : undefined
 })
 
@@ -103,7 +102,9 @@ const typeLabels: Record<string, string> = {
   aktenplan: 'Neue Aktenstruktur',
   akte: 'Neue Akte',
   vorgang: 'Neuer Vorgang',
-  register: 'Neues Register'
+  register: 'Neues Register',
+  lernplan: 'Neuer Lernbereich',
+  thema: 'Neues Thema'
 }
 
 const childButtons = computed(() => {

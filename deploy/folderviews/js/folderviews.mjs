@@ -139,12 +139,13 @@ function useTypedFolderActions(space, currentFolder, schema) {
 					await httpClient.put(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/metadata`, { "oy.fileReference": fileRef });
 				}
 			}
-			if (childType === "aktenplan" && httpClient) {
-				const newItemId = `${sp.id}!${newFolder.id.split("!").pop()}`;
-				try {
+			if (httpClient) try {
+				const { body: childBody } = await clientService.webdav.getFileContents(sp, { path: `.views/${childType}.json` });
+				if (JSON.parse(typeof childBody === "string" ? childBody : new TextDecoder().decode(childBody))?.protectButtonVisible) {
+					const newItemId = `${sp.id}!${newFolder.id.split("!").pop()}`;
 					await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${newItemId}/protect`);
-				} catch {}
-			}
+				}
+			} catch {}
 			if (parentImmutable === "protected" && httpClient) try {
 				await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`);
 			} catch {}
@@ -255,7 +256,7 @@ function useTypedFolderSchema(space, folderType) {
 //#endregion
 //#region src/views/AktenplanView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$13 = { class: "typed-folder-view aktenplan-view" };
-var _hoisted_2$9 = { class: "typed-folder-header" };
+var _hoisted_2$10 = { class: "typed-folder-header" };
 var _hoisted_3$8 = { class: "typed-folder-type-badge" };
 var _hoisted_4$3 = {
 	key: 0,
@@ -285,7 +286,7 @@ var AktenplanView_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ __
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$13, [__mf_84("div", _hoisted_2$9, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$13, [__mf_84("div", _hoisted_2$10, [
 				__mf_84("span", _hoisted_3$8, __mf_61(badgeLabel.value), 1),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_4$3, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(__mf_55(allowedChildren), (childType) => {
@@ -312,7 +313,7 @@ var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(Akte
 //#endregion
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$12 = { class: "typed-folder-view akte-view" };
-var _hoisted_2$8 = { class: "typed-folder-header" };
+var _hoisted_2$9 = { class: "typed-folder-header" };
 var _hoisted_3$7 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -340,7 +341,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$8, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$9, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Akte", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$7, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
@@ -355,7 +356,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 //#endregion
 //#region src/views/VorgangView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$11 = { class: "typed-folder-view vorgang-view" };
-var _hoisted_2$7 = { class: "typed-folder-header" };
+var _hoisted_2$8 = { class: "typed-folder-header" };
 var _hoisted_3$6 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -383,7 +384,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$7, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$8, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Vorgang", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$6, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
@@ -398,7 +399,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 //#endregion
 //#region src/views/RegisterView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$10 = { class: "typed-folder-view register-view" };
-var _hoisted_2$6 = { class: "typed-folder-header" };
+var _hoisted_2$7 = { class: "typed-folder-header" };
 var _hoisted_3$5 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -415,7 +416,7 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$6, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$7, [
 				_cache[0] || (_cache[0] = __mf_84("span", { class: "typed-folder-type-badge register" }, "Register", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$5, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				_cache[1] || (_cache[1] = __mf_84("span", { class: "typed-folder-hint" }, "Dokumente ablegen", -1))
@@ -440,9 +441,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 		const clientService = __mf_228();
 		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
 		const currentType = __mf_80(() => {
-			const resources = resourcesStore.resources || [];
-			const typeFile = resources.find((r) => r.name?.startsWith("_type_"));
-			console.log("[TypedToolbar] resources:", resources.length, "names:", resources.map((r) => r.name).filter((n) => n?.startsWith("_type_")), "found:", typeFile?.name);
+			const typeFile = (resourcesStore.resources || []).find((r) => r.name?.startsWith("_type_"));
 			return typeFile ? typeFile.name.substring(6) : void 0;
 		});
 		const isTyped = __mf_80(() => !!__mf_55(currentType));
@@ -485,7 +484,9 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			aktenplan: "Neue Aktenstruktur",
 			akte: "Neue Akte",
 			vorgang: "Neuer Vorgang",
-			register: "Neues Register"
+			register: "Neues Register",
+			lernplan: "Neuer Lernbereich",
+			thema: "Neues Thema"
 		};
 		const childButtons = __mf_80(() => {
 			return __mf_55(allowedChildren).map((childType) => ({
@@ -544,11 +545,11 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-8871ff75"]]);
+}), [["__scopeId", "data-v-b7072fff"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };
-var _hoisted_2$5 = ["onClick"];
+var _hoisted_2$6 = ["onClick"];
 var _hoisted_3$4 = {
 	key: 1,
 	class: "tree-spacer"
@@ -702,7 +703,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 					}, [__mf_91$1(_component_oc_icon, {
 						name: isExpanded(resource.id) ? "arrow-down-s" : "arrow-right-s",
 						size: "small"
-					}, null, 8, ["name"])], 8, _hoisted_2$5)) : (__mf_132(), __mf_83$1("span", _hoisted_3$4)),
+					}, null, 8, ["name"])], 8, _hoisted_2$6)) : (__mf_132(), __mf_83$1("span", _hoisted_3$4)),
 					__mf_91$1(__mf_55(__mf_83), {
 						resource,
 						size: "small",
@@ -729,6 +730,10 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 //#endregion
 //#region src/components/ResourceMetro.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$7 = { class: "metro-tile-label" };
+var _hoisted_2$5 = {
+	key: 0,
+	class: "metro-tile-note"
+};
 //#endregion
 //#region src/components/ResourceMetro.vue
 var ResourceMetro_default = /* @__PURE__ */ __mf_93({
@@ -760,9 +765,22 @@ var ResourceMetro_default = /* @__PURE__ */ __mf_93({
 		const props = __props;
 		const selectedIds = __mf_154(__props, "selectedIds");
 		const patchedRefs = __mf_45(/* @__PURE__ */ new Map());
+		function getColor(resource) {
+			return resource.extraProps?.["oc:oy.color"] || "";
+		}
+		function getNote(resource) {
+			return resource.extraProps?.["oc:oy.note"] || "";
+		}
+		function tileStyle(resource) {
+			const color = getColor(resource);
+			if (!color) return {};
+			return {
+				backgroundColor: color,
+				color: "#fff"
+			};
+		}
 		async function patchFileReferences(resources) {
-			if (!showAktzInName.value) return;
-			const missing = resources.filter((r) => r.type === "folder" && !getFileReference(r) && !patchedRefs.value.has(r.id));
+			const missing = resources.filter((r) => r.type === "folder" && !patchedRefs.value.has(r.id));
 			if (!missing.length) return;
 			const httpClient = clientService.httpAuthenticated;
 			if (!httpClient) return;
@@ -771,12 +789,11 @@ var ResourceMetro_default = /* @__PURE__ */ __mf_93({
 			for (const r of missing) try {
 				const itemId = `${spaceId}!${r.id.split("!").pop()}`;
 				const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`);
-				const ref = data?.["oy.fileReference"];
-				if (ref) {
-					patch.set(r.id, ref);
-					if (!r.extraProps) r.extraProps = {};
-					r.extraProps["oc:oy.fileReference"] = ref;
-				}
+				if (!r.extraProps) r.extraProps = {};
+				if (data?.["oy.fileReference"]) r.extraProps["oc:oy.fileReference"] = data["oy.fileReference"];
+				if (data?.["oy.color"]) r.extraProps["oc:oy.color"] = data["oy.color"];
+				if (data?.["oy.note"]) r.extraProps["oc:oy.note"] = data["oy.note"];
+				patch.set(r.id, "done");
 			} catch {}
 			patchedRefs.value = patch;
 		}
@@ -804,7 +821,10 @@ var ResourceMetro_default = /* @__PURE__ */ __mf_93({
 				onItemVisible: _cache[3] || (_cache[3] = ($event) => _ctx.$emit("itemVisible", $event)),
 				onSort: _cache[4] || (_cache[4] = ($event) => _ctx.$emit("sort", $event))
 			}), {
-				image: __mf_166(({ resource }) => [__mf_84("span", _hoisted_1$7, __mf_61(__mf_55(displayName)(resource, __mf_55(showAktzInName))), 1)]),
+				image: __mf_166(({ resource }) => [__mf_84("div", {
+					class: "metro-tile-content",
+					style: __mf_60(tileStyle(resource))
+				}, [__mf_84("span", _hoisted_1$7, __mf_61(__mf_55(displayName)(resource, __mf_55(showAktzInName))), 1), getNote(resource) ? (__mf_132(), __mf_83$1("span", _hoisted_2$5, __mf_61(getNote(resource)), 1)) : __mf_82("", true)], 4)]),
 				contextMenu: __mf_166(({ resource }) => [__mf_139(_ctx.$slots, "contextMenu", { resource })]),
 				_: 3
 			}, 16, [
