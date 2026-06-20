@@ -12,7 +12,7 @@
       <span>{{ child.label }}</span>
     </oc-button>
     <oc-button
-      v-if="canManageImmutable && (immutableState === 'protected' || immutableState === 'shielded')"
+      v-if="currentType === 'aktenplan' && canManageImmutable && (immutableState === 'protected' || immutableState === 'shielded')"
       appearance="outline"
       size="small"
       @click="toggleProtect"
@@ -21,7 +21,7 @@
       <span>Schutz aufheben</span>
     </oc-button>
     <oc-button
-      v-if="canManageImmutable && !immutableState"
+      v-if="currentType === 'aktenplan' && canManageImmutable && !immutableState"
       appearance="outline"
       size="small"
       @click="toggleProtect"
