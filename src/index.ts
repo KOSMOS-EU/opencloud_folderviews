@@ -1,5 +1,6 @@
-import { defineWebApplication, useClientService } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar } from '@opencloud-eu/web-pkg'
 import { computed, markRaw } from 'vue'
+import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
@@ -77,7 +78,50 @@ export default defineWebApplication({
           component: markRaw(ResourceElements)
         }
       },
-      ...aktzDefs.extensions
+      ...aktzDefs.extensions,
+      // Folder Settings sidebar panel
+      {
+        id: 'com.kosmos-eu.folderviews.sidebar-panel.folder-settings',
+        type: 'sidebarPanel',
+        extensionPointIds: ['global.files.sidebar'],
+        panel: {
+          name: 'folder-settings',
+          icon: 'settings-3',
+          title: () => 'Ordner-Einstellungen',
+          component: markRaw(FolderSettingsPanel),
+          componentAttrs: (context: any) => ({
+            space: context?.root,
+            resource: context?.items?.[0]
+          }),
+          isRoot: () => false,
+          isVisible: (context: any) => {
+            if (context?.items?.length !== 1) return false
+            return context.items[0]?.type === 'folder'
+          }
+        }
+      },
+      // Context menu action to open the sidebar panel
+      {
+        id: 'com.kosmos-eu.folderviews.action.folder-settings',
+        type: 'action',
+        extensionPointIds: ['global.files.context-actions'],
+        action: {
+          name: 'folder-settings',
+          icon: 'settings-3',
+          label: () => 'Ordner-Einstellungen',
+          category: 'secondary',
+          handler: () => {
+            const sidebarStore = useSideBar()
+            sidebarStore.openSideBarPanel('folder-settings')
+          },
+          isVisible: (options: any) => {
+            const resource = options?.resources?.[0]
+            if (!resource || resource.type !== 'folder') return false
+            if (options?.resources?.length !== 1) return false
+            return true
+          }
+        }
+      }
     ])
 
     // Extension points: aktenzeichen preference

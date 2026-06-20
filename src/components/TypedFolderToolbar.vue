@@ -38,6 +38,7 @@
       @cancel="dialogOpen = false"
       @confirm="onDialogConfirm"
     />
+
   </div>
 </template>
 
