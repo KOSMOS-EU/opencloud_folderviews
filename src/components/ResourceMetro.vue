@@ -195,7 +195,7 @@ async function patchFileReferences(resources: Resource[]) {
 
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
-// Resources with fileRef prefix in name — so GenericSpace sort (by name) orders correctly
+// Resources with fileRef prefix in name, sorted by that prefixed name
 const patchedNameResources = computed(() => {
   void metaCache.value
   void patchedRefs.value
@@ -204,12 +204,11 @@ const patchedNameResources = computed(() => {
     .map(r => {
       const ref = getMeta(r, 'oy.fileReference')
       if (!ref) return r
-      // Shallow clone with prefixed name for correct sort order
-      // getResourceLink uses resource.path/id, not name — safe to change
       return Object.assign(Object.create(Object.getPrototypeOf(r)), r, {
         name: `${ref} ${r.name}`
       })
     })
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
 })
 
 const nonLeafResources = computed(() => {
