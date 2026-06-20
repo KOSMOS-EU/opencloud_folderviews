@@ -14,7 +14,7 @@
   <resource-tiles
     v-bind="$attrs"
     v-model:selected-ids="selectedIds"
-    :resources="filteredResources"
+    :resources="nonLeafResources"
     :space="space"
     :view-mode="viewMode"
     :sort-by="sortBy"
@@ -24,7 +24,7 @@
     :view-size="viewSize"
     :drag-drop="dragDrop"
     class="metro-view"
-    @file-click="handleFileClick"
+    @file-click="$emit('fileClick', $event)"
     @file-dropped="$emit('fileDropped', $event)"
     @item-visible="$emit('itemVisible', $event)"
     @sort="$emit('sort', $event)"
@@ -36,13 +36,28 @@
       >
         <span class="metro-tile-label">{{ buildDisplayName(resource, showAktzInName) }}</span>
         <span v-if="getNote(resource)" class="metro-tile-note">{{ getNote(resource) }}</span>
-        <span v-if="getTaskCount(resource)" class="metro-tile-badge">{{ getTaskCount(resource) }} Aufgaben</span>
       </div>
     </template>
     <template #contextMenu="{ resource }">
       <slot name="contextMenu" :resource="resource" />
     </template>
   </resource-tiles>
+
+  <!-- Leaf tiles (rendered separately with click → LearnEditor) -->
+  <div v-if="leafResources.length" class="metro-leaf-grid">
+    <div
+      v-for="r in leafResources"
+      :key="r.id"
+      class="metro-leaf-tile"
+      @click="openLeaf(r)"
+    >
+      <div class="metro-tile-content" :style="tileStyle(r)">
+        <oc-icon name="book-open" size="large" class="metro-leaf-icon" />
+        <span class="metro-tile-label">{{ buildDisplayName(r, showAktzInName) }}</span>
+        <span v-if="getTaskCount(r)" class="metro-tile-badge">{{ getTaskCount(r) }} Aufgaben</span>
+      </div>
+    </div>
+  </div>
   </template>
   </div>
 </template>
@@ -84,6 +99,8 @@ const leafSchemaCache = ref(new Map<string, boolean>())
 const childTypeCache = ref(new Map<string, string>())
 // Cache: resourceId → task count
 const taskCountCache = ref(new Map<string, number>())
+// Trigger reactivity when leaf detection completes
+const leafDetectGeneration = ref(0)
 
 function getColor(resource: Resource): string {
   return (resource as any).extraProps?.['oc:oy.color'] || ''
@@ -109,7 +126,8 @@ function getTaskCount(resource: Resource): number {
 async function checkChildType(resource: Resource) {
   if (childTypeCache.value.has(resource.id)) return
   try {
-    const { children } = await clientService.webdav.listFiles(props.space, { path: resource.path })
+    const rPath = resource.path || (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') + resource.name)
+    const { children } = await clientService.webdav.listFiles(props.space, { path: rPath })
     const typeFile = children.find(r => r.name?.startsWith('_type_'))
     const childType = typeFile ? typeFile.name!.substring(6) : ''
     childTypeCache.value.set(resource.id, childType)
@@ -117,7 +135,7 @@ async function checkChildType(resource: Resource) {
     // Count .task files for badge
     const taskCount = children.filter(r => r.name?.endsWith('.task')).length
     if (taskCount > 0) {
-      taskCountCache.value = new Map(taskCountCache.value.set(resource.id, taskCount))
+      taskCountCache.value.set(resource.id, taskCount)
     }
 
     // Check if this type is a leaf
@@ -132,6 +150,9 @@ async function checkChildType(resource: Resource) {
         leafSchemaCache.value.set(childType, false)
       }
     }
+
+    // Trigger re-render so leafResources/nonLeafResources update
+    leafDetectGeneration.value++
   } catch { /* ignore */ }
 }
 
@@ -141,15 +162,11 @@ function isLeafResource(resource: Resource): boolean {
   return leafSchemaCache.value.get(childType) || false
 }
 
-function handleFileClick(event: any) {
-  // event has resources array
-  const resources = event?.resources || [event]
-  const resource = resources[0] || event
-  if (resource?.type === 'folder' && isLeafResource(resource)) {
-    leafFolder.value = resource
-    return
+function openLeaf(resource: Resource) {
+  if (!resource.path) {
+    (resource as any).path = (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') || '/') + resource.name
   }
-  emit('fileClick', event)
+  leafFolder.value = resource
 }
 
 async function patchFileReferences(resources: Resource[]) {
@@ -174,7 +191,7 @@ async function patchFileReferences(resources: Resource[]) {
         ;(r as any).extraProps['oc:oy.note'] = data['oy.note']
       }
       patch.set(r.id, 'done')
-      // Also check child type for leaf detection
+      // Check child type for leaf detection
       checkChildType(r)
     } catch { /* ignore */ }
   }
@@ -184,10 +201,18 @@ async function patchFileReferences(resources: Resource[]) {
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
 const filteredResources = computed(() => {
-  // Force reactivity on patchedRefs + taskCountCache
   void patchedRefs.value
-  void taskCountCache.value
+  void leafDetectGeneration.value
   return props.resources.filter(r => !r.name?.startsWith('_type_'))
+})
+
+// Split into leaf and non-leaf resources
+const nonLeafResources = computed(() => {
+  return filteredResources.value.filter(r => !isLeafResource(r))
+})
+
+const leafResources = computed(() => {
+  return filteredResources.value.filter(r => r.type === 'folder' && isLeafResource(r))
 })
 </script>
 
@@ -198,18 +223,21 @@ const filteredResources = computed(() => {
   background: var(--oc-role-outline-variant) !important;
 }
 /* Tile content container */
-.metro-view .metro-tile-content {
+.metro-view .metro-tile-content,
+.metro-leaf-tile .metro-tile-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 8px;
-  border-radius: 4px;
+  padding: 12px 8px;
+  border-radius: 8px;
+  background: var(--oc-role-outline-variant, #ddd);
 }
 /* Center the label in the preview area */
-.metro-view .metro-tile-label {
+.metro-view .metro-tile-label,
+.metro-leaf-tile .metro-tile-label {
   font-weight: 700;
   font-size: 14px;
   text-align: center;
@@ -217,7 +245,8 @@ const filteredResources = computed(() => {
   line-height: 1.4;
 }
 /* Task count badge */
-.metro-view .metro-tile-badge {
+.metro-view .metro-tile-badge,
+.metro-leaf-tile .metro-tile-badge {
   font-size: 10px;
   opacity: 0.75;
   margin-top: 6px;
@@ -240,4 +269,24 @@ const filteredResources = computed(() => {
 /* Hide name in bottom bar, push icons to the right */
 .metro-view .resource-name-wrapper { display: none !important; }
 .metro-view .oc-card-body > .p-2 > .flex { justify-content: flex-end !important; }
+
+/* Leaf tiles grid */
+.metro-leaf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 12px 16px;
+}
+.metro-leaf-tile {
+  cursor: pointer;
+  transition: transform 0.1s;
+  min-height: 140px;
+}
+.metro-leaf-tile:hover {
+  transform: scale(1.03);
+}
+.metro-leaf-icon {
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
 </style>
