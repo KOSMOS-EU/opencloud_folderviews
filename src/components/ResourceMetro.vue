@@ -174,8 +174,9 @@ async function patchFileReferences(resources: Resource[]) {
   const httpClient = (clientService as any).httpAuthenticated
   if (!httpClient) return
   const spaceId = props.space.id
-  const patch = new Map(patchedRefs.value)
-  for (const r of missing) {
+
+  // Parallel metadata fetch for all folders at once
+  await Promise.all(missing.map(async (r) => {
     try {
       const itemId = `${spaceId}!${r.id.split('!').pop()}`
       const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
@@ -184,13 +185,18 @@ async function patchFileReferences(resources: Resource[]) {
       if (data?.['oy.color']) meta['oy.color'] = data['oy.color']
       if (data?.['oy.note']) meta['oy.note'] = data['oy.note']
       metaCache.value.set(r.id, meta)
-      patch.set(r.id, 'done')
-      checkChildType(r)
+      patchedRefs.value.set(r.id, 'done')
     } catch { /* ignore */ }
-  }
-  patchedRefs.value = patch
-  // New Map ref triggers reactive recompute
+  }))
+
+  // Single reactive update after all fetches complete
+  patchedRefs.value = new Map(patchedRefs.value)
   metaCache.value = new Map(metaCache.value)
+
+  // Leaf detection in background (non-blocking)
+  for (const r of missing) {
+    checkChildType(r)
+  }
 }
 
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
