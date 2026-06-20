@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Rechenaufgaben: U = R · I",
+  "description": "Berechne:\n1. U = 12V, R = 4Ω → I = ?\n2. U = ?, R = 100Ω, I = 0,5A\n3. Reihenschaltung: R1=10Ω, R2=20Ω, U=9V → I = ?\n4. Parallelschaltung: R1=10Ω, R2=10Ω → Rges = ?\n5. Welche **Leistung** verbraucht eine Lampe mit U=230V und I=0,5A?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

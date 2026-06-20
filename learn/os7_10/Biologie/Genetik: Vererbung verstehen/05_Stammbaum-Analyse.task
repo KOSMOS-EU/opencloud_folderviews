@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Stammbaum-Analyse",
+  "description": "Erstelle einen **fiktiven Familienstammbaum** über 3 Generationen für ein Merkmal (z.B. Ohrläppchen angelegt/frei).\n\nMarkiere:\n- ■ = Merkmalsträger\n- □ = kein Merkmal\n- Genotypen an jeder Person\n\nBestimme den **Erbgang** (dominant/rezessiv).",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

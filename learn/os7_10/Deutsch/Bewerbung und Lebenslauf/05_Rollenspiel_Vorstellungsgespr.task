@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Rollenspiel: Vorstellungsgespräch",
+  "description": "Übt zu zweit ein **Vorstellungsgespräch**. Wechselt die Rollen (Bewerber/Personaler). Achtet auf:\n- Begrüßung und Körpersprache\n- Typische Fragen beantworten\n- Eigene Fragen stellen\n\nGebt euch gegenseitig **Feedback** mit dem Feedbackbogen.",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "mündlich",
+  "effort": "30 Minuten",
+  "correctionForm": "Partnerkorrektur",
+  "solution": ""
+}

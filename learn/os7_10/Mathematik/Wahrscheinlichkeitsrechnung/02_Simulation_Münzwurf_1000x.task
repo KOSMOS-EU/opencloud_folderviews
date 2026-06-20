@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Simulation: Münzwurf 1000x",
+  "description": "Nutze einen Online-Simulator und wirf eine Münze **1000 Mal**. Dokumentiere:\n- Ergebnis nach 10, 100, 1000 Würfen\n- Wie nähert sich die relative Häufigkeit der **theoretischen Wahrscheinlichkeit**?\n\n🔗 https://www.random.org/coins/\n\n*Interdisziplinär: In Biologie nutzt du Wahrscheinlichkeit bei der Vererbung (Mendel).*",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

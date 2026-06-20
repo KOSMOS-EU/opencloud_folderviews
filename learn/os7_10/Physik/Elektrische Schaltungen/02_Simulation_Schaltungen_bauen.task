@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Simulation: Schaltungen bauen",
+  "description": "Baue virtuelle Schaltungen mit PhET:\n\n🔗 https://phet.colorado.edu/de/simulations/circuit-construction-kit-dc\n\n1. Baue eine **Reihenschaltung** mit 2 Widerständen\n2. Miss U und I an verschiedenen Stellen\n3. Baue die gleiche als **Parallelschaltung** — was ändert sich?",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

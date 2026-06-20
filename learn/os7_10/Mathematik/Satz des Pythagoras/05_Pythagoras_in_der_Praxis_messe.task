@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Pythagoras in der Praxis messen",
+  "description": "Miss in der Schule oder zu Hause **3 rechtwinklige Situationen** aus:\n- Türrahmen (Diagonale)\n- Tischplatte (Diagonale)\n- Fenster\n\nÜberprüfe jeweils mit dem Satz des Pythagoras, ob der rechte Winkel **exakt** ist.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

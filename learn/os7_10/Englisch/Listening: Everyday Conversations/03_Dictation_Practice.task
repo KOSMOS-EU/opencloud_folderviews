@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Dictation Practice",
+  "description": "Practice dictation with an online tool:\n\n🔗 https://dictation.io/\n🔗 https://www.esl-lab.com/\n\nDo **3 dictation exercises** at your level. Check your accuracy.\n\n*Interdisciplinary: Use techniques from German Diktat practice.*",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

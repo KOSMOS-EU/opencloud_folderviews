@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Deine Stadt analysieren",
+  "description": "Analysiere deine Stadt/Gemeinde:\n\n🔗 https://www.statistik-bw.de/ (oder Landesamt deines Bundeslandes)\n🔗 https://www.google.com/maps\n\n- Wie hat sich die **Einwohnerzahl** entwickelt?\n- Wo ist das **Zentrum**? Wo sind **Neubaugebiete**?\n- Gibt es **Pendlerströme**?",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

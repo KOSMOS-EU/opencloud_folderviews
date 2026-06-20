@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Quiz: Wahrscheinlichkeit",
+  "description": "Teste dein Wissen:\n\n🔗 https://www.schlaukopf.de/\n🔗 https://matheaufgaben.net/\n\nZiel: Mindestens **80%** richtig. Wiederhole Themen, die dir schwerfallen.",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "10 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

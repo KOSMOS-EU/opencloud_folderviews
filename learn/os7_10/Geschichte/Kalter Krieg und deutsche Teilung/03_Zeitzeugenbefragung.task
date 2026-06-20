@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Zeitzeugenbefragung",
+  "description": "Befrage eine Person aus deiner Familie oder Umgebung, die die **deutsche Teilung** oder die **Wende** erlebt hat.\n\nFragen:\n- Wie war der Alltag?\n- Wie hast du den 9. November 1989 erlebt?\n- Was hat sich nach der Wende verändert?\n\nSchreibe die Antworten auf und präsentiere sie.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

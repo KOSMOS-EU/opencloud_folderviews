@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Gedenkprojekt gestalten",
+  "description": "Gestaltet in der Gruppe ein **kleines Gedenkprojekt** für eure Schule:\n- Poster mit Zeitleiste und Zitaten\n- Oder: kurze Präsentation für eine andere Klasse\n- Oder: digitale Ausstellung (Padlet/Slides)\n\nWählt einen Ansatz und setzt ihn um.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Gruppenarbeit",
+  "submissionForm": "digital",
+  "effort": "45 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Übungsaufgaben: Seitenlängen berechnen",
+  "description": "Berechne die fehlende Seite:\n1. a=5, b=12, c=?\n2. a=?, b=8, c=17\n3. a=7, b=?, c=25\n4. Ist ein Dreieck mit a=6, b=8, c=10 rechtwinklig?\n5. Eine Leiter (5m) lehnt an einer Wand. Fuß ist 3m von der Wand entfernt. Wie hoch reicht sie?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

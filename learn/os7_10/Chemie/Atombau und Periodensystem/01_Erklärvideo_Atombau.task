@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Atombau",
+  "description": "Lerne den Aufbau des Atoms kennen.\n\n🔗 https://www.youtube.com/watch?v=NsKVvKjPJNQ (TheSimpleChemics)\n\nZeichne das **Schalenmodell** für die Atome: Wasserstoff, Kohlenstoff, Natrium, Chlor.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

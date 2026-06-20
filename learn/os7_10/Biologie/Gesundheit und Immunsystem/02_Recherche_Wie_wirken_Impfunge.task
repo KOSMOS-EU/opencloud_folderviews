@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Wie wirken Impfungen?",
+  "description": "Recherchiere die Funktionsweise von Impfungen:\n\n🔗 https://www.rki.de/DE/Content/Infekt/Impfen/impfen_node.html\n🔗 https://www.quarks.de/gesundheit/medizin/so-funktionieren-impfungen/\n\nErkläre: Lebendimpfstoff vs. Totimpfstoff vs. mRNA-Impfstoff.",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Aufgaben: Linsen und Abbildungen",
+  "description": "Zeichne den Strahlengang für:\n1. Sammellinse — Gegenstand **außerhalb** der doppelten Brennweite\n2. Sammellinse — Gegenstand **innerhalb** der Brennweite (Lupe)\n3. Zerstreuungslinse\n\nBeschrifte: Brennpunkt, Brennweite, Bild (reell/virtuell).",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

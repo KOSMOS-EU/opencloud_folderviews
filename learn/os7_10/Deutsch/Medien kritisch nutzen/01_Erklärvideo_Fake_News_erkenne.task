@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Fake News erkennen",
+  "description": "Sieh dir das Video des SWR an und notiere die **5 Prüfschritte** gegen Fake News.\n\n🔗 https://www.youtube.com/watch?v=Vr4KxpEVuBo",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

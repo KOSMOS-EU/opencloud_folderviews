@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Vergleich: Damals und Heute",
+  "description": "Erstelle eine **Vergleichstabelle**:\n\n| Aspekt | 19. Jahrhundert | Heute |\n|--------|----------------|-------|\n| Arbeitszeit | | |\n| Kinderarbeit | | |\n| Sozialversicherung | | |\n| Gewerkschaften | | |\n| Arbeitssicherheit | | |",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

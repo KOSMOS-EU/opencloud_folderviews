@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Alkane benennen",
+  "description": "Fülle die Tabelle aus:\n\n| Name | Formel | Aggregatzustand | Verwendung |\n|------|--------|----------------|------------|\n| Methan | CH₄ | gasförmig | Erdgas, Heizung |\n| Ethan | | | |\n| ... bis Dekan | | | |\n\nZeichne die **Strukturformeln** für Methan bis Butan.",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

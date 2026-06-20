@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Read: News Article (B1-B2)",
+  "description": "Choose an article from an English news site for learners:\n\n🔗 https://www.newsinlevels.com/\n🔗 https://breakingnewsenglish.com/\n\n1. Read the article **twice** (skimming → detailed)\n2. Write a **summary** in 5 sentences\n3. List **5 new vocabulary words** with definitions",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

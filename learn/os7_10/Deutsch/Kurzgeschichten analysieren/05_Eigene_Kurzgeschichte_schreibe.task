@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Eigene Kurzgeschichte schreiben",
+  "description": "Schreibe eine **eigene Kurzgeschichte** (200-400 Wörter). Beachte:\n- Unvermittelter Anfang\n- Alltägliche Situation mit Wendepunkt\n- Offenes Ende\n- Mindestens **2 sprachliche Mittel** bewusst einsetzen",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "45 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Hochwasser in Deutschland",
+  "description": "Recherchiere zum Hochwasser in Deutschland (z.B. Ahrtal 2021):\n\n🔗 https://www.umweltbundesamt.de/themen/wasser/hochwasser\n🔗 https://www.dwd.de/\n\nWelche **Ursachen** hatte das Hochwasser? Welche **Schutzmaßnahmen** gibt es?",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

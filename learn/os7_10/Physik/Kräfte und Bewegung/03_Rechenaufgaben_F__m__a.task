@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Rechenaufgaben: F = m · a",
+  "description": "Berechne:\n1. F = ?, m = 5 kg, a = 3 m/s²\n2. F = 20 N, m = ?, a = 4 m/s²\n3. F = 100 N, m = 25 kg, a = ?\n4. Ein Auto (1200 kg) beschleunigt mit 2 m/s². Welche Kraft wirkt?\n5. Gewichtskraft einer Person (70 kg) auf dem Mond (g = 1,6 m/s²)?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

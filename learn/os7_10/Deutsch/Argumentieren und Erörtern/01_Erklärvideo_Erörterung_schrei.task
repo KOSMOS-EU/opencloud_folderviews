@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Erörterung schreiben",
+  "description": "Schau dir das Video zur Erörterung an und notiere die **5 Schritte** einer gelungenen Erörterung.\n\n🔗 https://www.youtube.com/watch?v=QhzpGOrICBM",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

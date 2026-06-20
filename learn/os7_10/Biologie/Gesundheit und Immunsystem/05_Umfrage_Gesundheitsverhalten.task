@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "survey",
+  "title": "Umfrage: Gesundheitsverhalten",
+  "description": "Erstelle einen Fragebogen zum **Gesundheitsverhalten** (Schlaf, Ernährung, Bewegung, Impfstatus).\n\nBefrage **10 Personen** und werte die Ergebnisse aus.\n\n*Interdisziplinär: Nutze Mathe (Statistik, Diagramme) für die Auswertung.*",
+  "icon": "help-circle",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Gruppenarbeit",
+  "submissionForm": "digital",
+  "effort": "40 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

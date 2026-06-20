@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Moleküle bauen",
+  "description": "Baue 3D-Moleküle mit einem Online-Tool:\n\n🔗 https://molview.org/\n\nBaue: Methan (CH₄), Ethan (C₂H₆), Propan (C₃H₈), Butan (C₄H₁₀).\n\nWelches Muster erkennst du bei der **Summenformel** CₙH₂ₙ₊₂?",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Medientagebuch führen",
+  "description": "Führe **3 Tage lang** ein Medientagebuch:\n- Welche Medien nutzt du wann und wie lange?\n- Welche Informationen nimmst du auf?\n- Wie überprüfst du deren Wahrheitsgehalt?\n\nErstelle eine **Tabelle** mit deinen Ergebnissen.",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

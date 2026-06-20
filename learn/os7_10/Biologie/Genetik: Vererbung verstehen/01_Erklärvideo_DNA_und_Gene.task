@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: DNA und Gene",
+  "description": "Lerne den Aufbau der DNA und die Bedeutung der Gene.\n\n🔗 https://www.youtube.com/watch?v=qQWfJ_yNBuM\n\nZeichne die **Doppelhelix** und beschrifte: Zucker, Phosphat, Basenpaare (A-T, G-C).",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

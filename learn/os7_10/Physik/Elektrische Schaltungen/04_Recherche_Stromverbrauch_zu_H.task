@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Stromverbrauch zu Hause",
+  "description": "Recherchiere den Stromverbrauch von **5 Geräten** in deinem Haushalt:\n\n🔗 https://www.stromspiegel.de/\n\nBerechne die **jährlichen Kosten** bei 0,35€/kWh.\n\n*Interdisziplinär: Verbindung zu Geographie (Energiequellen) und Mathe (Prozentrechnung).*",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

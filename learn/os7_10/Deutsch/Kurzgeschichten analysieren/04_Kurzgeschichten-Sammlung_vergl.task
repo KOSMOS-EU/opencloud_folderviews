@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "collection",
+  "title": "Kurzgeschichten-Sammlung vergleichen",
+  "description": "Wähle **eine weitere Kurzgeschichte** aus der Nachkriegsliteratur und vergleiche sie mit 'Das Brot':\n- Gemeinsamkeiten im **Thema**\n- Unterschiede in der **Erzähltechnik**\n\n🔗 https://www.deutschunddeutlich.de/contentLD/GD/GT74Kurzgeschichten.pdf",
+  "icon": "grid",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

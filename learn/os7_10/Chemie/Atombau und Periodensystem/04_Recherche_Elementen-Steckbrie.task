@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Elementen-Steckbrief",
+  "description": "Wähle **ein Element** und erstelle einen Steckbrief:\n- Entdeckung und Name\n- Eigenschaften (Farbe, Schmelzpunkt, etc.)\n- Vorkommen in der Natur\n- Verwendung im Alltag\n\n🔗 https://www.seilnacht.com/Lexikon/PSE.htm\n🔗 https://de.wikipedia.org/wiki/Periodensystem",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

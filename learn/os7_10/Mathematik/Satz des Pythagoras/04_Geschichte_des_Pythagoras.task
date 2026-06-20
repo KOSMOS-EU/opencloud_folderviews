@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Geschichte des Pythagoras",
+  "description": "Recherchiere über den Mathematiker **Pythagoras** und seine Schule.\n\n🔗 https://de.wikipedia.org/wiki/Pythagoras\n🔗 https://www.planet-wissen.de/\n\nWar Pythagoras wirklich der Entdecker? Wer kannte den Satz schon vorher?\n\n*Interdisziplinär: Verbindung zu Geschichte — antike Mathematik.*",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

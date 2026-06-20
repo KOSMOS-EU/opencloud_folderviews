@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Useful Phrases Collection",
+  "description": "Create a **phrase bank** for emails:\n\n| Situation | Formal | Informal |\n|-----------|--------|----------|\n| Opening | Dear Sir/Madam | Hi/Hey |\n| Purpose | I am writing to... | Just wanted to... |\n| Closing | Yours faithfully | Cheers / Best |\n\nAdd at least **10 phrase pairs**.",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

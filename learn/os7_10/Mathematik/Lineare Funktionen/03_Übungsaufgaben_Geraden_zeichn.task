@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Übungsaufgaben: Geraden zeichnen",
+  "description": "Bearbeite die folgenden Aufgaben:\n\n1. Zeichne die Geraden y=2x+1, y=-x+3, y=0.5x-2\n2. Bestimme die Gleichung der Geraden durch P(1|3) und Q(4|9)\n3. Berechne den Schnittpunkt von y=2x+1 und y=-x+4\n4. Welche Geraden sind parallel zueinander?\n\n📏 Nutze Karopapier!",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "30 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

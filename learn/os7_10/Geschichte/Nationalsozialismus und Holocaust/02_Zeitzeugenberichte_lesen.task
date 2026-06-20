@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Zeitzeugenberichte lesen",
+  "description": "Lies einen **Zeitzeugenbericht** eines Holocaust-Überlebenden:\n\n🔗 https://www.zeitzeugen-portal.de/\n🔗 https://www.yadvashem.org/de.html\n\nSchreibe eine persönliche **Reflexion** (150 Wörter): Was hat dich am meisten berührt?",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

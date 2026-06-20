@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Quiz: Deutsche Teilung",
+  "description": "Teste dein Wissen:\n\n🔗 https://segu-geschichte.de/kalter-krieg/\n🔗 https://www.schlaukopf.de/\n\nWiederhole Themen, bei denen du unsicher bist.",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "10 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

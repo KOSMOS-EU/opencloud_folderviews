@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Lichtbrechung",
+  "description": "Sieh dir die Erklärung zur Brechung an und zeichne den **Strahlengang** bei Übergang Luft→Glas.\n\n🔗 https://www.youtube.com/watch?v=y55tzg_jW9I",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

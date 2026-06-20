@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Anwendung: Handytarife vergleichen",
+  "description": "Vergleiche **3 Handytarife** als lineare Funktionen:\n- Tarif A: 5€ Grundgebühr + 0,10€/min\n- Tarif B: 10€ Grundgebühr + 0,05€/min\n- Tarif C: Flatrate 15€\n\n1. Stelle die **Kostenfunktionen** auf\n2. Zeichne alle drei in **ein Koordinatensystem**\n3. Ab welcher Minutenzahl lohnt sich welcher Tarif?",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

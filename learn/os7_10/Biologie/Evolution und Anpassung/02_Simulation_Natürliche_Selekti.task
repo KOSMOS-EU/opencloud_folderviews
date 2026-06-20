@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Simulation: Natürliche Selektion",
+  "description": "Experimentiere mit PhET Natural Selection:\n\n🔗 https://phet.colorado.edu/de/simulations/natural-selection\n\nBeobachte: Welche Hasen überleben bei verschiedenen Umweltbedingungen? Warum?\n\n*Interdisziplinär: Verbindung zu Mathe (Wahrscheinlichkeit) und Geographie (Lebensräume).*",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

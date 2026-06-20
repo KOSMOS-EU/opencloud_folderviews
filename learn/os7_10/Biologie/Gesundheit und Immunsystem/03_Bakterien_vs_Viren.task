@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Bakterien vs. Viren",
+  "description": "Erstelle eine **Vergleichstabelle**:\n\n| Merkmal | Bakterien | Viren |\n|---------|-----------|-------|\n| Aufbau | | |\n| Größe | | |\n| Vermehrung | | |\n| Behandlung | | |\n| Beispiele | | |\n\nWarum wirken Antibiotika **nicht** gegen Viren?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

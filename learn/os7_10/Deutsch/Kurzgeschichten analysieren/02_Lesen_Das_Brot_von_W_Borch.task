@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "book",
+  "title": "Lesen: 'Das Brot' von W. Borchert",
+  "description": "Lies die Kurzgeschichte **'Das Brot'** von Wolfgang Borchert aufmerksam durch. Markiere:\n- 🟡 Ungewöhnliche Formulierungen\n- 🔵 Wendepunkte\n- 🔴 Das offene Ende\n\n🔗 https://www.projekt-gutenberg.org/borchert/",
+  "icon": "book-open",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

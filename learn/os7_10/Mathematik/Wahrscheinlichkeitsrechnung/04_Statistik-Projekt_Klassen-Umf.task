@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "survey",
+  "title": "Statistik-Projekt: Klassen-Umfrage",
+  "description": "Führe eine **Umfrage** in der Klasse durch (z.B. Lieblingsfarbe, Schuhgröße, Schulweg-Dauer). Erstelle:\n- **Häufigkeitstabelle**\n- **Säulendiagramm**\n- Berechne **Mittelwert** und **Median**\n\n*Interdisziplinär: Nutze Tabellenkalkulation (Informatik) für die Auswertung.*",
+  "icon": "help-circle",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Gruppenarbeit",
+  "submissionForm": "digital",
+  "effort": "45 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

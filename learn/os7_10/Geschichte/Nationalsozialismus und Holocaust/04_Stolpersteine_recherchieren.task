@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Stolpersteine recherchieren",
+  "description": "Recherchiere, ob es in deiner Stadt **Stolpersteine** gibt:\n\n🔗 https://www.stolpersteine.eu/\n\nWähle einen Stolperstein aus und recherchiere die **Lebensgeschichte** dieser Person. Erstelle einen **Steckbrief**.\n\n*Interdisziplinär: Verbindung zu Geographie (Stadtgeschichte) und Deutsch (Recherche).*",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

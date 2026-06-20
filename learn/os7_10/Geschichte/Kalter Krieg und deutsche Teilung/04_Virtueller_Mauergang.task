@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Virtueller Mauergang",
+  "description": "Erkunde die Berliner Mauer virtuell:\n\n🔗 https://www.chronik-der-mauer.de/\n🔗 https://www.berliner-mauer.de/\n\nWähle **3 Orte** an der ehemaligen Mauer und beschreibe, was dort geschah.",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

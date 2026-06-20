@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Stellenanzeigen analysieren",
+  "description": "Suche auf einer Jobbörse **2 Ausbildungsangebote**, die dich interessieren. Markiere in der Anzeige:\n- Geforderte **Qualifikationen**\n- Erwünschte **Soft Skills**\n- **Aufgabenbeschreibung**\n\n🔗 https://www.ausbildung.de/\n🔗 https://www.ihk-lehrstellenboerse.de/",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

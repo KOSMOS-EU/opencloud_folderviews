@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Klimadiagramm zeichnen",
+  "description": "Zeichne ein **Klimadiagramm** für deinen Wohnort mit den Daten:\n\n🔗 https://de.climate-data.org/\n\nBestimme: Klimazone, Vegetationszone, Jahresdurchschnittstemperatur, Niederschlagssumme.",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Lineare Funktionen",
+  "description": "Schau dir das Video zu linearen Funktionen an. Notiere die Formel **y = mx + b** und erkläre die Bedeutung von **m** und **b**.\n\n🔗 https://www.youtube.com/watch?v=3iswSgU1n7o",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

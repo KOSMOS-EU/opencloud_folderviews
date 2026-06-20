@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Reaktionsgleichungen ausgleichen",
+  "description": "Übe das Ausgleichen von Reaktionsgleichungen:\n\n🔗 https://phet.colorado.edu/de/simulations/balancing-chemical-equations\n\nGleiche mindestens **8 Gleichungen** erfolgreich aus.",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

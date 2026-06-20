@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Simulation: Kräfte erkunden",
+  "description": "Experimentiere mit der PhET-Simulation:\n\n🔗 https://phet.colorado.edu/de/simulations/forces-and-motion-basics\n\nVariiere Masse und Kraft. Was passiert bei Reibung?\n\n*Interdisziplinär: Nutze Mathe (lineare Funktionen) für F-a-Diagramme.*",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

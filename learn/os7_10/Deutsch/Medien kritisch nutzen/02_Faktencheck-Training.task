@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Faktencheck-Training",
+  "description": "Besuche die Seiten der Faktenchecker und prüfe **3 aktuelle Behauptungen**:\n\n🔗 https://correctiv.org/faktencheck/\n🔗 https://www.mimikama.org/\n\nDokumentiere für jede Behauptung: Quelle, Behauptung, Ergebnis des Checks.",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Partnerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Vocabulary Trainer",
+  "description": "Practice the new vocabulary from your article using Quizlet:\n\n🔗 https://quizlet.com/\n\nCreate a set with your **5 words** + definitions + example sentences. Practice until you score **100%**.",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

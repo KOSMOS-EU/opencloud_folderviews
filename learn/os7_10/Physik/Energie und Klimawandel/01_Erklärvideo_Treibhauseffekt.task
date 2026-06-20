@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Treibhauseffekt",
+  "description": "Verstehe den physikalischen Hintergrund des Treibhauseffekts.\n\n🔗 https://www.youtube.com/watch?v=SN5-DnOHQmE\n\nErkläre den Unterschied zwischen **natürlichem** und **anthropogenem** Treibhauseffekt.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

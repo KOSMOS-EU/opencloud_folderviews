@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Reiseführer: Meine Klimazone",
+  "description": "Erstelle einen **Mini-Reiseführer** (1 Seite) für eine Klimazone deiner Wahl:\n- Typisches **Wetter** zu verschiedenen Jahreszeiten\n- Typische **Pflanzen und Tiere**\n- **Gefahren** des Klimawandels für diese Zone\n- **Reisetipps**",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

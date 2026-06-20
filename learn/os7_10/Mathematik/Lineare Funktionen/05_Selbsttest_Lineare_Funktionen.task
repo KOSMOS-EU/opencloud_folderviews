@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Selbsttest: Lineare Funktionen",
+  "description": "Teste dein Wissen mit dem Online-Quiz.\n\n🔗 https://matheaufgaben.net/\n🔗 https://www.schlaukopf.de/\n\nNotiere, welche Aufgabentypen dir noch **schwerfallen** und übe diese gezielt nach.",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

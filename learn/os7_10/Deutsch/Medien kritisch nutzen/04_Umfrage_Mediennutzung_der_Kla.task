@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "survey",
+  "title": "Umfrage: Mediennutzung der Klasse",
+  "description": "Erstelle einen kurzen **Fragebogen** (5-8 Fragen) zur Mediennutzung. Befrage mindestens **10 Mitschüler** und werte die Ergebnisse in einem **Diagramm** aus.\n\n*Interdisziplinär: Nutze dein Wissen aus Mathematik (Statistik/Diagramme).*",
+  "icon": "help-circle",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Gruppenarbeit",
+  "submissionForm": "digital",
+  "effort": "45 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

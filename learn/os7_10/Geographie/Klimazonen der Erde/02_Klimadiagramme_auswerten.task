@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Klimadiagramme auswerten",
+  "description": "Übe das Lesen von Klimadiagrammen:\n\n🔗 https://www.diercke.de/content/klimadiagramme-lesen-und-auswerten\n🔗 https://learningapps.org/\n\nOrdne **5 Klimadiagramme** den richtigen Städten/Zonen zu.",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

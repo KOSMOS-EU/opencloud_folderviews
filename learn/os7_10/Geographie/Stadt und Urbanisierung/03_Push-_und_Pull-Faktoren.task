@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Push- und Pull-Faktoren",
+  "description": "Ordne die Faktoren in eine Tabelle:\n\n| Push (Land → Stadt) | Pull (Stadt lockt) |\n|---------------------|--------------------|\n| wenig Arbeitsplätze | bessere Jobs |\n| ... | ... |\n\nBenenne je **5 Faktoren** und finde für jeden ein **Beispiel** aus einem Entwicklungsland.",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

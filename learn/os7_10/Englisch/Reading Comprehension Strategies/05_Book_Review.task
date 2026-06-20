@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Book Review",
+  "description": "Write a **book review** (150-200 words) about a book or story you've read in English. Include:\n- Title and author\n- Brief **plot summary** (no spoilers!)\n- Your **opinion** and **recommendation**\n- Rating: ⭐ to ⭐⭐⭐⭐⭐\n\n*Interdisciplinary: Connect to German — compare review styles in both languages.*",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

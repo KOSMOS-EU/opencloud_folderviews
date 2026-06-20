@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Bewerbung schreiben",
+  "description": "Sieh dir das Video an und notiere die **DOs und DON'Ts** einer Bewerbung.\n\n🔗 https://www.youtube.com/watch?v=AKmHqrW1gKs",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "12 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

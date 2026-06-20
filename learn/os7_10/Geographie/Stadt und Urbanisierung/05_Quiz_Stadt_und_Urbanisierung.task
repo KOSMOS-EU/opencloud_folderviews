@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Quiz: Stadt und Urbanisierung",
+  "description": "Teste dein Wissen:\n\n🔗 https://www.schlaukopf.de/\n🔗 https://learningapps.org/\n\nBearbeite mindestens **10 Aufgaben** zum Thema Urbanisierung.",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "10 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

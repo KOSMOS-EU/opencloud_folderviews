@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Erörterung verfassen",
+  "description": "Verfasse eine **dialektische Erörterung** (mind. 400 Wörter) zum Thema:\n\n> *Sollten Handys im Unterricht erlaubt sein?*\n\nAchte auf Einleitung, Hauptteil (Pro/Contra) und Schluss mit eigener Stellungnahme.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "45 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

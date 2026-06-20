@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Interaktiv: Mendel'sche Regeln",
+  "description": "Experimentiere mit virtuellen Kreuzungen:\n\n🔗 https://phet.colorado.edu/de/simulations/natural-selection\n\nKreuze Organismen und beobachte die Vererbung. Welche Regeln bestätigen sich?\n\n*Interdisziplinär: Nutze Mathe (Wahrscheinlichkeitsrechnung) für die Aufspaltungsverhältnisse.*",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

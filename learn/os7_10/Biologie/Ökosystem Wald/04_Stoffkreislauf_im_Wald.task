@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Stoffkreislauf im Wald",
+  "description": "Beschreibe den **Kohlenstoffkreislauf** im Wald:\n1. Wie nehmen Pflanzen CO₂ auf? (Photosynthese)\n2. Wie wird C an Tiere weitergegeben?\n3. Wie gelangt C zurück in die Atmosphäre?\n4. Welche Rolle spielen Destruenten?\n\nZeichne ein **Kreislaufdiagramm**.",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

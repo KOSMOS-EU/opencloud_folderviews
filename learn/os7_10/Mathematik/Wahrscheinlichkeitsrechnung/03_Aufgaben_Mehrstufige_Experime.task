@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Aufgaben: Mehrstufige Experimente",
+  "description": "Berechne mit Baumdiagramm:\n1. Urne mit 3 roten, 2 blauen Kugeln. Zweimal ziehen **mit** Zurücklegen: P(2x rot)?\n2. Gleiche Urne, **ohne** Zurücklegen: P(2x rot)?\n3. Zwei Würfel: P(Summe = 7)?\n4. Lottoziehung: P(6 Richtige aus 49)?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "30 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Erneuerbare Energien",
+  "description": "Recherchiere **3 erneuerbare Energiequellen** (Solar, Wind, Wasser):\n- Wie funktionieren sie physikalisch?\n- Vor- und Nachteile?\n- Anteil am deutschen Strommix?\n\n🔗 https://www.umweltbundesamt.de/themen/klima-energie/erneuerbare-energien\n🔗 https://www.energy-charts.info/\n\n*Interdisziplinär: Verbindung zu Geographie (Standortfaktoren) und Politik (Energiewende).*",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Immunsystem",
+  "description": "Verstehe die Abwehrmechanismen deines Körpers.\n\n🔗 https://www.youtube.com/watch?v=lXfEK8G8CUI (Kurzgesagt)\n\nErstelle eine **Übersicht**: unspezifische vs. spezifische Abwehr.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Quiz: Elektrizitätslehre",
+  "description": "Teste dein Wissen:\n\n🔗 https://www.leifiphysik.de/elektrizitaetslehre/\n🔗 https://www.schlaukopf.de/\n\nZiel: Alle Grundlagen sicher beherrschen.",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

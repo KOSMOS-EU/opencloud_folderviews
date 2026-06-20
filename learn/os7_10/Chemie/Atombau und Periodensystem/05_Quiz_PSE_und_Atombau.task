@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Quiz: PSE und Atombau",
+  "description": "Teste dein Wissen zum Periodensystem:\n\n🔗 https://www.schlaukopf.de/\n🔗 https://learningapps.org/\n\nKannst du die ersten **20 Elemente** auswendig benennen?",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "10 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

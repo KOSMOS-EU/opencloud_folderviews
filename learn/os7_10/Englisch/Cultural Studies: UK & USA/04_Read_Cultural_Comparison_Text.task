@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "book",
+  "title": "Read: Cultural Comparison Text",
+  "description": "Read the text about cultural differences between Germany and English-speaking countries.\n\n🔗 https://learnenglish.britishcouncil.org/general-english/magazine\n\nList **5 surprising differences** you didn't know about.",
+  "icon": "book-open",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

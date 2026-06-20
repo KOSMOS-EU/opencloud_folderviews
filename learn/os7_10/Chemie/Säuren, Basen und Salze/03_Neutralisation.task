@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Neutralisation",
+  "description": "Erkläre die **Neutralisationsreaktion**:\n\nSäure + Base → Salz + Wasser\n\nStelle die Gleichungen auf:\n1. HCl + NaOH → ?\n2. H₂SO₄ + 2 KOH → ?\n3. HNO₃ + NaOH → ?\n\nBenenne jeweils das entstehende **Salz**.",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Klimazonen",
+  "description": "Lerne die 5 Klimazonen kennen.\n\n🔗 https://www.youtube.com/watch?v=Yb_3ck5n0hI\n\nZeichne eine **Weltkarte** und trage die Klimazonen farbig ein.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

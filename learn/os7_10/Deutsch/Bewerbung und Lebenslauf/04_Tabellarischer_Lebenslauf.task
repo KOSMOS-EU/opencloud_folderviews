@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Tabellarischer Lebenslauf",
+  "description": "Erstelle deinen **tabellarischen Lebenslauf** nach aktuellem Standard:\n- Persönliche Daten\n- Schulbildung\n- Praktika / Nebenjobs\n- Kenntnisse und Interessen\n\n*Interdisziplinär: Nutze dein Wissen aus Informatik (Textverarbeitung, Layout).*",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Simulation: Lichtbrechung",
+  "description": "Experimentiere mit der PhET-Simulation:\n\n🔗 https://phet.colorado.edu/de/simulations/bending-light\n\nWas passiert bei verschiedenen Materialien? Wann tritt **Totalreflexion** auf?",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

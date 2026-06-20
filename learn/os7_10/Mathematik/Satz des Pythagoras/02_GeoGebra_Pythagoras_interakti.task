@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "GeoGebra: Pythagoras interaktiv",
+  "description": "Erkunde den Satz des Pythagoras visuell in GeoGebra.\n\n🔗 https://www.geogebra.org/m/MEpWWbgJ\n\nVerschiebe die Eckpunkte und beobachte, wie sich die Quadrate über den Seiten ändern.\n\n*Interdisziplinär: In Physik nutzt du Pythagoras bei der Kräftezerlegung.*",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

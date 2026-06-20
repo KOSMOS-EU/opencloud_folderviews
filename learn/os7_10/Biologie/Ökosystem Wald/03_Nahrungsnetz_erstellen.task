@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Nahrungsnetz erstellen",
+  "description": "Erstelle ein **Nahrungsnetz** des Waldes mit mindestens:\n- 3 **Produzenten**\n- 4 **Konsumenten** (verschiedene Ordnungen)\n- 2 **Destruenten**\n\nZeichne Pfeile (→ = wird gefressen von) und markiere die trophischen Ebenen farbig.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

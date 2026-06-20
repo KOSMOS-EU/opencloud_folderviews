@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Create a Dialogue",
+  "description": "Write and **record** a dialogue (2-3 minutes) with a partner. Scenarios:\n- Ordering food at a restaurant\n- Asking for directions\n- Job interview\n\nUse a voice recorder or smartphone. Focus on **pronunciation** and **intonation**.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Partnerarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

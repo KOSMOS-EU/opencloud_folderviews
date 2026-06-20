@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Baumdiagramme",
+  "description": "Lerne, wie man Baumdiagramme zeichnet und die Pfadregeln anwendet.\n\n🔗 https://www.youtube.com/watch?v=qOBMaA4R3Vs\n\nZeichne das Baumdiagramm für **zweimaliges Würfeln** (nur 1-3 und 4-6).",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

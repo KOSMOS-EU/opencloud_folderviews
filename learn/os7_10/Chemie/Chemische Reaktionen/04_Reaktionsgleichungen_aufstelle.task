@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Reaktionsgleichungen aufstellen",
+  "description": "Stelle die Reaktionsgleichung auf und gleiche aus:\n1. Eisen + Sauerstoff → Eisenoxid\n2. Magnesium + Salzsäure → Magnesiumchlorid + Wasserstoff\n3. Methan + Sauerstoff → Kohlenstoffdioxid + Wasser\n4. Natrium + Wasser → Natriumhydroxid + Wasserstoff",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

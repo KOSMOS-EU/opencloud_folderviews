@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Ohm'sches Gesetz",
+  "description": "Lerne U = R · I und die Unterschiede Reihen-/Parallelschaltung.\n\n🔗 https://www.youtube.com/watch?v=HUgYpl4M4JY",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "12 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

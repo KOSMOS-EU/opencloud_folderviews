@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Fossilien als Zeitzeugen",
+  "description": "Recherchiere berühmte Fossilienfunde:\n- Archaeopteryx\n- Lucy (Australopithecus)\n- Tiktaalik\n\n🔗 https://www.planet-wissen.de/natur/forschung/fossilien/\n\nErstelle einen **Zeitstrahl** mit den wichtigsten Entwicklungsstufen.",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

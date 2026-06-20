@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Listening: TED-Ed Video",
+  "description": "Watch a TED-Ed video (with English subtitles first, then without):\n\n🔗 https://ed.ted.com/\n\nChoose a topic that interests you. Answer:\n1. What is the **main message**?\n2. Name **3 facts** you learned.\n3. What was **difficult to understand**?",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

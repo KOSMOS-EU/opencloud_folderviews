@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Interaktives PSE erkunden",
+  "description": "Erkunde das Periodensystem interaktiv:\n\n🔗 https://ptable.com/?lang=de\n\nSuche die Elemente: Na, Cl, Fe, O, C. Notiere für jedes: Ordnungszahl, Masse, Gruppe, Periode.\n\n*Interdisziplinär: Verbindung zu Physik (Kernphysik, Radioaktivität).*",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

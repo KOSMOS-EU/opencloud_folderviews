@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Bewerbungsschreiben verfassen",
+  "description": "Verfasse ein **vollständiges Bewerbungsschreiben** für eine der recherchierten Stellen. Achte auf:\n- Korrekten **Briefkopf**\n- Bezug zur **Stellenanzeige**\n- Deine **Stärken** mit Beispielen belegen\n- Fehlerfreie Rechtschreibung",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "40 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

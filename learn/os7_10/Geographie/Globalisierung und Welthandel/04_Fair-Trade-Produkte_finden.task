@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Fair-Trade-Produkte finden",
+  "description": "Besuche einen Supermarkt (real oder online) und finde **5 Fair-Trade-Produkte**.\n\n- Was kostet das Fair-Trade-Produkt vs. das konventionelle?\n- Was bedeutet das **Siegel** konkret?\n\n🔗 https://www.fairtrade-deutschland.de/\n\nDokumentiere mit Fotos und Preisen.",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

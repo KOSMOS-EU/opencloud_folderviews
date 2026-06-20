@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "digital",
+  "title": "Hyperinflation 1923 berechnen",
+  "description": "Die Inflation 1923 in Zahlen:\n- Januar 1923: 1 Brot = 250 Mark\n- Juli 1923: 1 Brot = 3.465 Mark\n- November 1923: 1 Brot = 201.000.000.000 Mark\n\nBerechne die **prozentuale Steigerung** pro Monat. Erstelle ein **Diagramm**.\n\n*Interdisziplinär: Verbindung zu Mathe (Prozentrechnung, exponentielles Wachstum).*",
+  "icon": "monitor",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "20 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Satz des Pythagoras",
+  "description": "Sieh dir die Herleitung des Satzes an und notiere die Formel **a² + b² = c²**.\n\n🔗 https://www.youtube.com/watch?v=uaj0XcLIzp4\n\nZeichne ein Beispieldreieck mit a=3, b=4. Berechne c.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Experiment: pH-Wert messen",
+  "description": "Miss den **pH-Wert** von mindestens 8 Haushaltsflüssigkeiten:\n- Zitronensaft, Essig, Cola\n- Leitungswasser, Milch\n- Seifenlösung, Backpulverlösung\n\nNutze **Rotkohlsaft** als Indikator oder **pH-Teststreifen**.\n\nErstelle eine **sortierte Liste** von sauer → basisch.",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

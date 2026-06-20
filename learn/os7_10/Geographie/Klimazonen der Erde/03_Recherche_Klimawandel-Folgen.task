@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Recherche: Klimawandel-Folgen",
+  "description": "Recherchiere die Auswirkungen des Klimawandels auf **eine Klimazone**:\n\n🔗 https://www.umweltbundesamt.de/themen/klima-energie/klimawandel\n🔗 https://www.wwf.de/themen-projekte/klima-energie/\n\n*Interdisziplinär: Verbindung zu Physik (Treibhauseffekt) und Biologie (Ökosysteme).*",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

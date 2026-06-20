@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "survey",
+  "title": "Exkursion: Waldstück untersuchen",
+  "description": "Untersuche ein **Waldstück** (Schulgelände oder Umgebung):\n- Welche **Baumarten** findest du? (Bestimmungs-App nutzen)\n- Welche **Tiere/Spuren** entdeckst du?\n- Wie ist der **Boden** beschaffen?\n\n🔗 https://www.floraincognita.de/ (Pflanzen-Bestimmung)\n\nDokumentiere mit Fotos und erstelle einen **Steckbrief** deines Waldstücks.",
+  "icon": "help-circle",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Gruppenarbeit",
+  "submissionForm": "digital",
+  "effort": "45 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

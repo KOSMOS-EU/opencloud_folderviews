@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Elektronenkonfigurationen",
+  "description": "Bestimme die Elektronenkonfiguration (Schalenmodell) für:\n1. Helium (He)\n2. Sauerstoff (O)\n3. Aluminium (Al)\n4. Kalium (K)\n5. Schwefel (S)\n\nWelche Elemente haben eine **volle Außenschale**? Was bedeutet das?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

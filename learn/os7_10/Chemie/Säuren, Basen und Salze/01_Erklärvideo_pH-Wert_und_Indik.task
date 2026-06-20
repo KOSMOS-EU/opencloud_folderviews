@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: pH-Wert und Indikatoren",
+  "description": "Verstehe die pH-Skala und wie Indikatoren funktionieren.\n\n🔗 https://www.youtube.com/watch?v=plnSzFC-JkY\n\nZeichne die **pH-Skala** von 0-14 und ordne zu: Zitrone, Wasser, Seife, Salzsäure, Natronlauge.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "15 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

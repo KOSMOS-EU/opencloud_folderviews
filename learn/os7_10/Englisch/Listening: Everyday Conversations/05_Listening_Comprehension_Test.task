@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "selftest",
+  "title": "Listening Comprehension Test",
+  "description": "Take a listening test at your level:\n\n🔗 https://www.examenglish.com/PET/pet_listening.htm\n🔗 https://learnenglish.britishcouncil.org/skills/listening\n\nTarget: **70% or higher**. Note areas where you need more practice.",
+  "icon": "check-square",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

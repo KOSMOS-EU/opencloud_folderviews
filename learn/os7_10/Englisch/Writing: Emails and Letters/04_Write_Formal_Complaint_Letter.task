@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Write: Formal Complaint Letter",
+  "description": "Write a **formal letter of complaint** (150-200 words) to a company. Scenario: You ordered a product online that arrived damaged.\n\nInclude:\n- Formal greeting and closing\n- Description of the **problem**\n- What **action** you expect\n\n*Interdisciplinary: Compare with German business letter format (Deutsch).*",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

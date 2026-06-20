@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Alltagsaufgaben Prozente",
+  "description": "Berechne:\n1. Ein Smartphone kostet 599€. Es gibt **15% Rabatt**. Wie viel zahlst du?\n2. Du hast 1.200€ auf dem Konto, Zinssatz **1,5% p.a.** Wie viel Zinsen nach 1 Jahr?\n3. Nach 3 Jahren mit **Zinseszins** — wie viel hast du dann?\n4. Ein Kredit über 5.000€ mit **8% Zinsen** — monatliche Rate bei 2 Jahren Laufzeit?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "25 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

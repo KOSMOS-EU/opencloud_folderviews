@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "GeoGebra: Funktionen erkunden",
+  "description": "Öffne GeoGebra und experimentiere:\n- Verändere **m** (Steigung): Was passiert?\n- Verändere **b** (y-Achsenabschnitt): Was passiert?\n- Wann sind zwei Geraden **parallel**?\n\n🔗 https://www.geogebra.org/graphing\n\n*Interdisziplinär: In Physik nutzt du lineare Funktionen für Weg-Zeit-Diagramme.*",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

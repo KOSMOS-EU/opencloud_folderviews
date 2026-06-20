@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Weimarer Republik",
+  "description": "Verschaffe dir einen Überblick über die Weimarer Republik.\n\n🔗 https://www.youtube.com/watch?v=3V9HjBLK_YA (MrWissen2go Geschichte)\n\nErstelle einen **Zeitstrahl** 1918-1933 mit den wichtigsten Ereignissen.",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

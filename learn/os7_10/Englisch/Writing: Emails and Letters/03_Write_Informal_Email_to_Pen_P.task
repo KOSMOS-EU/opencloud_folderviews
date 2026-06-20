@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Write: Informal Email to Pen Pal",
+  "description": "Write an **informal email** (120-150 words) to an imaginary pen pal in England. Tell them about:\n- Your school and daily routine\n- Your hobbies\n- Ask **3 questions** about their life",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "25 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}

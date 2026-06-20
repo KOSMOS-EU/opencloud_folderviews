@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "worksheet",
+  "title": "Kreuzungsschemata erstellen",
+  "description": "Erstelle Kreuzungsschemata:\n1. Erbsenfarbe: gelb (dominant) × grün (rezessiv) → F1? → F2?\n2. Blutgruppen: Mutter A (heterozygot) × Vater B (heterozygot) → Kinder?\n3. Rot-Grün-Blindheit (X-chromosomal): Trägerin × gesunder Mann → ?",
+  "icon": "file-text",
+  "color": "#4527A0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "30 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

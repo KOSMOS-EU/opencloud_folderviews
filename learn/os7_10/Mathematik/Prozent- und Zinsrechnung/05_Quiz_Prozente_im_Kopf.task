@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "learningapp",
+  "title": "Quiz: Prozente im Kopf",
+  "description": "Trainiere **Kopfrechnen** mit Prozenten:\n- 10% von 250?\n- 25% von 80?\n- 33% von 120?\n\n🔗 https://learningapps.org/\n🔗 https://www.schlaukopf.de/\n\nZiel: Mindestens **8 von 10** richtig!",
+  "icon": "cpu",
+  "color": "#2E7D32",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "10 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

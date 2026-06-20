@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "video",
+  "title": "Erklärvideo: Organische Chemie",
+  "description": "Warum ist Kohlenstoff so besonders?\n\n🔗 https://www.youtube.com/watch?v=8cRTz-vn1X4 (TheSimpleChemics)\n\nErkläre: Warum kann Kohlenstoff so viele verschiedene Verbindungen bilden?",
+  "icon": "play-circle",
+  "color": "#1565C0",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "keine",
+  "effort": "12 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

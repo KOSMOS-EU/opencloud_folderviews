@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "weblink",
+  "title": "Podcast: 6 Minute English (BBC)",
+  "description": "Listen to one episode of BBC 6 Minute English:\n\n🔗 https://www.bbc.co.uk/learningenglish/english/features/6-minute-english\n\n1. Listen **twice**\n2. Complete the **quiz** on the website\n3. Write down **5 new expressions**",
+  "icon": "globe",
+  "color": "#00838F",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "Heft",
+  "effort": "20 Minuten",
+  "correctionForm": "Selbstkorrektur",
+  "solution": ""
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "creative",
+  "title": "Experiment: Chemie in der Küche",
+  "description": "Führe **2 ungefährliche Experimente** zu Hause durch:\n1. Backpulver + Essig → Was passiert? Welches Gas entsteht?\n2. Rotkohlsaft als **pH-Indikator** — teste verschiedene Flüssigkeiten\n\nDokumentiere mit Fotos und erkläre die chemischen Reaktionen.\n\n*Interdisziplinär: Verbindung zu Biologie (Säuren und Basen im Körper).*",
+  "icon": "edit-3",
+  "color": "#C62828",
+  "badgeIcon": null,
+  "level": null,
+  "attachments": [],
+  "socialForm": "Einzelarbeit",
+  "submissionForm": "digital",
+  "effort": "30 Minuten",
+  "correctionForm": "Lehrerkorrektur",
+  "solution": ""
+}
