@@ -31,6 +31,9 @@ const props = defineProps<{ space?: any }>()
 const resourcesStore = useResourcesStore()
 const { showAktzInName } = useFolderviewSettings()
 
+// NOTE: This view is NOT mounted by GenericSpace - folderViewHandlers are unused
+// Buttons must be placed in ResourceTree/Metro/Elements instead
+
 const currentFolder = computed(() => resourcesStore.currentFolder)
 const spaceRef = computed(() => props.space || resourcesStore.currentFolder)
 const currentType = ref('aktenplan')

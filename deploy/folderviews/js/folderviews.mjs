@@ -282,7 +282,7 @@ var _plugin_vue_export_helper_default = (sfc, props) => {
 };
 //#endregion
 //#region src/views/AktenplanView.vue
-var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-3139d58e"]]);
+var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(AktenplanView_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-d2ae2426"]]);
 //#endregion
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$11 = { class: "typed-folder-view akte-view" };
