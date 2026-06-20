@@ -90,17 +90,13 @@ const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'up
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const patchedRefs = ref(new Map<string, string>())
-// Store metadata values reactively (extraProps mutations aren't tracked by Vue)
-const metaCache = ref(new Map<string, Record<string, string>>())
 const leafFolder = ref<Resource | null>(null)
-// Cache: childType → isLeaf
 const leafSchemaCache = ref(new Map<string, boolean>())
-// Cache: resourceId → childType
 const childTypeCache = ref(new Map<string, string>())
-// Cache: resourceId → task count
 const taskCountCache = ref(new Map<string, number>())
-// Trigger reactivity when leaf detection completes
 const leafDetectGeneration = ref(0)
+// Reactive metadata (extraProps mutations aren't tracked by Vue)
+const metaCache = ref(new Map<string, Record<string, string>>())
 
 function getMeta(resource: Resource, key: string): string {
   return metaCache.value.get(resource.id)?.[key] || ''
@@ -117,14 +113,16 @@ function getNote(resource: Resource): string {
 function tileStyle(resource: Resource): Record<string, string> {
   const color = getColor(resource)
   if (!color) return {}
-  return {
-    backgroundColor: color,
-    color: '#fff'
-  }
+  return { backgroundColor: color, color: '#fff' }
 }
 
 function getTaskCount(resource: Resource): number {
   return taskCountCache.value.get(resource.id) || 0
+}
+
+function metaDisplayName(resource: Resource): string {
+  // name is already prefixed with fileRef in patchedNameResources
+  return resource.name || ''
 }
 
 async function checkChildType(resource: Resource) {
@@ -136,13 +134,11 @@ async function checkChildType(resource: Resource) {
     const childType = typeFile ? typeFile.name!.substring(6) : ''
     childTypeCache.value.set(resource.id, childType)
 
-    // Count .task files for badge
     const taskCount = children.filter(r => r.name?.endsWith('.task')).length
     if (taskCount > 0) {
       taskCountCache.value.set(resource.id, taskCount)
     }
 
-    // Check if this type is a leaf
     if (childType && !leafSchemaCache.value.has(childType)) {
       try {
         const { body } = await clientService.webdav.getFileContents(props.space, {
@@ -155,7 +151,6 @@ async function checkChildType(resource: Resource) {
       }
     }
 
-    // Trigger re-render so leafResources/nonLeafResources update
     leafDetectGeneration.value++
   } catch { /* ignore */ }
 }
@@ -190,45 +185,42 @@ async function patchFileReferences(resources: Resource[]) {
       if (data?.['oy.note']) meta['oy.note'] = data['oy.note']
       metaCache.value.set(r.id, meta)
       patch.set(r.id, 'done')
-      // Check child type for leaf detection
       checkChildType(r)
     } catch { /* ignore */ }
   }
   patchedRefs.value = patch
-  // Trigger reactive update for metaCache (new Map reference)
+  // New Map ref triggers reactive recompute
   metaCache.value = new Map(metaCache.value)
 }
 
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
-function metaDisplayName(resource: Resource): string {
-  const ref = getMeta(resource, 'oy.fileReference')
-  if (ref) return `${ref} ${resource.name || ''}`
-  return buildDisplayName(resource, showAktzInName.value)
-}
-
-function sortByDisplayName(resources: Resource[]): Resource[] {
-  return [...resources].sort((a, b) => {
-    const na = metaDisplayName(a).toLowerCase()
-    const nb = metaDisplayName(b).toLowerCase()
-    return na.localeCompare(nb, undefined, { numeric: true })
-  })
-}
-
-const filteredResources = computed(() => {
-  void patchedRefs.value
-  void leafDetectGeneration.value
+// Resources with fileRef prefix in name — so GenericSpace sort (by name) orders correctly
+const patchedNameResources = computed(() => {
   void metaCache.value
-  return sortByDisplayName(props.resources.filter(r => !r.name?.startsWith('_type_')))
+  void patchedRefs.value
+  return props.resources
+    .filter(r => !r.name?.startsWith('_type_'))
+    .map(r => {
+      const ref = getMeta(r, 'oy.fileReference')
+      if (!ref) return r
+      // Shallow clone with prefixed name for correct sort order
+      // getResourceLink uses resource.path/id, not name — safe to change
+      return Object.assign(Object.create(Object.getPrototypeOf(r)), r, {
+        name: `${ref} ${r.name}`
+      })
+    })
 })
 
-// Split into leaf and non-leaf resources
 const nonLeafResources = computed(() => {
-  return filteredResources.value.filter(r => !isLeafResource(r))
+  void leafDetectGeneration.value
+  return patchedNameResources.value.filter(r => !isLeafResource(r))
 })
 
 const leafResources = computed(() => {
-  return filteredResources.value.filter(r => r.type === 'folder' && isLeafResource(r))
+  void leafDetectGeneration.value
+  return patchedNameResources.value.filter(r => r.type === 'folder' && isLeafResource(r))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
 })
 </script>
 
