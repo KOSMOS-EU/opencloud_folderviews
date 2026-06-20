@@ -1,5 +1,15 @@
 <template>
   <div>
+  <!-- Learn Editor overlay -->
+  <learn-editor
+    v-if="leafFolder"
+    :space="space"
+    :folder="leafFolder"
+    @close="leafFolder = null"
+  />
+
+  <!-- Normal Metro view -->
+  <template v-else>
   <typed-folder-toolbar :space="space" />
   <resource-tiles
     v-bind="$attrs"
@@ -14,7 +24,7 @@
     :view-size="viewSize"
     :drag-drop="dragDrop"
     class="metro-view"
-    @file-click="$emit('fileClick', $event)"
+    @file-click="handleFileClick"
     @file-dropped="$emit('fileDropped', $event)"
     @item-visible="$emit('itemVisible', $event)"
     @sort="$emit('sort', $event)"
@@ -26,12 +36,14 @@
       >
         <span class="metro-tile-label">{{ buildDisplayName(resource, showAktzInName) }}</span>
         <span v-if="getNote(resource)" class="metro-tile-note">{{ getNote(resource) }}</span>
+        <span v-if="getTaskCount(resource)" class="metro-tile-badge">{{ getTaskCount(resource) }} Aufgaben</span>
       </div>
     </template>
     <template #contextMenu="{ resource }">
       <slot name="contextMenu" :resource="resource" />
     </template>
   </resource-tiles>
+  </template>
   </div>
 </template>
 
@@ -39,12 +51,15 @@
 import { ref, computed, watch } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import TypedFolderToolbar from './TypedFolderToolbar.vue'
-import { ResourceTiles, useClientService } from '@opencloud-eu/web-pkg'
+import LearnEditor from './LearnEditor.vue'
+import { ResourceTiles, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { displayName as buildDisplayName, getFileReference } from '../composables/useFileReference'
+import { TypedFolderSchema } from '../composables/types'
 
 const { showAktzInName } = useFolderviewSettings()
 const clientService = useClientService()
+const resourcesStore = useResourcesStore()
 
 const props = defineProps<{
   resources: Resource[]
@@ -58,10 +73,17 @@ const props = defineProps<{
   viewSize?: number
 }>()
 
-defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
+const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const patchedRefs = ref(new Map<string, string>())
+const leafFolder = ref<Resource | null>(null)
+// Cache: childType → isLeaf
+const leafSchemaCache = ref(new Map<string, boolean>())
+// Cache: resourceId → childType
+const childTypeCache = ref(new Map<string, string>())
+// Cache: resourceId → task count
+const taskCountCache = ref(new Map<string, number>())
 
 function getColor(resource: Resource): string {
   return (resource as any).extraProps?.['oc:oy.color'] || ''
@@ -78,6 +100,56 @@ function tileStyle(resource: Resource): Record<string, string> {
     backgroundColor: color,
     color: '#fff'
   }
+}
+
+function getTaskCount(resource: Resource): number {
+  return taskCountCache.value.get(resource.id) || 0
+}
+
+async function checkChildType(resource: Resource) {
+  if (childTypeCache.value.has(resource.id)) return
+  try {
+    const { children } = await clientService.webdav.listFiles(props.space, { path: resource.path })
+    const typeFile = children.find(r => r.name?.startsWith('_type_'))
+    const childType = typeFile ? typeFile.name!.substring(6) : ''
+    childTypeCache.value.set(resource.id, childType)
+
+    // Count .task files for badge
+    const taskCount = children.filter(r => r.name?.endsWith('.task')).length
+    if (taskCount > 0) {
+      taskCountCache.value = new Map(taskCountCache.value.set(resource.id, taskCount))
+    }
+
+    // Check if this type is a leaf
+    if (childType && !leafSchemaCache.value.has(childType)) {
+      try {
+        const { body } = await clientService.webdav.getFileContents(props.space, {
+          path: `.views/${childType}.json`
+        }) as any
+        const schema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body)) as TypedFolderSchema
+        leafSchemaCache.value.set(childType, !!schema.isLeaf)
+      } catch {
+        leafSchemaCache.value.set(childType, false)
+      }
+    }
+  } catch { /* ignore */ }
+}
+
+function isLeafResource(resource: Resource): boolean {
+  const childType = childTypeCache.value.get(resource.id)
+  if (!childType) return false
+  return leafSchemaCache.value.get(childType) || false
+}
+
+function handleFileClick(event: any) {
+  // event has resources array
+  const resources = event?.resources || [event]
+  const resource = resources[0] || event
+  if (resource?.type === 'folder' && isLeafResource(resource)) {
+    leafFolder.value = resource
+    return
+  }
+  emit('fileClick', event)
 }
 
 async function patchFileReferences(resources: Resource[]) {
@@ -102,6 +174,8 @@ async function patchFileReferences(resources: Resource[]) {
         ;(r as any).extraProps['oc:oy.note'] = data['oy.note']
       }
       patch.set(r.id, 'done')
+      // Also check child type for leaf detection
+      checkChildType(r)
     } catch { /* ignore */ }
   }
   patchedRefs.value = patch
@@ -110,8 +184,9 @@ async function patchFileReferences(resources: Resource[]) {
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
 const filteredResources = computed(() => {
-  // Force reactivity on patchedRefs
+  // Force reactivity on patchedRefs + taskCountCache
   void patchedRefs.value
+  void taskCountCache.value
   return props.resources.filter(r => !r.name?.startsWith('_type_'))
 })
 </script>
@@ -140,6 +215,15 @@ const filteredResources = computed(() => {
   text-align: center;
   word-break: break-word;
   line-height: 1.4;
+}
+/* Task count badge */
+.metro-view .metro-tile-badge {
+  font-size: 10px;
+  opacity: 0.75;
+  margin-top: 6px;
+  padding: 1px 6px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
 }
 /* Note/description under tile title */
 .metro-view .metro-tile-note {
