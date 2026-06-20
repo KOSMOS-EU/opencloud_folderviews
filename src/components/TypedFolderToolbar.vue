@@ -6,7 +6,7 @@
       :key="child.type"
       appearance="outline"
       size="small"
-      @click="child.action()"
+      @click="openCreateDialog(child.type, child.label)"
     >
       <oc-icon name="add" size="small" />
       <span>{{ child.label }}</span>
@@ -29,15 +29,25 @@
       <oc-icon name="lock" size="small" />
       <span>Schützen</span>
     </oc-button>
+
+    <create-dialog
+      v-if="dialogOpen"
+      :title="dialogTitle"
+      :show-color="dialogShowColor"
+      :show-note="dialogShowNote"
+      @cancel="dialogOpen = false"
+      @confirm="onDialogConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, unref, watch } from 'vue'
+import { computed, ref, unref } from 'vue'
 import { type SpaceResource } from '@opencloud-eu/web-client'
 import { useResourcesStore, useClientService } from '@opencloud-eu/web-pkg'
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
 import { useTypedFolderSchema } from '../composables/useTypedFolderSchema'
+import CreateDialog from './CreateDialog.vue'
 
 const props = defineProps<{
   space: SpaceResource
@@ -116,35 +126,42 @@ const isSpaceRoot = computed(() => {
 
 const childButtons = computed(() => {
   const children = unref(allowedChildren)
-  // Filter: at root, only allow types that match the current folder's type (structural)
   const filtered = unref(isSpaceRoot)
     ? children.filter(t => t === unref(currentType))
     : children
   return filtered.map(childType => ({
     type: childType,
-    label: typeLabels[childType] || `Neu: ${childType}`,
-    action: () => {
-      const label = typeLabels[childType] || childType
-      const name = prompt(`Name (${label}):`)
-      if (!name) return
-      // Ask for color if schema defines oy.color metadata
-      const s = unref(schema)
-      let extraMeta: Record<string, string> | undefined
-      if (s?.metadata?.['oy.color']) {
-        const color = prompt('Farbe (z.B. #8B1A1A, #2E7D32, #1565C0, #E65100, #6D4C41, #7B1FA2):')
-        if (color) {
-          extraMeta = { 'oy.color': color }
-          // Also ask for note/description if defined
-          if (s.metadata['oy.note']) {
-            const note = prompt('Beschreibung (optional):')
-            if (note) extraMeta['oy.note'] = note
-          }
-        }
-      }
-      createTypedChild(childType, name.trim(), extraMeta)
-    }
+    label: typeLabels[childType] || `Neu: ${childType}`
   }))
 })
+
+// --- Create dialog state ---
+const dialogOpen = ref(false)
+const dialogTitle = ref('')
+const dialogShowColor = ref(false)
+const dialogShowNote = ref(false)
+const dialogChildType = ref('')
+
+function openCreateDialog(childType: string, label: string) {
+  const s = unref(schema)
+  dialogChildType.value = childType
+  dialogTitle.value = label
+  dialogShowColor.value = !!s?.metadata?.['oy.color']
+  dialogShowNote.value = !!s?.metadata?.['oy.note']
+  dialogOpen.value = true
+}
+
+function onDialogConfirm(data: { name: string; color?: string; note?: string }) {
+  dialogOpen.value = false
+  const extraMeta: Record<string, string> = {}
+  if (data.color) extraMeta['oy.color'] = data.color
+  if (data.note) extraMeta['oy.note'] = data.note
+  createTypedChild(
+    dialogChildType.value,
+    data.name,
+    Object.keys(extraMeta).length > 0 ? extraMeta : undefined
+  )
+}
 </script>
 
 <style scoped>

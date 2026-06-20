@@ -1,0 +1,202 @@
+<template>
+  <div class="create-dialog-overlay" @click.self="$emit('cancel')">
+    <div class="create-dialog">
+      <div class="create-dialog-header">
+        <h3>{{ title }}</h3>
+        <button class="create-dialog-close" @click="$emit('cancel')">
+          <oc-icon name="close" size="small" />
+        </button>
+      </div>
+      <div class="create-dialog-body">
+        <label>Name</label>
+        <input
+          ref="nameInput"
+          v-model="name"
+          class="create-input"
+          placeholder="Name eingeben..."
+          @keyup.enter="submit"
+        />
+
+        <template v-if="showColor">
+          <label>Farbe</label>
+          <div class="create-color-grid">
+            <button
+              v-for="c in colors"
+              :key="c.value"
+              class="create-color-btn"
+              :class="{ active: color === c.value }"
+              :style="{ backgroundColor: c.value }"
+              :title="c.label"
+              @click="color = c.value"
+            />
+            <input
+              v-model="color"
+              type="color"
+              class="create-color-custom"
+              title="Eigene Farbe"
+            />
+          </div>
+        </template>
+
+        <template v-if="showNote">
+          <label>Beschreibung <span class="create-optional">(optional)</span></label>
+          <input
+            v-model="note"
+            class="create-input"
+            placeholder="Kurzbeschreibung..."
+          />
+        </template>
+      </div>
+      <div class="create-dialog-footer">
+        <button class="create-btn create-btn-cancel" @click="$emit('cancel')">Abbrechen</button>
+        <button class="create-btn create-btn-ok" :disabled="!name.trim()" @click="submit">Erstellen</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, nextTick } from 'vue'
+
+defineProps<{
+  title: string
+  showColor?: boolean
+  showNote?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'cancel'): void
+  (e: 'confirm', data: { name: string; color?: string; note?: string }): void
+}>()
+
+const name = ref('')
+const color = ref('#1565C0')
+const note = ref('')
+const nameInput = ref<HTMLInputElement>()
+
+const colors = [
+  { value: '#8B1A1A', label: 'Dunkelrot' },
+  { value: '#C62828', label: 'Rot' },
+  { value: '#E65100', label: 'Orange' },
+  { value: '#6D4C41', label: 'Braun' },
+  { value: '#2E7D32', label: 'Grün' },
+  { value: '#388E3C', label: 'Hellgrün' },
+  { value: '#00695C', label: 'Teal' },
+  { value: '#1565C0', label: 'Blau' },
+  { value: '#4527A0', label: 'Lila' },
+  { value: '#7B1FA2', label: 'Violett' },
+  { value: '#37474F', label: 'Grau' },
+  { value: '#455A64', label: 'Blaugrau' }
+]
+
+function submit() {
+  if (!name.value.trim()) return
+  emit('confirm', {
+    name: name.value.trim(),
+    color: color.value || undefined,
+    note: note.value.trim() || undefined
+  })
+}
+
+onMounted(() => {
+  nextTick(() => nameInput.value?.focus())
+})
+</script>
+
+<style scoped>
+.create-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.create-dialog {
+  background: var(--oc-role-surface, #fff);
+  border-radius: 8px;
+  width: min(420px, 90vw);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.create-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+}
+.create-dialog-header h3 { margin: 0; font-size: 16px; }
+.create-dialog-close {
+  background: none; border: none; cursor: pointer; padding: 4px;
+  border-radius: 50%; display: flex;
+}
+.create-dialog-close:hover { background: var(--oc-role-surface-variant, #eee); }
+.create-dialog-body {
+  padding: 8px 20px 16px;
+}
+.create-dialog-body label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin: 12px 0 4px;
+}
+.create-optional { font-weight: 400; color: #999; }
+.create-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--oc-role-outline-variant, #ccc);
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.create-input:focus { outline: 2px solid #1565C0; outline-offset: -1px; }
+.create-color-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.create-color-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.create-color-btn:hover { transform: scale(1.15); }
+.create-color-btn.active { border-color: #000; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; }
+.create-color-custom {
+  width: 28px;
+  height: 28px;
+  border: 1px dashed #999;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+.create-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 20px 16px;
+}
+.create-btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.create-btn-cancel {
+  background: none;
+  border: 1px solid var(--oc-role-outline-variant, #ccc);
+}
+.create-btn-ok {
+  background: #1565C0;
+  color: #fff;
+}
+.create-btn-ok:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
