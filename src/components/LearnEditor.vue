@@ -71,75 +71,93 @@
             </button>
           </div>
           <div class="learn-task-detail-body">
-            <div v-if="!editing" class="learn-task-desc" v-html="renderMd(selectedTask.description || '')"></div>
-            <template v-else>
-              <label>Titel</label>
-              <input v-model="selectedTask.title" class="learn-input" />
-              <label>Typ</label>
-              <div class="learn-type-grid">
-                <button
-                  v-for="tt in taskTypes"
-                  :key="tt.type"
-                  class="learn-type-btn"
-                  :class="{ active: selectedTask.type === tt.type }"
-                  :style="{ borderColor: selectedTask.type === tt.type ? tt.color : 'transparent' }"
-                  @click="selectedTask.type = tt.type; selectedTask.icon = tt.icon; selectedTask.color = tt.color"
-                >
-                  <oc-icon :name="taskIconName(tt.icon)" size="small" />
-                  <span>{{ tt.label }}</span>
-                </button>
+            <!-- View mode: two-column layout -->
+            <div v-if="!editing" class="learn-task-columns">
+              <div class="learn-task-col-left">
+                <div class="learn-task-desc" v-html="renderMd(selectedTask.description || '')"></div>
+                <div v-if="selectedTask.attachments?.length" class="learn-task-attachments">
+                  <h4>Anhänge</h4>
+                  <div v-for="att in selectedTask.attachments" :key="att.name" class="learn-attachment">
+                    <oc-icon name="attachment" size="small" />
+                    <span>{{ att.name }}</span>
+                  </div>
+                </div>
               </div>
-              <label>Beschreibung (Markdown)</label>
-              <textarea v-model="selectedTask.description" rows="4" class="learn-input"></textarea>
-              <label>Sozialform</label>
-              <select v-model="selectedTask.socialForm" class="learn-input">
-                <option>Einzelarbeit</option>
-                <option>Partnerarbeit</option>
-                <option>Gruppenarbeit</option>
-              </select>
-              <label>Zeitaufwand</label>
-              <select v-model="selectedTask.effort" class="learn-input">
-                <option>5 Minuten</option>
-                <option>10 Minuten</option>
-                <option>15 Minuten</option>
-                <option>20 Minuten</option>
-                <option>30 Minuten</option>
-                <option>45 Minuten</option>
-                <option>60 Minuten</option>
-              </select>
-              <label>Abgabeform</label>
-              <select v-model="selectedTask.submissionForm" class="learn-input">
-                <option>keine</option>
-                <option>digital</option>
-                <option>Heft</option>
-                <option>mündlich</option>
-              </select>
-              <label>Korrekturform</label>
-              <select v-model="selectedTask.correctionForm" class="learn-input">
-                <option>Selbstkorrektur</option>
-                <option>Lehrerkorrektur</option>
-                <option>Partnerkorrektur</option>
-              </select>
-              <label>Lösung</label>
-              <textarea v-model="selectedTask.solution" rows="3" class="learn-input"></textarea>
-            </template>
-            <div class="learn-task-meta">
-              <span v-if="selectedTask.socialForm">📋 {{ selectedTask.socialForm }}</span>
-              <span v-if="selectedTask.effort">⏱ {{ selectedTask.effort }}</span>
-              <span v-if="selectedTask.correctionForm">✅ {{ selectedTask.correctionForm }}</span>
-            </div>
-            <div v-if="selectedTask.attachments?.length" class="learn-task-attachments">
-              <h4>Anhänge</h4>
-              <div v-for="att in selectedTask.attachments" :key="att.name" class="learn-attachment">
-                <oc-icon name="attachment" size="small" />
-                <span>{{ att.name }}</span>
+              <div class="learn-task-col-right">
+                <div class="learn-task-meta-card">
+                  <div class="learn-meta-row"><span class="learn-meta-label">Sozialform</span><span>{{ selectedTask.socialForm || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">Zeitaufwand</span><span>{{ selectedTask.effort || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">Abgabe</span><span>{{ selectedTask.submissionForm || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">Korrektur</span><span>{{ selectedTask.correctionForm || '—' }}</span></div>
+                </div>
+                <div v-if="selectedTask.solution" class="learn-task-solution">
+                  <h4>Lösung</h4>
+                  <div v-html="renderMd(selectedTask.solution)"></div>
+                </div>
               </div>
             </div>
-            <div v-if="editing" class="learn-task-detail-actions">
-              <button class="learn-delete-btn" @click="deleteTask(selectedTask)">
-                <oc-icon name="delete-bin" size="small" />
-                Löschen
-              </button>
+
+            <!-- Edit mode: two-column layout -->
+            <div v-else class="learn-task-columns">
+              <div class="learn-task-col-left">
+                <label>Titel</label>
+                <input v-model="selectedTask.title" class="learn-input" />
+                <label>Typ</label>
+                <div class="learn-type-grid">
+                  <button
+                    v-for="tt in taskTypes"
+                    :key="tt.type"
+                    class="learn-type-btn"
+                    :class="{ active: selectedTask.type === tt.type }"
+                    :style="{ borderColor: selectedTask.type === tt.type ? tt.color : 'transparent' }"
+                    @click="selectedTask.type = tt.type; selectedTask.icon = tt.icon; selectedTask.color = tt.color"
+                  >
+                    <oc-icon :name="taskIconName(tt.icon)" size="small" />
+                    <span>{{ tt.label }}</span>
+                  </button>
+                </div>
+                <label>Beschreibung (Markdown)</label>
+                <textarea v-model="selectedTask.description" rows="6" class="learn-input"></textarea>
+              </div>
+              <div class="learn-task-col-right">
+                <label>Sozialform</label>
+                <select v-model="selectedTask.socialForm" class="learn-input">
+                  <option>Einzelarbeit</option>
+                  <option>Partnerarbeit</option>
+                  <option>Gruppenarbeit</option>
+                </select>
+                <label>Zeitaufwand</label>
+                <select v-model="selectedTask.effort" class="learn-input">
+                  <option>5 Minuten</option>
+                  <option>10 Minuten</option>
+                  <option>15 Minuten</option>
+                  <option>20 Minuten</option>
+                  <option>30 Minuten</option>
+                  <option>45 Minuten</option>
+                  <option>60 Minuten</option>
+                </select>
+                <label>Abgabeform</label>
+                <select v-model="selectedTask.submissionForm" class="learn-input">
+                  <option>keine</option>
+                  <option>digital</option>
+                  <option>Heft</option>
+                  <option>mündlich</option>
+                </select>
+                <label>Korrekturform</label>
+                <select v-model="selectedTask.correctionForm" class="learn-input">
+                  <option>Selbstkorrektur</option>
+                  <option>Lehrerkorrektur</option>
+                  <option>Partnerkorrektur</option>
+                </select>
+                <label>Lösung</label>
+                <textarea v-model="selectedTask.solution" rows="3" class="learn-input"></textarea>
+                <div class="learn-task-detail-actions">
+                  <button class="learn-delete-btn" @click="deleteTask(selectedTask)">
+                    <oc-icon name="delete-bin" size="small" />
+                    Löschen
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -500,8 +518,8 @@ watch(() => editing.value, (val) => {
 .learn-task-detail {
   background: var(--oc-role-surface, #fff);
   border-radius: 8px;
-  width: min(500px, 90vw);
-  max-height: 80vh;
+  width: min(720px, 92vw);
+  max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
 }
@@ -532,6 +550,42 @@ watch(() => editing.value, (val) => {
 .learn-task-detail-body {
   padding: 20px;
 }
+.learn-task-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 600px) {
+  .learn-task-columns { grid-template-columns: 1fr; }
+}
+.learn-task-col-left, .learn-task-col-right {
+  min-width: 0;
+}
+.learn-task-meta-card {
+  background: var(--oc-role-surface-variant, #f5f5f5);
+  border-radius: 6px;
+  padding: 12px;
+}
+.learn-meta-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--oc-role-outline-variant, #e0e0e0);
+}
+.learn-meta-row:last-child { border-bottom: none; }
+.learn-meta-label {
+  font-weight: 600;
+  color: #666;
+}
+.learn-task-solution {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--oc-role-surface-variant, #f5f5f5);
+  border-radius: 6px;
+  font-size: 13px;
+}
+.learn-task-solution h4 { margin: 0 0 6px; font-size: 13px; }
 .learn-task-detail-body label {
   display: block;
   font-size: 12px;
@@ -539,6 +593,7 @@ watch(() => editing.value, (val) => {
   margin: 12px 0 4px;
   color: #666;
 }
+.learn-task-col-right label:first-child { margin-top: 0; }
 .learn-input {
   width: 100%;
   padding: 8px;
