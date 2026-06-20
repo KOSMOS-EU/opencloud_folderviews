@@ -453,7 +453,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 		const canManageImmutable = __mf_80(() => {
 			return (__mf_55(currentFolder)?.permissions || "").includes("Z");
 		});
-		async function toggleProtect() {
+		async function doProtect() {
 			const folder = __mf_55(currentFolder);
 			const sp = props.space;
 			if (!folder || !sp) return;
@@ -461,11 +461,24 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			if (!httpClient) return;
 			const itemId = `${sp.id}!${folder.id.split("!").pop()}`;
 			try {
-				if (immutableState.value === "protected" || immutableState.value === "shielded") await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
-				else await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
+				await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
 				window.location.reload();
 			} catch (e) {
-				console.error("[TypedToolbar] protect/unprotect failed:", e);
+				console.error("[TypedToolbar] protect failed:", e);
+			}
+		}
+		async function doUnprotect() {
+			const folder = __mf_55(currentFolder);
+			const sp = props.space;
+			if (!folder || !sp) return;
+			const httpClient = clientService.httpAuthenticated;
+			if (!httpClient) return;
+			const itemId = `${sp.id}!${folder.id.split("!").pop()}`;
+			try {
+				await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
+				window.location.reload();
+			} catch (e) {
+				console.error("[TypedToolbar] unprotect failed:", e);
 			}
 		}
 		const typeLabels = {
@@ -504,11 +517,11 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 						_: 2
 					}, 1032, ["onClick"]);
 				}), 128)) : __mf_82("", true),
-				__mf_55(schema)?.protectButtonVisible && canManageImmutable.value && (immutableState.value === "protected" || immutableState.value === "shielded") ? (__mf_132(), __mf_81(_component_oc_button, {
+				__mf_55(schema)?.protectButtonVisible && canManageImmutable.value && immutableState.value === "protected" ? (__mf_132(), __mf_81(_component_oc_button, {
 					key: 1,
 					appearance: "outline",
 					size: "small",
-					onClick: toggleProtect
+					onClick: doUnprotect
 				}, {
 					default: __mf_166(() => [__mf_91$1(_component_oc_icon, {
 						name: "lock-unlock",
@@ -516,11 +529,11 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 					}), _cache[0] || (_cache[0] = __mf_84("span", null, "Schutz aufheben", -1))]),
 					_: 1
 				})) : __mf_82("", true),
-				__mf_55(schema)?.protectButtonVisible && canManageImmutable.value && !immutableState.value ? (__mf_132(), __mf_81(_component_oc_button, {
+				__mf_55(schema)?.protectButtonVisible && canManageImmutable.value && immutableState.value !== "protected" ? (__mf_132(), __mf_81(_component_oc_button, {
 					key: 2,
 					appearance: "outline",
 					size: "small",
-					onClick: toggleProtect
+					onClick: doProtect
 				}, {
 					default: __mf_166(() => [__mf_91$1(_component_oc_icon, {
 						name: "lock",
@@ -531,7 +544,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-35f15f9d"]]);
+}), [["__scopeId", "data-v-8871ff75"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };

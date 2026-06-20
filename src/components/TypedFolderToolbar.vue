@@ -12,19 +12,19 @@
       <span>{{ child.label }}</span>
     </oc-button>
     <oc-button
-      v-if="schema?.protectButtonVisible && canManageImmutable && (immutableState === 'protected' || immutableState === 'shielded')"
+      v-if="schema?.protectButtonVisible && canManageImmutable && immutableState === 'protected'"
       appearance="outline"
       size="small"
-      @click="toggleProtect"
+      @click="doUnprotect"
     >
       <oc-icon name="lock-unlock" size="small" />
       <span>Schutz aufheben</span>
     </oc-button>
     <oc-button
-      v-if="schema?.protectButtonVisible && canManageImmutable && !immutableState"
+      v-if="schema?.protectButtonVisible && canManageImmutable && immutableState !== 'protected'"
       appearance="outline"
       size="small"
-      @click="toggleProtect"
+      @click="doProtect"
     >
       <oc-icon name="lock" size="small" />
       <span>Schützen</span>
@@ -69,7 +69,7 @@ const canManageImmutable = computed(() => {
   return perms.includes('Z')
 })
 
-async function toggleProtect() {
+async function doProtect() {
   const folder = unref(currentFolder)
   const sp = props.space
   if (!folder || !sp) return
@@ -77,15 +77,25 @@ async function toggleProtect() {
   if (!httpClient) return
   const itemId = `${sp.id}!${folder.id.split('!').pop()}`
   try {
-    if (immutableState.value === 'protected' || immutableState.value === 'shielded') {
-      await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
-    } else {
-      await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
-    }
-    // Reload to reflect new state
+    await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
     window.location.reload()
   } catch (e) {
-    console.error('[TypedToolbar] protect/unprotect failed:', e)
+    console.error('[TypedToolbar] protect failed:', e)
+  }
+}
+
+async function doUnprotect() {
+  const folder = unref(currentFolder)
+  const sp = props.space
+  if (!folder || !sp) return
+  const httpClient = (clientService as any).httpAuthenticated
+  if (!httpClient) return
+  const itemId = `${sp.id}!${folder.id.split('!').pop()}`
+  try {
+    await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
+    window.location.reload()
+  } catch (e) {
+    console.error('[TypedToolbar] unprotect failed:', e)
   }
 }
 
