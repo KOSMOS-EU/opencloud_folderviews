@@ -461,7 +461,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			if (!httpClient) return;
 			const itemId = `${sp.id}!${folder.id.split("!").pop()}`;
 			try {
-				if (immutableState.value === "protected") await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
+				if (immutableState.value === "protected" || immutableState.value === "shielded") await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
 				else await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
 				window.location.reload();
 			} catch (e) {
@@ -531,7 +531,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-a38a98f6"]]);
+}), [["__scopeId", "data-v-35f15f9d"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };

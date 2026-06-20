@@ -77,7 +77,7 @@ async function toggleProtect() {
   if (!httpClient) return
   const itemId = `${sp.id}!${folder.id.split('!').pop()}`
   try {
-    if (immutableState.value === 'protected') {
+    if (immutableState.value === 'protected' || immutableState.value === 'shielded') {
       await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
     } else {
       await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
