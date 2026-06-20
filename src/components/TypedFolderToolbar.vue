@@ -1,7 +1,8 @@
 <template>
-  <div v-if="isTyped && (canCreate || canManageImmutable)" class="typed-toolbar">
+  <div v-if="isTyped" class="typed-toolbar">
     <oc-button
       v-for="child in childButtons"
+      v-if="canCreate"
       :key="child.type"
       appearance="outline"
       size="small"

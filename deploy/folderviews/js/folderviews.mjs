@@ -490,8 +490,8 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
 			const _component_oc_button = __mf_140("oc-button");
-			return isTyped.value && (__mf_55(canCreate) || canManageImmutable.value) ? (__mf_132(), __mf_83$1("div", _hoisted_1$9, [
-				(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(childButtons.value, (child) => {
+			return isTyped.value ? (__mf_132(), __mf_83$1("div", _hoisted_1$9, [
+				__mf_55(canCreate) ? (__mf_132(true), __mf_83$1(__mf_69, { key: 0 }, __mf_138(childButtons.value, (child) => {
 					return __mf_132(), __mf_81(_component_oc_button, {
 						key: child.type,
 						appearance: "outline",
@@ -504,9 +504,9 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 						}), __mf_84("span", null, __mf_61(child.label), 1)]),
 						_: 2
 					}, 1032, ["onClick"]);
-				}), 128)),
+				}), 128)) : __mf_82("", true),
 				canManageImmutable.value && immutableState.value === "protected" ? (__mf_132(), __mf_81(_component_oc_button, {
-					key: 0,
+					key: 1,
 					appearance: "outline",
 					size: "small",
 					onClick: toggleProtect
@@ -518,7 +518,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 					_: 1
 				})) : __mf_82("", true),
 				canManageImmutable.value && !immutableState.value ? (__mf_132(), __mf_81(_component_oc_button, {
-					key: 1,
+					key: 2,
 					appearance: "outline",
 					size: "small",
 					onClick: toggleProtect
@@ -532,7 +532,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-88998427"]]);
+}), [["__scopeId", "data-v-89543313"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };
