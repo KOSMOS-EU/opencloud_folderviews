@@ -209,6 +209,43 @@ for subj_dir in "$SCRIPT_DIR"/*/; do
   done
 done
 
+# --- Upload .classes/ ---
+echo ""
+echo "=== Uploading .classes/ ==="
+mkfolder ".classes"
+
+putcontent ".classes/klasse_2024.md" '# Klasse 8a — Schuljahr 2024/25
+# Klassenlehrer: Herr Schmidt
+
+anna.schmidt
+ben.wagner
+clara.hoffmann
+david.meyer
+emma.schulz
+finn.becker
+greta.koch
+henri.wolf
+ida.richter
+jan.braun
+karla.neumann
+leon.schwarz
+mia.zimmermann
+nico.hartmann
+olivia.weber
+paul.frank
+# quentin.ross   # abgemeldet 15.11.
+rosa.lang
+simon.kraft
+tessa.winter
+uwe.bach
+viola.stein
+wenzel.berg
+xenia.roth
+yusuf.celik
+zoe.lehmann
+'
+echo "[ok] .classes/klasse_2024.md (25 Schüler)"
+
 echo ""
 echo "=== Done ==="
 echo "Content deployed to space '$SPACE_NAME' on $HOST"
