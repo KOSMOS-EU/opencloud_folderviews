@@ -107,8 +107,20 @@ const typeLabels: Record<string, string> = {
   thema: 'Neues Thema'
 }
 
+// At space root, don't offer leaf types (thema) — only structural types
+const isSpaceRoot = computed(() => {
+  const folder = unref(currentFolder)
+  const p = folder?.path || ''
+  return !p || p === '/'
+})
+
 const childButtons = computed(() => {
-  return unref(allowedChildren).map(childType => ({
+  const children = unref(allowedChildren)
+  // Filter: at root, only allow types that match the current folder's type (structural)
+  const filtered = unref(isSpaceRoot)
+    ? children.filter(t => t === unref(currentType))
+    : children
+  return filtered.map(childType => ({
     type: childType,
     label: typeLabels[childType] || `Neu: ${childType}`,
     action: () => {

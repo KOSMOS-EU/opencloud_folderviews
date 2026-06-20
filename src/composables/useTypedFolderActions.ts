@@ -174,13 +174,23 @@ export function useTypedFolderActions(
   const allowedChildren = computed(() => {
     const s = unref(schema)
     if (!s?.children) return []
-    // children can be string[] or { protected: string[], shielded: string[], default: string[] }
-    if (Array.isArray(s.children)) return s.children
-    const folder = unref(currentFolder)
-    const state = (folder as any)?.immutableState || ''
-    if (state === 'protected' && (s.children as any).protected) return (s.children as any).protected
-    if (state === 'shielded' && (s.children as any).shielded) return (s.children as any).shielded
-    return (s.children as any).default || []
+
+    let types: string[]
+    if (Array.isArray(s.children)) {
+      types = s.children
+    } else {
+      const folder = unref(currentFolder)
+      const state = (folder as any)?.immutableState || ''
+      if (state === 'protected' && (s.children as any).protected) {
+        types = (s.children as any).protected
+      } else if (state === 'shielded' && (s.children as any).shielded) {
+        types = (s.children as any).shielded
+      } else {
+        types = (s.children as any).default || []
+      }
+    }
+
+    return types
   })
 
   /**
@@ -188,16 +198,12 @@ export function useTypedFolderActions(
    * Manager/SpaceAdmin can create even in protected folders (via unprotect/protect).
    */
   const canCreate = computed(() => {
-    const folder = unref(currentFolder)
+    const folder = unref(currentFolder) as any
     if (!folder) return false
-    const perms = (folder as any).permissions || ''
-    // Direct write permission
-    if (perms.includes('C') || perms.includes('K')) return true
-    // Manager can unprotect → create → protect
-    // Managers have 'Z' (manage) permission on protected folders
-    const immutableState = (folder as any)?.immutableState || ''
-    if ((immutableState === 'protected' || immutableState === 'shielded') && perms.includes('Z')) return true
-    return false
+    const s = unref(schema)
+    // If schema has children, show create buttons.
+    // Actual permission check happens on creation (error message if denied).
+    return !!s?.children && (Array.isArray(s.children) ? s.children.length > 0 : true)
   })
 
   /**
