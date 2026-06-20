@@ -9,6 +9,7 @@ export interface TypedFolderSchema {
   viewers?: Record<string, string>    // file extension → viewer name
   elementLayout?: ElementLayout       // default layout for element view
   isContainer?: boolean               // renders children recursively
+  protectButtonVisible?: boolean      // show protect/unprotect button for managers
 }
 
 export interface TypedFieldDef {

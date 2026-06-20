@@ -504,7 +504,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 						_: 2
 					}, 1032, ["onClick"]);
 				}), 128)) : __mf_82("", true),
-				currentType.value === "aktenplan" && canManageImmutable.value && (immutableState.value === "protected" || immutableState.value === "shielded") ? (__mf_132(), __mf_81(_component_oc_button, {
+				__mf_55(schema)?.protectButtonVisible && canManageImmutable.value && (immutableState.value === "protected" || immutableState.value === "shielded") ? (__mf_132(), __mf_81(_component_oc_button, {
 					key: 1,
 					appearance: "outline",
 					size: "small",
@@ -516,7 +516,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 					}), _cache[0] || (_cache[0] = __mf_84("span", null, "Schutz aufheben", -1))]),
 					_: 1
 				})) : __mf_82("", true),
-				currentType.value === "aktenplan" && canManageImmutable.value && !immutableState.value ? (__mf_132(), __mf_81(_component_oc_button, {
+				__mf_55(schema)?.protectButtonVisible && canManageImmutable.value && !immutableState.value ? (__mf_132(), __mf_81(_component_oc_button, {
 					key: 2,
 					appearance: "outline",
 					size: "small",
@@ -531,7 +531,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-ef912c4e"]]);
+}), [["__scopeId", "data-v-a38a98f6"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };
