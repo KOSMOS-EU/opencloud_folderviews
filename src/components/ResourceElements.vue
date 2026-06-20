@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { ref, computed, provide, watch } from 'vue'
 import { type Resource, type SpaceResource } from '@opencloud-eu/web-client'
-import { useResourcesStore, useRouter } from '@opencloud-eu/web-pkg'
+import { useResourcesStore, useRouter, createFileRouteOptions, createLocationSpaces } from '@opencloud-eu/web-pkg'
 import { useElementRenderer, ELEMENT_RENDERER_KEY } from '../composables/useElementRenderer'
 import { type TypedFolderSchema, type ElementLayout } from '../composables/types'
 import ElementContainer from './ElementContainer.vue'
@@ -63,13 +63,20 @@ const filteredResources = computed(() => {
 })
 
 function navigateTo(resource: Resource) {
-  const current = router.currentRoute.value
-  const targetPath = current.path.replace(/\/$/, '') + '/' + resource.name
-  const query = { ...current.query }
-  delete query.fileId
-  delete query.scrollTo
-  delete query.page
-  router.push({ path: targetPath, query })
+  // Check if resource is a space (has getDriveAliasAndItem)
+  if ((resource as any).getDriveAliasAndItem) {
+    const space = resource as SpaceResource
+    const routeOpts = createFileRouteOptions(space, { path: '', fileId: space.fileId })
+    router.push(createLocationSpaces('files-spaces-generic', routeOpts))
+  } else {
+    const current = router.currentRoute.value
+    const targetPath = current.path.replace(/\/$/, '') + '/' + resource.name
+    const query = { ...current.query }
+    delete query.fileId
+    delete query.scrollTo
+    delete query.page
+    router.push({ path: targetPath, query })
+  }
 }
 
 const ready = ref(false)

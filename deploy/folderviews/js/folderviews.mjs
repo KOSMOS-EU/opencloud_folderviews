@@ -1,4 +1,4 @@
-import { a as __mf_243, c as __mf_83, i as __mf_241, l as __mf_89, n as __mf_228, o as __mf_306, r as __mf_237, s as __mf_314, t as __mf_146, u as __mf_91 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-B_bvgBHO.mjs";
+import { a as __mf_237, c as __mf_306, d as __mf_89, f as __mf_91, i as __mf_228, l as __mf_314, n as __mf_143, o as __mf_241, r as __mf_146, s as __mf_243, t as __mf_137, u as __mf_83 } from "./_virtual_mf___mfe_internal__folderviews__loadShare___mf_0_opencloud_mf_2_eu_mf_1_web_mf_2_pkg__loadShare__.mjs-Cls8eazl.mjs";
 import { A as __mf_81, C as __mf_55, D as __mf_69, E as __mf_61, F as __mf_91$1, I as __mf_93, M as __mf_83$1, N as __mf_84, O as __mf_73, P as __mf_90, S as __mf_45, T as __mf_60, _ as __mf_20, a as __mf_126, b as __mf_39, c as __mf_134, d as __mf_140, f as __mf_142, g as __mf_168, h as __mf_166, i as __mf_119, j as __mf_82, k as __mf_80, l as __mf_138, m as __mf_161, n as __mf_117, o as __mf_130, p as __mf_154, r as __mf_118, s as __mf_132, t as __mf_112, u as __mf_139, v as __mf_21, w as __mf_58, x as __mf_43, y as __mf_24 } from "./_virtual_mf___mfe_internal__folderviews__loadShare__vue__loadShare__.mjs-DkSBazTV.mjs";
 //#region src/composables/useFolderviewSettings.ts
 var EXTENSION_POINT_ID = "com.kosmos-eu.folderviews.aktenzeichen-display";
@@ -2866,16 +2866,25 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			return props.resources.filter((r) => !r.name?.startsWith("_type_") && !r.name?.startsWith("."));
 		});
 		function navigateTo(resource) {
-			const current = router.currentRoute.value;
-			const targetPath = current.path.replace(/\/$/, "") + "/" + resource.name;
-			const query = { ...current.query };
-			delete query.fileId;
-			delete query.scrollTo;
-			delete query.page;
-			router.push({
-				path: targetPath,
-				query
-			});
+			if (resource.getDriveAliasAndItem) {
+				const space = resource;
+				const routeOpts = __mf_137(space, {
+					path: "",
+					fileId: space.fileId
+				});
+				router.push(__mf_143("files-spaces-generic", routeOpts));
+			} else {
+				const current = router.currentRoute.value;
+				const targetPath = current.path.replace(/\/$/, "") + "/" + resource.name;
+				const query = { ...current.query };
+				delete query.fileId;
+				delete query.scrollTo;
+				delete query.page;
+				router.push({
+					path: targetPath,
+					query
+				});
+			}
 		}
 		const ready = __mf_45(false);
 		const rootSchema = __mf_45(null);
@@ -2932,7 +2941,7 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 			}), 128))]))]);
 		};
 	}
-}), [["__scopeId", "data-v-7cb0534d"]]);
+}), [["__scopeId", "data-v-2e1ade4a"]]);
 //#endregion
 //#region src/index.ts
 var applicationId = "folderviews";
