@@ -29,23 +29,20 @@ Sachsen startet ab SJ 2025/26 "Selbstlernen.Digital" mit zwei Stufen:
 
 ### 4. Was fehlt für Sachsen → Roadmap
 
-#### 4.1 Schüler-Ansicht (FEHLT — Priorität 1)
-**Problem**: Aktuell gibt es nur die Lehrer-/Admin-Ansicht.
-**Lösung**: Schüler-Portal als separater Dienst oder Public-Link-View
+#### 4.1 Schüler-Ansicht via classes-Dienst (IN PLANUNG — Priorität 1)
+Der **classes-Dienst** ist das Schüler-Portal — nicht OpenCloud selbst.
 
 ```
-Schüler öffnet Link → sieht seine Themen → klickt Aufgabe → bearbeitet
+Schüler → Schullogin (OIDC) → classes-Dienst → sieht Themen → bearbeitet Aufgaben
 ```
 
-Optionen:
-- **A) OpenCloud Public Link**: Space per Public Link teilen, Read-Only
-  - Schüler braucht keinen Account
-  - Intranet-httpd rendert die Themen als HTML-Seite
-  - QR-Code pro Klasse/Thema
-- **B) classes-Dienst**: Separater Login per Token
-  - Schüler-spezifische Sichtbarkeit
-  - Aufgaben-Abgabe möglich
-  - Fortschritt-Tracking
+- **Single Login** für Schüler über classes-Dienst
+- **OIDC Federation** mit Sachsens zentralem IDP **Schullogin**
+- classes liest `.classes/klasse_YYYY.md` aus dem Space (Mapping Schullogin-ID ↔ Token)
+- classes rendert Themen + Aufgaben als Schüler-Ansicht (eigene Web-App)
+- Lehrkraft verwaltet Inhalte weiterhin in OpenCloud Web (folderviews Extension)
+- Schüler interagiert **nur** mit classes (kein OpenCloud-Account nötig)
+- classes greift per **Service Account** (WebDAV) auf den Lernen-Space zu
 
 #### 4.2 Aufgaben-Abgabe (FEHLT — Priorität 2)
 **Problem**: Schüler können Aufgaben aktuell nicht abgeben.
@@ -94,12 +91,14 @@ Optionen:
 - Kompetenz-Katalog als `.views/competencies.json`
 - Dashboard aggregiert Kompetenzen pro Schüler
 
-#### 4.6 Integration Schullogin / LernSax (FEHLT — Infrastruktur)
-**Problem**: Sachsen nutzt Schullogin als zentrale Authentifizierung.
-**Lösung**:
-- OpenCloud OIDC Federation mit Schullogin
-- classes-Dienst mappt Schullogin-IDs auf Space-Tokens
-- Oder: Public Links ohne Login (einfacher, weniger Datenschutz-Aufwand)
+#### 4.6 Integration Schullogin / LernSax (GEPLANT — Infrastruktur)
+**Ansatz**: classes-Dienst ist der OIDC-Client gegenüber Schullogin.
+
+- **classes-Dienst** authentifiziert Schüler via Schullogin (OIDC)
+- Schullogin liefert Benutzer-ID → classes mappt auf Token in `.classes/`
+- **Lehrkräfte** loggen sich direkt in OpenCloud ein (eigenes OIDC oder Schullogin)
+- OpenCloud muss nicht direkt an Schullogin angebunden werden (classes vermittelt)
+- Alternativ: OpenCloud IDP Federation mit Schullogin für Lehrkräfte
 
 ## Architektur-Übersicht
 
@@ -131,45 +130,38 @@ Optionen:
 │                                                     │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
-│  Intranet-httpd (Schüler-Ansicht, Read-Only)        │
-│  ├── Public Link → Space → HTML-Rendering           │
-│  ├── Themen als Karten mit Aufgaben                 │
-│  ├── .task → Aufgaben-Kacheln mit Links/Beschreibung│
-│  └── QR-Codes pro Klasse/Thema                      │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  classes-Dienst (zukünftig)                          │
-│  ├── Token-Login für Schüler                        │
-│  ├── Aufgaben-Abgabe                                │
-│  ├── Fortschritt-Tracking                           │
-│  ├── Sichtbarkeitssteuerung                         │
-│  └── Kompetenz-Dashboard                            │
+│  classes-Dienst (Schüler-Portal)                     │
+│  ├── Login via Schullogin (OIDC Federation)          │
+│  ├── Schullogin-ID → Token-Mapping aus .classes/     │
+│  ├── Liest Lernplan + Themen + .task per WebDAV      │
+│  ├── Rendert Schüler-Ansicht (eigene Web-App)        │
+│  ├── Aufgaben-Abgabe + Selbstkorrektur               │
+│  ├── Fortschritt-Tracking (🔴🟡🟢)                  │
+│  ├── Sichtbarkeitssteuerung (Datum + Klasse)          │
+│  ├── Kompetenz-Dashboard                             │
+│  └── Service Account → OpenCloud WebDAV              │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
-## Was Sachsen sofort nutzen könnte (Phase 1)
+## Was Sachsen sofort nutzen könnte (Phase 1 — Lehrer-Seite)
 
-1. **OpenCloud Space "Lernen"** pro Schule/Klasse
-2. **Lehrkraft** erstellt Lernbereiche + Themen per Metro-View
-3. **Aufgaben** mit Links zu YouTube, LearningApps, bettermarks etc.
-4. **Public Link** auf den Space → Intranet-httpd rendert als Website
-5. **QR-Code** für Schüler → öffnet Themen-Seite im Browser
-6. **Keine Accounts nötig** für Schüler (Public Link = Read-Only)
+1. **OpenCloud Space "Lernen"** pro Schule/Fachschaft
+2. **Lehrkraft** erstellt Lernbereiche + Themen per Metro-View + CreateDialog
+3. **Aufgaben** mit Links zu YouTube, LearningApps, bettermarks, MeSax etc.
+4. **Klassenlisten** in `.classes/klasse_YYYY.md`
+5. **FolderSettings** zum Anpassen von Nummer, Farbe, Beschreibung
 
-Das deckt Kompetenz.Digital (Stufe 1) komplett ab:
-- Lehrkraft erstellt 15 Unterrichtsstunden als Themen
-- Jedes Thema hat strukturierte Aufgaben mit Links + Beschreibung
-- Schüler arbeiten die Aufgaben selbstständig ab
-- Verschiedene Aufgabentypen für verschiedene Lernformen
+Das deckt die **Lehrer-Seite** von Kompetenz.Digital komplett ab.
 
-## Was zusätzlich gebaut werden muss (Phase 2+)
+## Was gebaut werden muss (Phase 2 — classes-Dienst = Schüler-Seite)
 
-1. **Intranet-httpd**: `.task`-Rendering als Aufgaben-Kacheln
-2. **classes-Dienst**: Schüler-Login + Abgabe + Tracking
-3. **Dashboard**: Fortschritt pro Schüler/Klasse
-4. **Zeitsteuerung**: Themen zeitlich freigeben
+1. **classes-Dienst**: Login via Schullogin → Schüler-Ansicht
+2. **Themen-Rendering**: Liest .task + seite.md, zeigt als Aufgaben-Karten
+3. **Aufgaben-Abgabe**: Upload/Text/Erledigt-Markierung
+4. **Fortschritt-Dashboard**: Lehrkraft sieht 🔴🟡🟢 pro Schüler
+5. **Zeitsteuerung**: Themen ab Datum X für Klasse Y sichtbar
+6. **Selbstkorrektur**: Lösungstext anzeigen nach Bearbeitung
 
 ## Mapping auf Sachsen-Anforderungen
 
@@ -181,11 +173,11 @@ Das deckt Kompetenz.Digital (Stufe 1) komplett ab:
 | Lehrkraft erstellt Inhalte | CreateDialog + LearnEditor | ✅ |
 | Metadata bearbeiten | FolderSettings Sidebar | ✅ |
 | Klassen verwalten | .classes/ Token-Listen | ✅ |
-| Schüler-Ansicht | Intranet-httpd Public Link | ⚡ erweiterbar |
-| Aufgaben-Abgabe | classes-Dienst | ❌ geplant |
-| Fortschritt-Tracking | classes-Dienst Dashboard | ❌ geplant |
+| Schüler-Ansicht | classes-Dienst (Schullogin OIDC) | 🔧 zu bauen |
+| Aufgaben-Abgabe | classes-Dienst | 🔧 zu bauen |
+| Fortschritt-Tracking | classes-Dienst Dashboard | 🔧 zu bauen |
 | Zeitsteuerung | oy.visibleFrom Metadata | ❌ geplant |
 | Kompetenz-Checkliste | .task competencies + Dashboard | ❌ geplant |
-| Schullogin-Integration | OIDC Federation | ❌ Infrastruktur |
+| Schullogin-Integration | classes-Dienst OIDC Federation | 🔧 zu bauen |
 | bettermarks/LearningApps | Links in .task description | ✅ (extern) |
 | Offline-Fähigkeit | PWA / lokaler Cache | ❌ optional |
