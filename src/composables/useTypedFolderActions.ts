@@ -147,9 +147,9 @@ export function useTypedFolderActions(
         } catch { /* ignore */ }
       }
 
-      // 7. Update store
-      resourcesStore.upsertResource(newFolder)
+      // 7. Reload to pick up new extraProps (oy.app etc.)
       showMessage({ title: `${name} erstellt` })
+      window.location.reload()
     } catch (e) {
       // Re-protect parent on error
       const httpClient = (clientService as any).httpAuthenticated
