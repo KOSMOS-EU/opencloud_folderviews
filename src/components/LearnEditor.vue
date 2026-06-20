@@ -77,8 +77,9 @@
                 <div class="learn-task-desc" v-html="renderMd(selectedTask.description || '')"></div>
                 <div v-if="selectedTask.attachments?.length" class="learn-task-attachments">
                   <h4>Anhänge</h4>
-                  <div v-for="att in selectedTask.attachments" :key="att.name" class="learn-attachment">
-                    <oc-icon name="attachment" size="small" />
+                  <div v-for="att in selectedTask.attachments" :key="att.name" class="learn-attachment"
+                    @click="downloadAttachment(att)" style="cursor: pointer;">
+                    <oc-icon name="download" size="small" />
                     <span>{{ att.name }}</span>
                   </div>
                 </div>
@@ -149,6 +150,22 @@
                   <option>Lehrerkorrektur</option>
                   <option>Partnerkorrektur</option>
                 </select>
+                <label>Anhänge</label>
+                <div class="learn-attachments-edit">
+                  <div v-for="(att, i) in selectedTask.attachments" :key="att.name" class="learn-attachment-item">
+                    <oc-icon name="attachment" size="small" />
+                    <span>{{ att.name }}</span>
+                    <button class="learn-attachment-remove" @click="selectedTask.attachments.splice(i, 1)">
+                      <oc-icon name="close" size="small" />
+                    </button>
+                  </div>
+                  <label class="learn-upload-btn">
+                    <oc-icon name="upload" size="small" />
+                    <span>{{ uploading ? 'Hochladen...' : 'Datei hochladen' }}</span>
+                    <input type="file" multiple hidden @change="uploadFiles($event, selectedTask)" :disabled="uploading" />
+                  </label>
+                </div>
+
                 <label>Lösung</label>
                 <textarea v-model="selectedTask.solution" rows="3" class="learn-input"></textarea>
                 <div class="learn-task-detail-actions">
@@ -206,6 +223,7 @@ const description = ref('')
 const editDescription = ref('')
 const tasks = ref<TaskData[]>([])
 const selectedTask = ref<TaskData | null>(null)
+const uploading = ref(false)
 const fileReference = ref('')
 
 const taskTypes = [
@@ -249,6 +267,64 @@ function renderMd(md: string): string {
 }
 
 const renderedDescription = computed(() => renderMd(description.value))
+
+async function downloadAttachment(att: { name: string; path: string }) {
+  const sp = props.space
+  const folder = props.folder
+  if (!sp || !folder) return
+  try {
+    const { body } = await clientService.webdav.getFileContents(sp, {
+      path: folder.path + '/' + att.path
+    }) as any
+    const blob = new Blob([body])
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = att.name
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('[LearnEditor] download failed:', e)
+  }
+}
+
+async function uploadFiles(event: Event, task: TaskData) {
+  const input = event.target as HTMLInputElement
+  const files = input.files
+  if (!files || !files.length) return
+
+  const sp = props.space
+  const folder = props.folder
+  if (!sp || !folder) return
+
+  uploading.value = true
+  try {
+    // Ensure attachments/ folder exists
+    try {
+      await clientService.webdav.createFolder(sp, { path: folder.path + '/attachments' })
+    } catch { /* already exists */ }
+
+    for (const file of Array.from(files)) {
+      const content = await file.arrayBuffer()
+      const filePath = folder.path + '/attachments/' + file.name
+      await clientService.webdav.putFileContents(sp, {
+        path: filePath,
+        content: new Uint8Array(content)
+      })
+      // Add to task attachments
+      if (!task.attachments) task.attachments = []
+      if (!task.attachments.find(a => a.name === file.name)) {
+        task.attachments.push({ name: file.name, path: 'attachments/' + file.name })
+      }
+    }
+  } catch (e) {
+    console.error('[LearnEditor] upload failed:', e)
+    alert('Upload fehlgeschlagen: ' + (e as Error).message)
+  } finally {
+    uploading.value = false
+    input.value = '' // reset file input
+  }
+}
 
 async function loadContent() {
   loading.value = true
@@ -647,4 +723,38 @@ textarea.learn-input { resize: vertical; font-family: monospace; }
   display: flex;
   justify-content: flex-end;
 }
+
+/* Attachments edit */
+.learn-attachments-edit {
+  margin-bottom: 8px;
+}
+.learn-attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.learn-attachment-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+  padding: 2px;
+  display: flex;
+}
+.learn-attachment-remove:hover { opacity: 1; }
+.learn-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px dashed var(--oc-role-outline-variant, #999);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-top: 6px;
+  color: #666;
+}
+.learn-upload-btn:hover { border-color: #1565C0; color: #1565C0; }
 </style>
