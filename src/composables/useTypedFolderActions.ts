@@ -77,7 +77,6 @@ export function useTypedFolderActions(
     if (!sp || !folder) return
 
     const path = folder.path.replace(/\/?$/, `/${name}`)
-
     try {
       // 0. Unprotect parent if needed (Manager on protected folder)
       const httpClient = (clientService as any).httpAuthenticated
