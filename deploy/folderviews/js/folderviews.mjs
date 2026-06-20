@@ -74,8 +74,8 @@ function compareByDisplayName(a, b, showAktz) {
 //#region src/views/AktenplanView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$12 = { class: "typed-folder-view aktenplan-view" };
 var _hoisted_2$9 = { class: "typed-folder-header" };
-var _hoisted_3$7 = { class: "typed-folder-type-badge" };
-var _hoisted_4$2 = {
+var _hoisted_3$8 = { class: "typed-folder-type-badge" };
+var _hoisted_4$3 = {
 	key: 0,
 	class: "typed-folder-aktz"
 };
@@ -96,8 +96,8 @@ var AktenplanView_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ __
 		});
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$9, [
-				__mf_84("span", _hoisted_3$7, __mf_61(isShielded.value ? "Aktenschrank" : "Aktenplan"), 1),
-				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_4$2, __mf_61(fileRef.value), 1)) : __mf_82("", true),
+				__mf_84("span", _hoisted_3$8, __mf_61(isShielded.value ? "Aktenschrank" : "Aktenplan"), 1),
+				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_4$3, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				canCreateChild.value ? (__mf_132(), __mf_83$1("button", {
 					key: 1,
 					class: "typed-action-btn",
@@ -121,7 +121,7 @@ var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(Akte
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$11 = { class: "typed-folder-view akte-view" };
 var _hoisted_2$8 = { class: "typed-folder-header" };
-var _hoisted_3$6 = {
+var _hoisted_3$7 = {
 	key: 0,
 	class: "typed-folder-aktz"
 };
@@ -140,7 +140,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$8, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge akte" }, "Akte", -1)),
-				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$6, __mf_61(fileRef.value), 1)) : __mf_82("", true),
+				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$7, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_84("button", {
 					class: "typed-action-btn",
 					onClick: _cache[0] || (_cache[0] = ($event) => _ctx.$emit("new-child", "vorgang"))
@@ -153,7 +153,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 //#region src/views/VorgangView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$10 = { class: "typed-folder-view vorgang-view" };
 var _hoisted_2$7 = { class: "typed-folder-header" };
-var _hoisted_3$5 = {
+var _hoisted_3$6 = {
 	key: 0,
 	class: "typed-folder-aktz"
 };
@@ -172,7 +172,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$7, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge vorgang" }, "Vorgang", -1)),
-				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$5, __mf_61(fileRef.value), 1)) : __mf_82("", true),
+				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$6, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_84("button", {
 					class: "typed-action-btn",
 					onClick: _cache[0] || (_cache[0] = ($event) => _ctx.$emit("new-child", "register"))
@@ -185,7 +185,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 //#region src/views/RegisterView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$9 = { class: "typed-folder-view register-view" };
 var _hoisted_2$6 = { class: "typed-folder-header" };
-var _hoisted_3$4 = {
+var _hoisted_3$5 = {
 	key: 0,
 	class: "typed-folder-aktz"
 };
@@ -203,7 +203,7 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 		return (_ctx, _cache) => {
 			return __mf_132(), __mf_83$1("div", _hoisted_1$9, [__mf_84("div", _hoisted_2$6, [
 				_cache[0] || (_cache[0] = __mf_84("span", { class: "typed-folder-type-badge register" }, "Register", -1)),
-				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$4, __mf_61(fileRef.value), 1)) : __mf_82("", true),
+				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$5, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				_cache[1] || (_cache[1] = __mf_84("span", { class: "typed-folder-hint" }, "Dokumente ablegen", -1))
 			]), __mf_139(_ctx.$slots, "default", {}, void 0, true)]);
 		};
@@ -213,7 +213,7 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };
 var _hoisted_2$5 = ["onClick"];
-var _hoisted_3$3 = {
+var _hoisted_3$4 = {
 	key: 1,
 	class: "tree-spacer"
 };
@@ -366,7 +366,7 @@ var ResourceTree_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 					}, [__mf_91$1(_component_oc_icon, {
 						name: isExpanded(resource.id) ? "arrow-down-s" : "arrow-right-s",
 						size: "small"
-					}, null, 8, ["name"])], 8, _hoisted_2$5)) : (__mf_132(), __mf_83$1("span", _hoisted_3$3)),
+					}, null, 8, ["name"])], 8, _hoisted_2$5)) : (__mf_132(), __mf_83$1("span", _hoisted_3$4)),
 					__mf_91$1(__mf_55(__mf_83), {
 						resource,
 						size: "small",
@@ -2319,8 +2319,8 @@ function useElementRenderer(space) {
 //#region src/components/ElementFrame.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$3 = { class: "element-frame" };
 var _hoisted_2$3 = { class: "element-frame-toolbar" };
-var _hoisted_3$2 = { class: "element-frame-name" };
-var _hoisted_4$1 = { class: "element-frame-content" };
+var _hoisted_3$3 = { class: "element-frame-name" };
+var _hoisted_4$2 = { class: "element-frame-content" };
 //#endregion
 //#region src/components/ElementFrame.vue
 var ElementFrame_default = /* @__PURE__ */ __mf_93({
@@ -2387,14 +2387,14 @@ var ElementFrame_default = /* @__PURE__ */ __mf_93({
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
 			return __mf_132(), __mf_83$1("div", _hoisted_1$3, [
-				__mf_84("div", _hoisted_2$3, [__mf_84("span", _hoisted_3$2, __mf_61(__props.resource.name), 1), __mf_84("button", {
+				__mf_84("div", _hoisted_2$3, [__mf_84("span", _hoisted_3$3, __mf_61(__props.resource.name), 1), __mf_84("button", {
 					class: "element-frame-menu",
 					onClick: _cache[0] || (_cache[0] = __mf_24(($event) => toggleMenu($event), ["stop", "prevent"]))
 				}, [__mf_91$1(_component_oc_icon, {
 					name: "more-2",
 					size: "small"
 				})])]),
-				__mf_84("div", _hoisted_4$1, [__mf_139(_ctx.$slots, "default")]),
+				__mf_84("div", _hoisted_4$2, [__mf_139(_ctx.$slots, "default")]),
 				(__mf_132(), __mf_81(__mf_73, { to: "body" }, [menuOpen.value ? (__mf_132(), __mf_83$1("div", {
 					key: 0,
 					class: "element-ctx-overlay",
@@ -2448,7 +2448,7 @@ var _hoisted_2$2 = {
 	key: 1,
 	class: "element-error"
 };
-var _hoisted_3$1 = {
+var _hoisted_3$2 = {
 	key: 3,
 	class: "element-fallback"
 };
@@ -2527,7 +2527,7 @@ var ElementContent_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* 
 				key: 2,
 				content: content.value,
 				alt: __props.resource.name
-			}, null, 8, ["content", "alt"])) : !viewer.value ? (__mf_132(), __mf_83$1("div", _hoisted_3$1, [__mf_91$1(_component_oc_icon, {
+			}, null, 8, ["content", "alt"])) : !viewer.value ? (__mf_132(), __mf_83$1("div", _hoisted_3$2, [__mf_91$1(_component_oc_icon, {
 				name: "file",
 				size: "small"
 			}), __mf_84("span", null, __mf_61(__props.resource.name), 1)])) : __mf_82("", true)], 512);
@@ -2541,9 +2541,9 @@ var _hoisted_1$1 = {
 	class: "element-container-header"
 };
 var _hoisted_2$1 = { class: "element-container-label" };
-var _hoisted_3 = { key: 0 };
-var _hoisted_4 = { key: 1 };
-var _hoisted_5 = {
+var _hoisted_3$1 = { key: 0 };
+var _hoisted_4$1 = { key: 1 };
+var _hoisted_5$1 = {
 	key: 2,
 	class: "element-container-actions"
 };
@@ -2742,8 +2742,8 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 					onClick: _cache[6] || (_cache[6] = __mf_24(() => {}, ["stop"]))
 				}, [
 					__mf_84("label", null, [_cache[11] || (_cache[11] = __mf_90("Display ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => editParams.display = $event) }, [..._cache[10] || (_cache[10] = [__mf_84("option", { value: "flex" }, "flex", -1), __mf_84("option", { value: "grid" }, "grid", -1)])], 512), [[__mf_20, editParams.display]])]),
-					editParams.display === "flex" ? (__mf_132(), __mf_83$1("label", _hoisted_3, [_cache[13] || (_cache[13] = __mf_90("Direction ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => editParams.direction = $event) }, [..._cache[12] || (_cache[12] = [__mf_84("option", { value: "column" }, "column", -1), __mf_84("option", { value: "row" }, "row", -1)])], 512), [[__mf_20, editParams.direction]])])) : __mf_82("", true),
-					editParams.display === "grid" ? (__mf_132(), __mf_83$1("label", _hoisted_4, [_cache[14] || (_cache[14] = __mf_90("Columns ", -1)), __mf_168(__mf_84("input", {
+					editParams.display === "flex" ? (__mf_132(), __mf_83$1("label", _hoisted_3$1, [_cache[13] || (_cache[13] = __mf_90("Direction ", -1)), __mf_168(__mf_84("select", { "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => editParams.direction = $event) }, [..._cache[12] || (_cache[12] = [__mf_84("option", { value: "column" }, "column", -1), __mf_84("option", { value: "row" }, "row", -1)])], 512), [[__mf_20, editParams.direction]])])) : __mf_82("", true),
+					editParams.display === "grid" ? (__mf_132(), __mf_83$1("label", _hoisted_4$1, [_cache[14] || (_cache[14] = __mf_90("Columns ", -1)), __mf_168(__mf_84("input", {
 						type: "number",
 						"onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => editParams.columns = $event),
 						min: "1",
@@ -2769,7 +2769,7 @@ var ElementContainer_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 						onClick: saveDivParams
 					}, "Speichern")
 				])) : __mf_82("", true),
-				!__props.folderName && !loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_5, [__mf_84("button", {
+				!__props.folderName && !loading.value ? (__mf_132(), __mf_83$1("div", _hoisted_5$1, [__mf_84("button", {
 					class: "element-container-add",
 					onClick: __mf_24(createMd, ["stop"])
 				}, [__mf_91$1(_component_oc_icon, {
@@ -2827,6 +2827,12 @@ var _hoisted_2 = {
 	key: 0,
 	class: "resource-elements-loading"
 };
+var _hoisted_3 = {
+	key: 2,
+	class: "element-cards"
+};
+var _hoisted_4 = ["onClick"];
+var _hoisted_5 = { class: "element-card-name" };
 //#endregion
 //#region src/components/ResourceElements.vue
 var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
@@ -2852,9 +2858,25 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 	setup(__props, { emit: __emit }) {
 		const props = __props;
 		const resourcesStore = __mf_306();
+		const router = __mf_314();
 		const ctx = useElementRenderer(__mf_80(() => props.space));
 		__mf_134(ELEMENT_RENDERER_KEY, ctx);
 		const currentPath = __mf_80(() => resourcesStore.currentFolder?.path || "");
+		const filteredResources = __mf_80(() => {
+			return props.resources.filter((r) => !r.name?.startsWith("_type_") && !r.name?.startsWith("."));
+		});
+		function navigateTo(resource) {
+			const current = router.currentRoute.value;
+			const targetPath = current.path.replace(/\/$/, "") + "/" + resource.name;
+			const query = { ...current.query };
+			delete query.fileId;
+			delete query.scrollTo;
+			delete query.page;
+			router.push({
+				path: targetPath,
+				query
+			});
+		}
 		const ready = __mf_45(false);
 		const rootSchema = __mf_45(null);
 		const rootDivParams = __mf_45(null);
@@ -2883,7 +2905,8 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 		}, { immediate: true });
 		return (_ctx, _cache) => {
 			const _component_oc_spinner = __mf_140("oc-spinner");
-			return __mf_132(), __mf_83$1("div", _hoisted_1, [!ready.value ? (__mf_132(), __mf_83$1("div", _hoisted_2, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[0] || (_cache[0] = __mf_90(" Laden... ", -1))])) : (__mf_132(), __mf_81(ElementContainer_default, {
+			const _component_oc_icon = __mf_140("oc-icon");
+			return __mf_132(), __mf_83$1("div", _hoisted_1, [!ready.value ? (__mf_132(), __mf_83$1("div", _hoisted_2, [__mf_91$1(_component_oc_spinner, { size: "small" }), _cache[0] || (_cache[0] = __mf_90(" Laden... ", -1))])) : rootSchema.value ? (__mf_132(), __mf_81(ElementContainer_default, {
 				key: 1,
 				resources: __props.resources,
 				path: currentPath.value,
@@ -2897,10 +2920,19 @@ var ResourceElements_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/
 				"schema",
 				"div-params",
 				"space"
-			]))]);
+			])) : (__mf_132(), __mf_83$1("div", _hoisted_3, [(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(filteredResources.value, (r) => {
+				return __mf_132(), __mf_83$1("div", {
+					key: r.id,
+					class: "element-card",
+					onClick: ($event) => navigateTo(r)
+				}, [__mf_91$1(_component_oc_icon, {
+					name: r.isFolder ? "folder" : "file",
+					size: "large"
+				}, null, 8, ["name"]), __mf_84("span", _hoisted_5, __mf_61(r.name), 1)], 8, _hoisted_4);
+			}), 128))]))]);
 		};
 	}
-}), [["__scopeId", "data-v-ad20a312"]]);
+}), [["__scopeId", "data-v-7cb0534d"]]);
 //#endregion
 //#region src/index.ts
 var applicationId = "folderviews";
