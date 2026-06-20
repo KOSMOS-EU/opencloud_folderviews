@@ -117,42 +117,78 @@ function getTaskCount(resource: Resource): number {
   return taskCountCache.value.get(resource.id) || 0
 }
 
-// --- Leaf detection (background, non-blocking) ---
+// --- Leaf detection: use current folder schema to know child types ---
 
-async function checkChildType(resource: Resource) {
-  if (childTypeCache.value.has(resource.id)) return
+// Which child types are leaf? Loaded once from current folder's schema.
+const leafTypes = ref(new Set<string>())
+const leafDetectionDone = ref(false)
+
+async function detectLeafTypes(resources: Resource[]) {
+  // Find current folder type from _type_* file
+  const typeFile = resources.find(r => r.name?.startsWith('_type_'))
+  if (!typeFile) { leafDetectionDone.value = true; return }
+  const currentType = typeFile.name!.substring(6)
+
+  // Load current folder's schema to get allowed children types
   try {
-    const rPath = resource.path || (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') + resource.name)
-    const { children } = await clientService.webdav.listFiles(props.space, { path: rPath })
-    const typeFile = children.find(r => r.name?.startsWith('_type_'))
-    const childType = typeFile ? typeFile.name!.substring(6) : ''
-    childTypeCache.value.set(resource.id, childType)
+    const { body } = await clientService.webdav.getFileContents(props.space, {
+      path: `.views/${currentType}.json`
+    }) as any
+    const schema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body)) as TypedFolderSchema
 
-    const taskCount = children.filter(r => r.name?.endsWith('.task')).length
-    if (taskCount > 0) {
-      taskCountCache.value.set(resource.id, taskCount)
+    // Get all possible child types
+    let childTypes: string[] = []
+    if (Array.isArray(schema.children)) {
+      childTypes = schema.children
+    } else if (schema.children && typeof schema.children === 'object') {
+      const c = schema.children as any
+      childTypes = [...new Set([...(c.protected || []), ...(c.shielded || []), ...(c.default || [])])]
     }
 
-    if (childType && !leafSchemaCache.value.has(childType)) {
-      try {
-        const { body } = await clientService.webdav.getFileContents(props.space, {
-          path: `.views/${childType}.json`
-        }) as any
-        const schema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body)) as TypedFolderSchema
-        leafSchemaCache.value.set(childType, !!schema.isLeaf)
-      } catch {
-        leafSchemaCache.value.set(childType, false)
+    // Load each child type's schema (parallel) to check isLeaf
+    const newLeafTypes = new Set<string>()
+    await Promise.all(childTypes.map(async (ct) => {
+      if (leafSchemaCache.value.has(ct)) {
+        if (leafSchemaCache.value.get(ct)) newLeafTypes.add(ct)
+        return
       }
-    }
+      try {
+        const { body: b } = await clientService.webdav.getFileContents(props.space, {
+          path: `.views/${ct}.json`
+        }) as any
+        const s = JSON.parse(typeof b === 'string' ? b : new TextDecoder().decode(b)) as TypedFolderSchema
+        leafSchemaCache.value.set(ct, !!s.isLeaf)
+        if (s.isLeaf) newLeafTypes.add(ct)
+      } catch {
+        leafSchemaCache.value.set(ct, false)
+      }
+    }))
 
-    leafDetectGeneration.value++
-  } catch { /* ignore */ }
+    leafTypes.value = newLeafTypes
+
+    // Now detect each child folder's type + task count (parallel)
+    const folders = resources.filter(r => r.type === 'folder' && !r.name?.startsWith('_type_'))
+    await Promise.all(folders.map(async (r) => {
+      if (childTypeCache.value.has(r.id)) return
+      try {
+        const rPath = r.path || (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') + r.name)
+        const { children } = await clientService.webdav.listFiles(props.space, { path: rPath })
+        const tf = children.find(c => c.name?.startsWith('_type_'))
+        childTypeCache.value.set(r.id, tf ? tf.name!.substring(6) : '')
+        const tc = children.filter(c => c.name?.endsWith('.task')).length
+        if (tc > 0) taskCountCache.value.set(r.id, tc)
+      } catch { /* ignore */ }
+    }))
+  } catch { /* no schema = no leaf types */ }
+
+  leafDetectionDone.value = true
+  leafDetectGeneration.value++
 }
 
 function isLeafResource(resource: Resource): boolean {
   const childType = childTypeCache.value.get(resource.id)
   if (!childType) return false
-  return leafSchemaCache.value.get(childType) || false
+  return leafTypes.value.has(childType)
 }
 
 function openLeaf(resource: Resource) {
@@ -162,14 +198,11 @@ function openLeaf(resource: Resource) {
   leafFolder.value = resource
 }
 
-// --- Kick off leaf detection when resources change ---
+// --- Kick off leaf detection once when resources change ---
 
 watch(() => props.resources, (res) => {
-  for (const r of res) {
-    if (r.type === 'folder' && !r.name?.startsWith('_type_')) {
-      checkChildType(r)
-    }
-  }
+  leafDetectionDone.value = false
+  detectLeafTypes(res)
 }, { immediate: true })
 
 // --- Sorted resources: prefix name with fileReference, sort numerically ---
