@@ -101,15 +101,27 @@ export function useTypedFolderActions(
       const newFolder = children.find((r) => r.name === name)
       if (!newFolder) throw new Error('Folder not found after creation')
 
-      // 4. Compute and set file reference
+      // 4. Compute and set file reference + app metadata
       const fileRef = await computeNextFileReference(childType)
-      if (fileRef) {
-        const httpClient = (clientService as any).httpAuthenticated
-        if (httpClient) {
-          const itemId = `${sp.id}!${newFolder.id.split('!').pop()}`
-          await httpClient.put(
+      const httpClient2 = (clientService as any).httpAuthenticated
+      if (httpClient2) {
+        const itemId = `${sp.id}!${newFolder.id.split('!').pop()}`
+        const meta: Record<string, string> = {}
+        if (fileRef) meta['oy.fileReference'] = fileRef
+
+        // Check if child schema defines an app → set oy.app for leaf detection via PROPFIND
+        try {
+          const { body: childBody } = await clientService.webdav.getFileContents(sp, {
+            path: `.views/${childType}.json`
+          }) as any
+          const childSchema = JSON.parse(typeof childBody === 'string' ? childBody : new TextDecoder().decode(childBody))
+          if (childSchema?.app) meta['oy.app'] = childSchema.app
+        } catch { /* ignore */ }
+
+        if (Object.keys(meta).length > 0) {
+          await httpClient2.put(
             `/graph/v1beta1/drives/${sp.id}/items/${itemId}/metadata`,
-            { 'oy.fileReference': fileRef }
+            meta
           )
         }
       }

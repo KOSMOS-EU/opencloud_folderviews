@@ -204,8 +204,8 @@ for subj_dir in "$SCRIPT_DIR"/*/; do
       putfile "$subj_name/$topic_name/$task_name" "$task_file"
     done
 
-    # Set topic metadata
-    set_meta "$subj_name/$topic_name" "{\"oy.fileReference\":\"$topic_ref\"}"
+    # Set topic metadata (oy.app marks it as leaf for Metro view)
+    set_meta "$subj_name/$topic_name" "{\"oy.fileReference\":\"$topic_ref\",\"oy.app\":\"learn-editor\"}"
   done
 done
 

@@ -88,6 +88,7 @@ export default defineWebApplication({
     clientService.webdav.registerExtraProp('oc:oy.fileReference')
     clientService.webdav.registerExtraProp('oc:oy.color')
     clientService.webdav.registerExtraProp('oc:oy.note')
+    clientService.webdav.registerExtraProp('oc:oy.app')
 
     return {
       appInfo,

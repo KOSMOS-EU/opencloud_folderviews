@@ -28,11 +28,8 @@
     @sort="$emit('sort', $event)"
   >
     <template #image="{ resource }">
-      <div
-        class="metro-tile-content"
-        :style="tileStyle(resource)"
-      >
-        <span class="metro-tile-label">{{ displayLabel(resource) }}</span>
+      <div class="metro-tile-content" :style="tileStyle(resource)">
+        <span class="metro-tile-label">{{ resource.name }}</span>
         <span v-if="getProp(resource, 'oc:oy.note')" class="metro-tile-note">{{ getProp(resource, 'oc:oy.note') }}</span>
       </div>
     </template>
@@ -41,7 +38,7 @@
     </template>
   </resource-tiles>
 
-  <!-- Leaf tiles (rendered separately with click → LearnEditor) -->
+  <!-- Leaf tiles (oy.app set → click opens LearnEditor) -->
   <div v-if="leafResources.length" class="metro-leaf-grid">
     <div
       v-for="r in leafResources"
@@ -51,8 +48,7 @@
     >
       <div class="metro-tile-content" :style="tileStyle(r)">
         <oc-icon name="book-open" size="large" class="metro-leaf-icon" />
-        <span class="metro-tile-label">{{ displayLabel(r) }}</span>
-        <span v-if="getTaskCount(r)" class="metro-tile-badge">{{ getTaskCount(r) }} Aufgaben</span>
+        <span class="metro-tile-label">{{ r.name }}</span>
       </div>
     </div>
   </div>
@@ -61,14 +57,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import LearnEditor from './LearnEditor.vue'
-import { ResourceTiles, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
-import { TypedFolderSchema } from '../composables/types'
+import { ResourceTiles, useResourcesStore } from '@opencloud-eu/web-pkg'
 
-const clientService = useClientService()
 const resourcesStore = useResourcesStore()
 
 const props = defineProps<{
@@ -83,112 +77,23 @@ const props = defineProps<{
   viewSize?: number
 }>()
 
-const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
+defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const leafFolder = ref<Resource | null>(null)
-const leafSchemaCache = ref(new Map<string, boolean>())
-const childTypeCache = ref(new Map<string, string>())
-const taskCountCache = ref(new Map<string, number>())
-const leafDetectGeneration = ref(0)
-
-// --- Read metadata directly from PROPFIND extraProps (no async needed) ---
 
 function getProp(resource: Resource, key: string): string {
   return ((resource as any).extraProps?.[key] as string) || ''
 }
 
-function getColor(resource: Resource): string {
-  return getProp(resource, 'oc:oy.color')
-}
-
-function displayLabel(resource: Resource): string {
-  // name is already prefixed in sortedResources
-  return resource.name || ''
-}
-
 function tileStyle(resource: Resource): Record<string, string> {
-  const color = getColor(resource)
+  const color = getProp(resource, 'oc:oy.color')
   if (!color) return {}
   return { backgroundColor: color, color: '#fff' }
 }
 
-function getTaskCount(resource: Resource): number {
-  return taskCountCache.value.get(resource.id) || 0
-}
-
-// --- Leaf detection: use current folder schema to know child types ---
-
-// Which child types are leaf? Loaded once from current folder's schema.
-const leafTypes = ref(new Set<string>())
-const leafDetectionDone = ref(false)
-
-async function detectLeafTypes(resources: Resource[]) {
-  // Find current folder type from _type_* file
-  const typeFile = resources.find(r => r.name?.startsWith('_type_'))
-  if (!typeFile) { leafDetectionDone.value = true; return }
-  const currentType = typeFile.name!.substring(6)
-
-  // Load current folder's schema to get allowed children types
-  try {
-    const { body } = await clientService.webdav.getFileContents(props.space, {
-      path: `.views/${currentType}.json`
-    }) as any
-    const schema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body)) as TypedFolderSchema
-
-    // Get all possible child types
-    let childTypes: string[] = []
-    if (Array.isArray(schema.children)) {
-      childTypes = schema.children
-    } else if (schema.children && typeof schema.children === 'object') {
-      const c = schema.children as any
-      childTypes = [...new Set([...(c.protected || []), ...(c.shielded || []), ...(c.default || [])])]
-    }
-
-    // Load each child type's schema (parallel) to check isLeaf
-    const newLeafTypes = new Set<string>()
-    await Promise.all(childTypes.map(async (ct) => {
-      if (leafSchemaCache.value.has(ct)) {
-        if (leafSchemaCache.value.get(ct)) newLeafTypes.add(ct)
-        return
-      }
-      try {
-        const { body: b } = await clientService.webdav.getFileContents(props.space, {
-          path: `.views/${ct}.json`
-        }) as any
-        const s = JSON.parse(typeof b === 'string' ? b : new TextDecoder().decode(b)) as TypedFolderSchema
-        leafSchemaCache.value.set(ct, !!s.isLeaf)
-        if (s.isLeaf) newLeafTypes.add(ct)
-      } catch {
-        leafSchemaCache.value.set(ct, false)
-      }
-    }))
-
-    leafTypes.value = newLeafTypes
-
-    // Now detect each child folder's type + task count (parallel)
-    const folders = resources.filter(r => r.type === 'folder' && !r.name?.startsWith('_type_'))
-    await Promise.all(folders.map(async (r) => {
-      if (childTypeCache.value.has(r.id)) return
-      try {
-        const rPath = r.path || (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') + r.name)
-        const { children } = await clientService.webdav.listFiles(props.space, { path: rPath })
-        const tf = children.find(c => c.name?.startsWith('_type_'))
-        childTypeCache.value.set(r.id, tf ? tf.name!.substring(6) : '')
-        const tc = children.filter(c => c.name?.endsWith('.task')).length
-        if (tc > 0) taskCountCache.value.set(r.id, tc)
-      } catch { /* ignore */ }
-    }))
-  } catch { /* no schema = no leaf types */ }
-
-  leafDetectionDone.value = true
-  leafDetectGeneration.value++
-}
-
-function isLeafResource(resource: Resource): boolean {
-  const childType = childTypeCache.value.get(resource.id)
-  if (!childType) return false
-  return leafTypes.value.has(childType)
+function isLeaf(resource: Resource): boolean {
+  return !!getProp(resource, 'oc:oy.app')
 }
 
 function openLeaf(resource: Resource) {
@@ -198,15 +103,7 @@ function openLeaf(resource: Resource) {
   leafFolder.value = resource
 }
 
-// --- Kick off leaf detection once when resources change ---
-
-watch(() => props.resources, (res) => {
-  leafDetectionDone.value = false
-  detectLeafTypes(res)
-}, { immediate: true })
-
-// --- Sorted resources: prefix name with fileReference, sort numerically ---
-
+// Prefix name with fileReference, sort numerically
 const sortedResources = computed(() => {
   return props.resources
     .filter(r => !r.name?.startsWith('_type_'))
@@ -220,15 +117,8 @@ const sortedResources = computed(() => {
     .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
 })
 
-const nonLeafResources = computed(() => {
-  void leafDetectGeneration.value
-  return sortedResources.value.filter(r => !isLeafResource(r))
-})
-
-const leafResources = computed(() => {
-  void leafDetectGeneration.value
-  return sortedResources.value.filter(r => r.type === 'folder' && isLeafResource(r))
-})
+const nonLeafResources = computed(() => sortedResources.value.filter(r => !isLeaf(r)))
+const leafResources = computed(() => sortedResources.value.filter(r => r.type === 'folder' && isLeaf(r)))
 </script>
 
 <style>
@@ -256,15 +146,6 @@ const leafResources = computed(() => {
   word-break: break-word;
   line-height: 1.4;
 }
-.metro-view .metro-tile-badge,
-.metro-leaf-tile .metro-tile-badge {
-  font-size: 10px;
-  opacity: 0.75;
-  margin-top: 6px;
-  padding: 1px 6px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 8px;
-}
 .metro-view .metro-tile-note {
   font-size: 11px;
   opacity: 0.85;
@@ -290,11 +171,6 @@ const leafResources = computed(() => {
   transition: transform 0.1s;
   min-height: 140px;
 }
-.metro-leaf-tile:hover {
-  transform: scale(1.03);
-}
-.metro-leaf-icon {
-  margin-bottom: 4px;
-  opacity: 0.8;
-}
+.metro-leaf-tile:hover { transform: scale(1.03); }
+.metro-leaf-icon { margin-bottom: 4px; opacity: 0.8; }
 </style>
