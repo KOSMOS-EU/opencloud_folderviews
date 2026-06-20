@@ -200,10 +200,18 @@ async function patchFileReferences(resources: Resource[]) {
 
 watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
 
+function sortByDisplayName(resources: Resource[]): Resource[] {
+  return [...resources].sort((a, b) => {
+    const na = buildDisplayName(a, showAktzInName.value).toLowerCase()
+    const nb = buildDisplayName(b, showAktzInName.value).toLowerCase()
+    return na.localeCompare(nb, undefined, { numeric: true })
+  })
+}
+
 const filteredResources = computed(() => {
   void patchedRefs.value
   void leafDetectGeneration.value
-  return props.resources.filter(r => !r.name?.startsWith('_type_'))
+  return sortByDisplayName(props.resources.filter(r => !r.name?.startsWith('_type_')))
 })
 
 // Split into leaf and non-leaf resources
