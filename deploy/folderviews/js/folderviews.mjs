@@ -212,7 +212,7 @@ function useTypedFolderSchema(space, folderType) {
 		const spaceId = sp.id;
 		if (!schemaCache.has(spaceId)) schemaCache.set(spaceId, /* @__PURE__ */ new Map());
 		const spaceSchemas = schemaCache.get(spaceId);
-		if (spaceSchemas.has(type)) {
+		if (spaceSchemas.has(type) && spaceSchemas.get(type) !== null) {
 			schema.value = spaceSchemas.get(type);
 			return;
 		}
@@ -225,16 +225,13 @@ function useTypedFolderSchema(space, folderType) {
 			if (!parsed.label || !Array.isArray(parsed.children) && typeof parsed.children !== "object") {
 				error.value = `Invalid schema for type "${type}": missing label or children`;
 				schema.value = null;
-				spaceSchemas.set(type, null);
 				return;
 			}
 			schema.value = parsed;
 			spaceSchemas.set(type, parsed);
 		} catch (e) {
-			if (e?.statusCode === 404 || e?.response?.status === 404) {
-				schema.value = null;
-				spaceSchemas.set(type, null);
-			} else {
+			if (e?.statusCode === 404 || e?.response?.status === 404) schema.value = null;
+			else {
 				error.value = `Failed to load schema for type "${type}": ${e.message || e}`;
 				schema.value = null;
 			}
@@ -443,7 +440,9 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 		const clientService = __mf_228();
 		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
 		const currentType = __mf_80(() => {
-			const typeFile = (resourcesStore.resources || []).find((r) => r.name?.startsWith("_type_"));
+			const resources = resourcesStore.resources || [];
+			const typeFile = resources.find((r) => r.name?.startsWith("_type_"));
+			console.log("[TypedToolbar] resources:", resources.length, "names:", resources.map((r) => r.name).filter((n) => n?.startsWith("_type_")), "found:", typeFile?.name);
 			return typeFile ? typeFile.name.substring(6) : void 0;
 		});
 		const isTyped = __mf_80(() => !!__mf_55(currentType));
@@ -505,7 +504,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 						_: 2
 					}, 1032, ["onClick"]);
 				}), 128)) : __mf_82("", true),
-				canManageImmutable.value && immutableState.value === "protected" ? (__mf_132(), __mf_81(_component_oc_button, {
+				canManageImmutable.value && (immutableState.value === "protected" || immutableState.value === "shielded") ? (__mf_132(), __mf_81(_component_oc_button, {
 					key: 1,
 					appearance: "outline",
 					size: "small",
@@ -532,7 +531,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-89543313"]]);
+}), [["__scopeId", "data-v-364d8341"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };

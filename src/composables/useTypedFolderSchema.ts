@@ -31,7 +31,7 @@ export function useTypedFolderSchema(
       schemaCache.set(spaceId, new Map())
     }
     const spaceSchemas = schemaCache.get(spaceId)!
-    if (spaceSchemas.has(type)) {
+    if (spaceSchemas.has(type) && spaceSchemas.get(type) !== null) {
       schema.value = spaceSchemas.get(type)!
       return
     }
@@ -47,7 +47,6 @@ export function useTypedFolderSchema(
       if (!parsed.label || (!Array.isArray(parsed.children) && typeof parsed.children !== 'object')) {
         error.value = `Invalid schema for type "${type}": missing label or children`
         schema.value = null
-        spaceSchemas.set(type, null)
         return
       }
 
@@ -57,7 +56,6 @@ export function useTypedFolderSchema(
       if (e?.statusCode === 404 || e?.response?.status === 404) {
         // No schema for this type — not an error, just no typed view
         schema.value = null
-        spaceSchemas.set(type, null)
       } else {
         error.value = `Failed to load schema for type "${type}": ${e.message || e}`
         schema.value = null

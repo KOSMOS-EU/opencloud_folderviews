@@ -12,7 +12,7 @@
       <span>{{ child.label }}</span>
     </oc-button>
     <oc-button
-      v-if="canManageImmutable && immutableState === 'protected'"
+      v-if="canManageImmutable && (immutableState === 'protected' || immutableState === 'shielded')"
       appearance="outline"
       size="small"
       @click="toggleProtect"
@@ -50,6 +50,7 @@ const currentFolder = computed(() => resourcesStore.currentFolder)
 const currentType = computed(() => {
   const resources = resourcesStore.resources || []
   const typeFile = resources.find(r => r.name?.startsWith('_type_'))
+  console.log('[TypedToolbar] resources:', resources.length, 'names:', resources.map(r => r.name).filter(n => n?.startsWith('_type_')), 'found:', typeFile?.name)
   return typeFile ? typeFile.name.substring(6) : undefined
 })
 
