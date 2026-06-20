@@ -127,7 +127,21 @@ const childButtons = computed(() => {
       const label = typeLabels[childType] || childType
       const name = prompt(`Name (${label}):`)
       if (!name) return
-      createTypedChild(childType, name.trim())
+      // Ask for color if schema defines oy.color metadata
+      const s = unref(schema)
+      let extraMeta: Record<string, string> | undefined
+      if (s?.metadata?.['oy.color']) {
+        const color = prompt('Farbe (z.B. #8B1A1A, #2E7D32, #1565C0, #E65100, #6D4C41, #7B1FA2):')
+        if (color) {
+          extraMeta = { 'oy.color': color }
+          // Also ask for note/description if defined
+          if (s.metadata['oy.note']) {
+            const note = prompt('Beschreibung (optional):')
+            if (note) extraMeta['oy.note'] = note
+          }
+        }
+      }
+      createTypedChild(childType, name.trim(), extraMeta)
     }
   }))
 })

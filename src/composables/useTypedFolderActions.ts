@@ -71,12 +71,15 @@ export function useTypedFolderActions(
   /**
    * Create a typed child folder with type marker and file reference.
    */
-  async function createTypedChild(childType: string, name: string) {
+  async function createTypedChild(childType: string, name: string, extraMeta?: Record<string, string>) {
     const sp = unref(space)
     const folder = unref(currentFolder)
     if (!sp || !folder) return
 
     const path = folder.path.replace(/\/?$/, `/${name}`)
+    const folderPath = folder.path || ''
+    const isRoot = !folderPath || folderPath === '/'
+
     try {
       // 0. Unprotect parent if needed (Manager on protected folder)
       const httpClient = (clientService as any).httpAuthenticated
@@ -100,7 +103,7 @@ export function useTypedFolderActions(
       const newFolder = children.find((r) => r.name === name)
       if (!newFolder) throw new Error('Folder not found after creation')
 
-      // 4. Compute and set file reference + app metadata
+      // 4. Compute and set file reference + app + extra metadata
       const fileRef = await computeNextFileReference(childType)
       const httpClient2 = (clientService as any).httpAuthenticated
       if (httpClient2) {
@@ -108,7 +111,7 @@ export function useTypedFolderActions(
         const meta: Record<string, string> = {}
         if (fileRef) meta['oy.fileReference'] = fileRef
 
-        // Check if child schema defines an app → set oy.app for leaf detection via PROPFIND
+        // Check if child schema defines an app → set oy.app
         try {
           const { body: childBody } = await clientService.webdav.getFileContents(sp, {
             path: `.views/${childType}.json`
@@ -116,6 +119,9 @@ export function useTypedFolderActions(
           const childSchema = JSON.parse(typeof childBody === 'string' ? childBody : new TextDecoder().decode(childBody))
           if (childSchema?.app) meta['oy.app'] = childSchema.app
         } catch { /* ignore */ }
+
+        // Merge extra metadata (color, note, etc.)
+        if (extraMeta) Object.assign(meta, extraMeta)
 
         if (Object.keys(meta).length > 0) {
           await httpClient2.put(
@@ -125,9 +131,8 @@ export function useTypedFolderActions(
         }
       }
 
-      // 5. Protect the new folder if its schema has protectButtonVisible
-      //    (Aktenstruktur / Lernplan — child folders get protected on creation)
-      if (httpClient) {
+      // 5. Protect only at space root (top-level structure)
+      if (isRoot && httpClient) {
         try {
           const { body: childBody } = await clientService.webdav.getFileContents(sp, {
             path: `.views/${childType}.json`
@@ -137,7 +142,7 @@ export function useTypedFolderActions(
             const newItemId = `${sp.id}!${newFolder.id.split('!').pop()}`
             await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${newItemId}/protect`)
           }
-        } catch { /* ignore if protect fails or schema not found */ }
+        } catch { /* ignore */ }
       }
 
       // 6. Re-protect parent if we unprotected it
