@@ -32,8 +32,8 @@
         class="metro-tile-content"
         :style="tileStyle(resource)"
       >
-        <span class="metro-tile-label">{{ metaDisplayName(resource) }}</span>
-        <span v-if="getNote(resource)" class="metro-tile-note">{{ getNote(resource) }}</span>
+        <span class="metro-tile-label">{{ displayLabel(resource) }}</span>
+        <span v-if="getProp(resource, 'oc:oy.note')" class="metro-tile-note">{{ getProp(resource, 'oc:oy.note') }}</span>
       </div>
     </template>
     <template #contextMenu="{ resource }">
@@ -51,7 +51,7 @@
     >
       <div class="metro-tile-content" :style="tileStyle(r)">
         <oc-icon name="book-open" size="large" class="metro-leaf-icon" />
-        <span class="metro-tile-label">{{ metaDisplayName(r) }}</span>
+        <span class="metro-tile-label">{{ displayLabel(r) }}</span>
         <span v-if="getTaskCount(r)" class="metro-tile-badge">{{ getTaskCount(r) }} Aufgaben</span>
       </div>
     </div>
@@ -66,11 +66,8 @@ import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import LearnEditor from './LearnEditor.vue'
 import { ResourceTiles, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
-import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { displayName as buildDisplayName, getFileReference } from '../composables/useFileReference'
 import { TypedFolderSchema } from '../composables/types'
 
-const { showAktzInName } = useFolderviewSettings()
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
 
@@ -89,25 +86,25 @@ const props = defineProps<{
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
-const patchedRefs = ref(new Map<string, string>())
 const leafFolder = ref<Resource | null>(null)
 const leafSchemaCache = ref(new Map<string, boolean>())
 const childTypeCache = ref(new Map<string, string>())
 const taskCountCache = ref(new Map<string, number>())
 const leafDetectGeneration = ref(0)
-// Reactive metadata (extraProps mutations aren't tracked by Vue)
-const metaCache = ref(new Map<string, Record<string, string>>())
 
-function getMeta(resource: Resource, key: string): string {
-  return metaCache.value.get(resource.id)?.[key] || ''
+// --- Read metadata directly from PROPFIND extraProps (no async needed) ---
+
+function getProp(resource: Resource, key: string): string {
+  return ((resource as any).extraProps?.[key] as string) || ''
 }
 
 function getColor(resource: Resource): string {
-  return getMeta(resource, 'oy.color')
+  return getProp(resource, 'oc:oy.color')
 }
 
-function getNote(resource: Resource): string {
-  return getMeta(resource, 'oy.note')
+function displayLabel(resource: Resource): string {
+  // name is already prefixed in sortedResources
+  return resource.name || ''
 }
 
 function tileStyle(resource: Resource): Record<string, string> {
@@ -120,10 +117,7 @@ function getTaskCount(resource: Resource): number {
   return taskCountCache.value.get(resource.id) || 0
 }
 
-function metaDisplayName(resource: Resource): string {
-  // name is already prefixed with fileRef in patchedNameResources
-  return resource.name || ''
-}
+// --- Leaf detection (background, non-blocking) ---
 
 async function checkChildType(resource: Resource) {
   if (childTypeCache.value.has(resource.id)) return
@@ -168,47 +162,23 @@ function openLeaf(resource: Resource) {
   leafFolder.value = resource
 }
 
-async function patchFileReferences(resources: Resource[]) {
-  const missing = resources.filter(r => r.type === 'folder' && !patchedRefs.value.has(r.id))
-  if (!missing.length) return
-  const httpClient = (clientService as any).httpAuthenticated
-  if (!httpClient) return
-  const spaceId = props.space.id
+// --- Kick off leaf detection when resources change ---
 
-  // Parallel metadata fetch for all folders at once
-  await Promise.all(missing.map(async (r) => {
-    try {
-      const itemId = `${spaceId}!${r.id.split('!').pop()}`
-      const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
-      const meta: Record<string, string> = {}
-      if (data?.['oy.fileReference']) meta['oy.fileReference'] = data['oy.fileReference']
-      if (data?.['oy.color']) meta['oy.color'] = data['oy.color']
-      if (data?.['oy.note']) meta['oy.note'] = data['oy.note']
-      metaCache.value.set(r.id, meta)
-      patchedRefs.value.set(r.id, 'done')
-    } catch { /* ignore */ }
-  }))
-
-  // Single reactive update after all fetches complete
-  patchedRefs.value = new Map(patchedRefs.value)
-  metaCache.value = new Map(metaCache.value)
-
-  // Leaf detection in background (non-blocking)
-  for (const r of missing) {
-    checkChildType(r)
+watch(() => props.resources, (res) => {
+  for (const r of res) {
+    if (r.type === 'folder' && !r.name?.startsWith('_type_')) {
+      checkChildType(r)
+    }
   }
-}
+}, { immediate: true })
 
-watch(() => props.resources, (res) => patchFileReferences(res), { immediate: true })
+// --- Sorted resources: prefix name with fileReference, sort numerically ---
 
-// Resources with fileRef prefix in name, sorted by that prefixed name
-const patchedNameResources = computed(() => {
-  void metaCache.value
-  void patchedRefs.value
+const sortedResources = computed(() => {
   return props.resources
     .filter(r => !r.name?.startsWith('_type_'))
     .map(r => {
-      const ref = getMeta(r, 'oy.fileReference')
+      const ref = getProp(r, 'oc:oy.fileReference')
       if (!ref) return r
       return Object.assign(Object.create(Object.getPrototypeOf(r)), r, {
         name: `${ref} ${r.name}`
@@ -219,23 +189,20 @@ const patchedNameResources = computed(() => {
 
 const nonLeafResources = computed(() => {
   void leafDetectGeneration.value
-  return patchedNameResources.value.filter(r => !isLeafResource(r))
+  return sortedResources.value.filter(r => !isLeafResource(r))
 })
 
 const leafResources = computed(() => {
   void leafDetectGeneration.value
-  return patchedNameResources.value.filter(r => r.type === 'folder' && isLeafResource(r))
-    .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
+  return sortedResources.value.filter(r => r.type === 'folder' && isLeafResource(r))
 })
 </script>
 
 <style>
-/* Metro: tile fill color, name centered in preview area, bottom bar hidden */
 .metro-view .oc-tile-card {
   outline-color: var(--oc-role-outline-variant) !important;
   background: var(--oc-role-outline-variant) !important;
 }
-/* Tile content container */
 .metro-view .metro-tile-content,
 .metro-leaf-tile .metro-tile-content {
   display: flex;
@@ -248,7 +215,6 @@ const leafResources = computed(() => {
   border-radius: 8px;
   background: var(--oc-role-outline-variant, #ddd);
 }
-/* Center the label in the preview area */
 .metro-view .metro-tile-label,
 .metro-leaf-tile .metro-tile-label {
   font-weight: 700;
@@ -257,7 +223,6 @@ const leafResources = computed(() => {
   word-break: break-word;
   line-height: 1.4;
 }
-/* Task count badge */
 .metro-view .metro-tile-badge,
 .metro-leaf-tile .metro-tile-badge {
   font-size: 10px;
@@ -267,7 +232,6 @@ const leafResources = computed(() => {
   background: rgba(255,255,255,0.2);
   border-radius: 8px;
 }
-/* Note/description under tile title */
 .metro-view .metro-tile-note {
   font-size: 11px;
   opacity: 0.85;
@@ -279,11 +243,9 @@ const leafResources = computed(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-/* Hide name in bottom bar, push icons to the right */
 .metro-view .resource-name-wrapper { display: none !important; }
 .metro-view .oc-card-body > .p-2 > .flex { justify-content: flex-end !important; }
 
-/* Leaf tiles grid */
 .metro-leaf-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

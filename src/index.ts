@@ -83,9 +83,11 @@ export default defineWebApplication({
     // Extension points: aktenzeichen preference
     const extensionPoints = computed(() => [aktzDefs.extensionPoint])
 
-    // Register oy.fileReference as extra DAV property
+    // Register oy.* metadata as extra DAV properties (come in PROPFIND, no extra API calls)
     const clientService = useClientService()
     clientService.webdav.registerExtraProp('oc:oy.fileReference')
+    clientService.webdav.registerExtraProp('oc:oy.color')
+    clientService.webdav.registerExtraProp('oc:oy.note')
 
     return {
       appInfo,
