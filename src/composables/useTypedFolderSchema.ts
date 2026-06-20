@@ -44,7 +44,7 @@ export function useTypedFolderSchema(
       const { body } = await getFileContents(sp, { path: viewPath })
       const parsed = JSON.parse(body as string) as TypedFolderSchema
 
-      if (!parsed.label || !Array.isArray(parsed.children)) {
+      if (!parsed.label || (!Array.isArray(parsed.children) && typeof parsed.children !== 'object')) {
         error.value = `Invalid schema for type "${type}": missing label or children`
         schema.value = null
         spaceSchemas.set(type, null)

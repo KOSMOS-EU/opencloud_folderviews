@@ -79,6 +79,14 @@ export function useTypedFolderActions(
     const path = folder.path.replace(/\/?$/, `/${name}`)
 
     try {
+      // 0. Unprotect parent if needed (Manager on protected folder)
+      const httpClient = (clientService as any).httpAuthenticated
+      const parentImmutable = (folder as any)?.immutableState || ''
+      const parentItemId = `${sp.id}!${folder.id.split('!').pop()}`
+      if (parentImmutable === 'protected' && httpClient) {
+        await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`)
+      }
+
       // 1. Create folder
       await clientService.webdav.createFolder(sp, { path })
 
@@ -106,10 +114,34 @@ export function useTypedFolderActions(
         }
       }
 
-      // 5. Update store
+      // 5. Protect the new folder (Aktenstruktur gets protected)
+      if (childType === 'aktenplan' && httpClient) {
+        const newItemId = `${sp.id}!${newFolder.id.split('!').pop()}`
+        try {
+          await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${newItemId}/protect`)
+        } catch { /* ignore if protect fails */ }
+      }
+
+      // 6. Re-protect parent if we unprotected it
+      if (parentImmutable === 'protected' && httpClient) {
+        try {
+          await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`)
+        } catch { /* ignore */ }
+      }
+
+      // 7. Update store
       resourcesStore.upsertResource(newFolder)
       showMessage({ title: `${name} erstellt` })
     } catch (e) {
+      // Re-protect parent on error
+      const httpClient = (clientService as any).httpAuthenticated
+      const parentImmutable = (folder as any)?.immutableState || ''
+      if (parentImmutable === 'protected' && httpClient) {
+        const parentItemId = `${sp.id}!${folder.id.split('!').pop()}`
+        try {
+          await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`)
+        } catch { /* ignore */ }
+      }
       showErrorMessage({
         title: 'Fehler beim Erstellen',
         errors: [e as Error]
@@ -134,19 +166,37 @@ export function useTypedFolderActions(
 
   /**
    * Check if the current user can create children.
+   * Manager/SpaceAdmin can create even in protected folders (via unprotect/protect).
    */
   const canCreate = computed(() => {
     const folder = unref(currentFolder)
     if (!folder) return false
-    // Check permissions string for CK (create)
     const perms = (folder as any).permissions || ''
-    return perms.includes('C') || perms.includes('K')
+    // Direct write permission
+    if (perms.includes('C') || perms.includes('K')) return true
+    // Manager can unprotect → create → protect
+    // Managers have 'Z' (manage) permission on protected folders
+    const immutableState = (folder as any)?.immutableState || ''
+    if ((immutableState === 'protected' || immutableState === 'shielded') && perms.includes('Z')) return true
+    return false
+  })
+
+  /**
+   * Whether creating requires unprotect/protect cycle (Manager on protected folder).
+   */
+  const needsUnprotect = computed(() => {
+    const folder = unref(currentFolder)
+    if (!folder) return false
+    const perms = (folder as any).permissions || ''
+    const immutableState = (folder as any)?.immutableState || ''
+    return (immutableState === 'protected') && !perms.includes('C') && perms.includes('Z')
   })
 
   return {
     createTypedChild,
     computeNextFileReference,
     allowedChildren,
-    canCreate
+    canCreate,
+    needsUnprotect
   }
 }

@@ -119,6 +119,10 @@ function useTypedFolderActions(space, currentFolder, schema) {
 		if (!sp || !folder) return;
 		const path = folder.path.replace(/\/?$/, `/${name}`);
 		try {
+			const httpClient = clientService.httpAuthenticated;
+			const parentImmutable = folder?.immutableState || "";
+			const parentItemId = `${sp.id}!${folder.id.split("!").pop()}`;
+			if (parentImmutable === "protected" && httpClient) await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`);
 			await clientService.webdav.createFolder(sp, { path });
 			await clientService.webdav.putFileContents(sp, {
 				path: path + `/_type_${childType}`,
@@ -135,9 +139,25 @@ function useTypedFolderActions(space, currentFolder, schema) {
 					await httpClient.put(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/metadata`, { "oy.fileReference": fileRef });
 				}
 			}
+			if (childType === "aktenplan" && httpClient) {
+				const newItemId = `${sp.id}!${newFolder.id.split("!").pop()}`;
+				try {
+					await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${newItemId}/protect`);
+				} catch {}
+			}
+			if (parentImmutable === "protected" && httpClient) try {
+				await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`);
+			} catch {}
 			resourcesStore.upsertResource(newFolder);
 			showMessage({ title: `${name} erstellt` });
 		} catch (e) {
+			const httpClient = clientService.httpAuthenticated;
+			if ((folder?.immutableState || "") === "protected" && httpClient) {
+				const parentItemId = `${sp.id}!${folder.id.split("!").pop()}`;
+				try {
+					await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${parentItemId}/protect`);
+				} catch {}
+			}
 			showErrorMessage({
 				title: "Fehler beim Erstellen",
 				errors: [e]
@@ -160,7 +180,16 @@ function useTypedFolderActions(space, currentFolder, schema) {
 			const folder = __mf_55(currentFolder);
 			if (!folder) return false;
 			const perms = folder.permissions || "";
-			return perms.includes("C") || perms.includes("K");
+			if (perms.includes("C") || perms.includes("K")) return true;
+			const immutableState = folder?.immutableState || "";
+			if ((immutableState === "protected" || immutableState === "shielded") && perms.includes("Z")) return true;
+			return false;
+		}),
+		needsUnprotect: __mf_80(() => {
+			const folder = __mf_55(currentFolder);
+			if (!folder) return false;
+			const perms = folder.permissions || "";
+			return (folder?.immutableState || "") === "protected" && !perms.includes("C") && perms.includes("Z");
 		})
 	};
 }
@@ -193,7 +222,7 @@ function useTypedFolderSchema(space, folderType) {
 			const { getFileContents } = clientService.webdav;
 			const { body } = await getFileContents(sp, { path: `.views/${type}.json` });
 			const parsed = JSON.parse(body);
-			if (!parsed.label || !Array.isArray(parsed.children)) {
+			if (!parsed.label || !Array.isArray(parsed.children) && typeof parsed.children !== "object") {
 				error.value = `Invalid schema for type "${type}": missing label or children`;
 				schema.value = null;
 				spaceSchemas.set(type, null);
@@ -229,7 +258,7 @@ function useTypedFolderSchema(space, folderType) {
 //#endregion
 //#region src/views/AktenplanView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$13 = { class: "typed-folder-view aktenplan-view" };
-var _hoisted_2$10 = { class: "typed-folder-header" };
+var _hoisted_2$9 = { class: "typed-folder-header" };
 var _hoisted_3$8 = { class: "typed-folder-type-badge" };
 var _hoisted_4$3 = {
 	key: 0,
@@ -259,7 +288,7 @@ var AktenplanView_vue_vue_type_script_setup_true_lang_default = /*@__PURE__*/ __
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$13, [__mf_84("div", _hoisted_2$10, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$13, [__mf_84("div", _hoisted_2$9, [
 				__mf_84("span", _hoisted_3$8, __mf_61(badgeLabel.value), 1),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_4$3, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(true), __mf_83$1(__mf_69, { key: 1 }, __mf_138(__mf_55(allowedChildren), (childType) => {
@@ -286,7 +315,7 @@ var AktenplanView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(Akte
 //#endregion
 //#region src/views/AkteView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$12 = { class: "typed-folder-view akte-view" };
-var _hoisted_2$9 = { class: "typed-folder-header" };
+var _hoisted_2$8 = { class: "typed-folder-header" };
 var _hoisted_3$7 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -314,7 +343,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$9, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$12, [__mf_84("div", _hoisted_2$8, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Akte", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$7, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
@@ -329,7 +358,7 @@ var AkteView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PUR
 //#endregion
 //#region src/views/VorgangView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$11 = { class: "typed-folder-view vorgang-view" };
-var _hoisted_2$8 = { class: "typed-folder-header" };
+var _hoisted_2$7 = { class: "typed-folder-header" };
 var _hoisted_3$6 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -357,7 +386,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 			createTypedChild(childType, name.trim());
 		}
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$8, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$11, [__mf_84("div", _hoisted_2$7, [
 				_cache[2] || (_cache[2] = __mf_84("span", { class: "typed-folder-type-badge" }, "Vorgang", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$6, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				__mf_55(canCreate) ? (__mf_132(), __mf_83$1("button", {
@@ -372,7 +401,7 @@ var VorgangView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__
 //#endregion
 //#region src/views/RegisterView.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$10 = { class: "typed-folder-view register-view" };
-var _hoisted_2$7 = { class: "typed-folder-header" };
+var _hoisted_2$6 = { class: "typed-folder-header" };
 var _hoisted_3$5 = {
 	key: 0,
 	class: "typed-folder-aktz"
@@ -389,7 +418,7 @@ var RegisterView_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @_
 			return r ? getFileReference(r) : "";
 		});
 		return (_ctx, _cache) => {
-			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$7, [
+			return __mf_132(), __mf_83$1("div", _hoisted_1$10, [__mf_84("div", _hoisted_2$6, [
 				_cache[0] || (_cache[0] = __mf_84("span", { class: "typed-folder-type-badge register" }, "Register", -1)),
 				fileRef.value && __mf_55(showAktzInName) ? (__mf_132(), __mf_83$1("span", _hoisted_3$5, __mf_61(fileRef.value), 1)) : __mf_82("", true),
 				_cache[1] || (_cache[1] = __mf_84("span", { class: "typed-folder-hint" }, "Dokumente ablegen", -1))
@@ -403,7 +432,6 @@ var _hoisted_1$9 = {
 	key: 0,
 	class: "typed-toolbar"
 };
-var _hoisted_2$6 = ["onClick"];
 //#endregion
 //#region src/components/TypedFolderToolbar.vue
 var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default(/* @__PURE__ */ __mf_93({
@@ -412,6 +440,7 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 	setup(__props) {
 		const props = __props;
 		const resourcesStore = __mf_306();
+		const clientService = __mf_228();
 		const currentFolder = __mf_80(() => resourcesStore.currentFolder);
 		const currentType = __mf_80(() => {
 			const typeFile = (resourcesStore.resources || []).find((r) => r.name?.startsWith("_type_"));
@@ -421,6 +450,25 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 		const spaceRef = __mf_80(() => props.space);
 		const { schema } = useTypedFolderSchema(spaceRef, currentType);
 		const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(spaceRef, currentFolder, schema);
+		const immutableState = __mf_80(() => __mf_55(currentFolder)?.immutableState || "");
+		const canManageImmutable = __mf_80(() => {
+			return (__mf_55(currentFolder)?.permissions || "").includes("Z");
+		});
+		async function toggleProtect() {
+			const folder = __mf_55(currentFolder);
+			const sp = props.space;
+			if (!folder || !sp) return;
+			const httpClient = clientService.httpAuthenticated;
+			if (!httpClient) return;
+			const itemId = `${sp.id}!${folder.id.split("!").pop()}`;
+			try {
+				if (immutableState.value === "protected") await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
+				else await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`);
+				window.location.reload();
+			} catch (e) {
+				console.error("[TypedToolbar] protect/unprotect failed:", e);
+			}
+		}
 		const typeLabels = {
 			aktenplan: "Neue Aktenstruktur",
 			akte: "Neue Akte",
@@ -441,19 +489,50 @@ var TypedFolderToolbar_default = /*#__PURE__*/ _plugin_vue_export_helper_default
 		});
 		return (_ctx, _cache) => {
 			const _component_oc_icon = __mf_140("oc-icon");
-			return isTyped.value && __mf_55(canCreate) ? (__mf_132(), __mf_83$1("div", _hoisted_1$9, [(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(childButtons.value, (child) => {
-				return __mf_132(), __mf_83$1("button", {
-					key: child.type,
-					class: "typed-toolbar-btn",
-					onClick: ($event) => child.action()
-				}, [__mf_91$1(_component_oc_icon, {
-					name: "add",
-					size: "small"
-				}), __mf_84("span", null, __mf_61(child.label), 1)], 8, _hoisted_2$6);
-			}), 128))])) : __mf_82("", true);
+			const _component_oc_button = __mf_140("oc-button");
+			return isTyped.value && (__mf_55(canCreate) || canManageImmutable.value) ? (__mf_132(), __mf_83$1("div", _hoisted_1$9, [
+				(__mf_132(true), __mf_83$1(__mf_69, null, __mf_138(childButtons.value, (child) => {
+					return __mf_132(), __mf_81(_component_oc_button, {
+						key: child.type,
+						appearance: "outline",
+						size: "small",
+						onClick: ($event) => child.action()
+					}, {
+						default: __mf_166(() => [__mf_91$1(_component_oc_icon, {
+							name: "add",
+							size: "small"
+						}), __mf_84("span", null, __mf_61(child.label), 1)]),
+						_: 2
+					}, 1032, ["onClick"]);
+				}), 128)),
+				canManageImmutable.value && immutableState.value === "protected" ? (__mf_132(), __mf_81(_component_oc_button, {
+					key: 0,
+					appearance: "outline",
+					size: "small",
+					onClick: toggleProtect
+				}, {
+					default: __mf_166(() => [__mf_91$1(_component_oc_icon, {
+						name: "lock-unlock",
+						size: "small"
+					}), _cache[0] || (_cache[0] = __mf_84("span", null, "Schutz aufheben", -1))]),
+					_: 1
+				})) : __mf_82("", true),
+				canManageImmutable.value && !immutableState.value ? (__mf_132(), __mf_81(_component_oc_button, {
+					key: 1,
+					appearance: "outline",
+					size: "small",
+					onClick: toggleProtect
+				}, {
+					default: __mf_166(() => [__mf_91$1(_component_oc_icon, {
+						name: "lock",
+						size: "small"
+					}), _cache[1] || (_cache[1] = __mf_84("span", null, "Schützen", -1))]),
+					_: 1
+				})) : __mf_82("", true)
+			])) : __mf_82("", true);
 		};
 	}
-}), [["__scopeId", "data-v-910952ca"]]);
+}), [["__scopeId", "data-v-88998427"]]);
 //#endregion
 //#region src/components/ResourceTree.vue?vue&type=script&setup=true&lang.ts
 var _hoisted_1$8 = { class: "resource-tree" };

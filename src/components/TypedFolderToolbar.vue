@@ -1,21 +1,40 @@
 <template>
-  <div v-if="isTyped && canCreate" class="typed-toolbar">
-    <button
+  <div v-if="isTyped && (canCreate || canManageImmutable)" class="typed-toolbar">
+    <oc-button
       v-for="child in childButtons"
       :key="child.type"
-      class="typed-toolbar-btn"
+      appearance="outline"
+      size="small"
       @click="child.action()"
     >
       <oc-icon name="add" size="small" />
       <span>{{ child.label }}</span>
-    </button>
+    </oc-button>
+    <oc-button
+      v-if="canManageImmutable && immutableState === 'protected'"
+      appearance="outline"
+      size="small"
+      @click="toggleProtect"
+    >
+      <oc-icon name="lock-unlock" size="small" />
+      <span>Schutz aufheben</span>
+    </oc-button>
+    <oc-button
+      v-if="canManageImmutable && !immutableState"
+      appearance="outline"
+      size="small"
+      @click="toggleProtect"
+    >
+      <oc-icon name="lock" size="small" />
+      <span>Schützen</span>
+    </oc-button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, unref } from 'vue'
+import { computed, ref, unref, watch } from 'vue'
 import { type SpaceResource } from '@opencloud-eu/web-client'
-import { useResourcesStore } from '@opencloud-eu/web-pkg'
+import { useResourcesStore, useClientService } from '@opencloud-eu/web-pkg'
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
 import { useTypedFolderSchema } from '../composables/useTypedFolderSchema'
 
@@ -24,9 +43,9 @@ const props = defineProps<{
 }>()
 
 const resourcesStore = useResourcesStore()
+const clientService = useClientService()
 const currentFolder = computed(() => resourcesStore.currentFolder)
 
-// Detect type from resources (unfiltered)
 const currentType = computed(() => {
   const resources = resourcesStore.resources || []
   const typeFile = resources.find(r => r.name?.startsWith('_type_'))
@@ -40,6 +59,33 @@ const { schema } = useTypedFolderSchema(spaceRef, currentType)
 const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(
   spaceRef, currentFolder, schema
 )
+
+const immutableState = computed(() => (unref(currentFolder) as any)?.immutableState || '')
+
+const canManageImmutable = computed(() => {
+  const perms = (unref(currentFolder) as any)?.permissions || ''
+  return perms.includes('Z')
+})
+
+async function toggleProtect() {
+  const folder = unref(currentFolder)
+  const sp = props.space
+  if (!folder || !sp) return
+  const httpClient = (clientService as any).httpAuthenticated
+  if (!httpClient) return
+  const itemId = `${sp.id}!${folder.id.split('!').pop()}`
+  try {
+    if (immutableState.value === 'protected') {
+      await httpClient.delete(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
+    } else {
+      await httpClient.post(`/graph/v1beta1/drives/${sp.id}/items/${itemId}/protect`)
+    }
+    // Reload to reflect new state
+    window.location.reload()
+  } catch (e) {
+    console.error('[TypedToolbar] protect/unprotect failed:', e)
+  }
+}
 
 const typeLabels: Record<string, string> = {
   aktenplan: 'Neue Aktenstruktur',
@@ -67,22 +113,5 @@ const childButtons = computed(() => {
   display: flex;
   gap: 8px;
   padding: 6px 16px;
-  border-bottom: 1px solid var(--oc-role-outline-variant, #e0e0e0);
-  background: var(--oc-role-surface-variant, #f8f8f8);
-}
-.typed-toolbar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border: 1px solid var(--oc-role-primary, #1a73e8);
-  border-radius: 6px;
-  background: var(--oc-role-primary, #1a73e8);
-  color: #fff;
-  font-size: 12px;
-  cursor: pointer;
-}
-.typed-toolbar-btn:hover {
-  opacity: 0.9;
 }
 </style>
