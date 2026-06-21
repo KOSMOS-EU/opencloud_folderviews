@@ -1,21 +1,17 @@
 <template>
   <div>
-  <!-- Leaf app overlays -->
-  <learn-editor
-    v-if="leafFolder && leafApp === 'learn-editor'"
+  <!-- Leaf app overlay (resolved from extension registry) -->
+  <component
+    v-if="leafFolder && leafExtension"
+    :is="leafExtension.content"
     :space="space"
     :folder="leafFolder"
-    @close="leafFolder = null"
-  />
-  <mdm-editor
-    v-else-if="leafFolder && leafApp === 'mdm-editor'"
-    :space="space"
     :resource="leafEntryResource"
     @close="leafFolder = null"
   />
   <div v-else-if="leafFolder" class="leaf-fallback">
-    <button @click="leafFolder = null">Zurück</button>
-    <p>Keine eingebettete App für "{{ leafApp }}"</p>
+    <oc-button appearance="outline" size="small" @click="leafFolder = null">Zurück</oc-button>
+    <p>Keine registrierte App für "{{ leafApp }}"</p>
   </div>
 
   <!-- ViewTypes tiles for _type_views folders -->
@@ -76,12 +72,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import LearnEditor from './LearnEditor.vue'
-import MdmEditor from './MdmEditor.vue'
 import ViewTypesTiles from './ViewTypesTiles.vue'
-import { ResourceTiles, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { ResourceTiles, useResourcesStore, useExtensionRegistry } from '@opencloud-eu/web-pkg'
 
 const resourcesStore = useResourcesStore()
+const extensionRegistry = useExtensionRegistry()
 
 const props = defineProps<{
   resources: Resource[]
@@ -105,12 +100,28 @@ const leafApp = computed(() => {
   return getProp(leafFolder.value, 'oc:oy.app')
 })
 
-// For MDM editor: create a fake resource pointing to info.mdm inside the leaf folder
+// Find registered leaf-app extension matching oy.app value
+const leafExtension = computed(() => {
+  if (!leafApp.value) return null
+  const exts = extensionRegistry.requestExtensions({
+    id: 'app.folderviews.leaf-apps',
+    extensionType: 'customComponent',
+    multiple: true
+  })
+  return exts.find((e: any) => e.appName === leafApp.value) || null
+})
+
+// Entry resource for apps that need a file reference (e.g. info.mdm)
 const leafEntryResource = computed(() => {
   if (!leafFolder.value) return null
   const folder = leafFolder.value
-  const path = (folder.path || folder.name) + '/info.mdm'
-  return { ...folder, path, name: 'info.mdm', type: 'file', isFolder: false }
+  const appName = leafApp.value
+  // Convention: app entry file based on app name
+  const entryFiles: Record<string, string> = { 'mdm-editor': 'info.mdm' }
+  const entryFile = entryFiles[appName] || ''
+  if (!entryFile) return folder
+  const path = (folder.path || folder.name) + '/' + entryFile
+  return { ...folder, path, name: entryFile, type: 'file', isFolder: false }
 })
 
 // Detect _type_views folder → show ViewTypesTiles instead of normal metro
@@ -133,14 +144,15 @@ function isLeaf(resource: Resource): boolean {
   return !!getProp(resource, 'oc:oy.app')
 }
 
-const leafIconMap: Record<string, string> = {
-  'learn-editor': 'book-open',
-  'mdm-editor': 'smartphone'
-}
-
 function getLeafIcon(resource: Resource): string {
   const app = getProp(resource, 'oc:oy.app')
-  return leafIconMap[app] || 'folder-open'
+  const exts = extensionRegistry.requestExtensions({
+    id: 'app.folderviews.leaf-apps',
+    extensionType: 'customComponent',
+    multiple: true
+  })
+  const ext = exts.find((e: any) => e.appName === app)
+  return (ext as any)?.appIcon || 'folder-open'
 }
 
 function openLeaf(resource: Resource) {

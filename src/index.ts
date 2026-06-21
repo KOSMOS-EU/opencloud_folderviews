@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, useExtensionRegistry, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
@@ -12,6 +12,7 @@ import ResourceTree from './components/ResourceTree.vue'
 import ResourceMetro from './components/ResourceMetro.vue'
 import ResourceElements from './components/ResourceElements.vue'
 import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
+import LearnEditor from './components/LearnEditor.vue'
 import translations from '../l10n/translations.json'
 
 const applicationId = 'folderviews'
@@ -156,6 +157,24 @@ export default defineWebApplication({
           }
         }
       },
+      // Leaf apps: register at app.folderviews.leaf-apps extension point
+      // External extensions (e.g. mdm-editor) register the same way
+      {
+        id: 'com.kosmos-eu.folderviews.leaf-app.learn-editor',
+        type: 'customComponent',
+        extensionPointIds: ['app.folderviews.leaf-apps'],
+        content: markRaw(LearnEditor),
+        appName: 'learn-editor',
+        appIcon: 'book-open'
+      },
+      {
+        id: 'com.kosmos-eu.folderviews.leaf-app.viewtype-editor',
+        type: 'customComponent',
+        extensionPointIds: ['app.folderviews.leaf-apps'],
+        content: markRaw(ViewTypeEditor),
+        appName: 'viewtype-editor',
+        appIcon: 'settings-3'
+      },
       // Context menu action: navigate to .views/ folder (Ordnertypen)
       {
         id: 'com.kosmos-eu.folderviews.action.folder-types',
@@ -186,8 +205,17 @@ export default defineWebApplication({
       }
     ])
 
-    // Extension points: aktenzeichen preference
-    const extensionPoints = computed(() => [aktzDefs.extensionPoint])
+    // Extension points
+    const leafAppExtensionPoint = {
+      id: 'app.folderviews.leaf-apps',
+      extensionType: 'customComponent' as const,
+      multiple: true
+    }
+
+    const extensionPoints = computed(() => [
+      aktzDefs.extensionPoint,
+      leafAppExtensionPoint
+    ])
 
     const router = useRouter()
 
