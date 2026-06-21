@@ -22,12 +22,12 @@
     @file-click="$emit('fileClick', $event)"
   />
 
-  <!-- Normal Metro view -->
+  <!-- Normal Metro view — all resources in one grid (leaf + non-leaf) -->
   <template v-else>
   <resource-tiles
     v-bind="$attrs"
     v-model:selected-ids="selectedIds"
-    :resources="nonLeafResources"
+    :resources="sortedResources"
     :space="space"
     :view-mode="viewMode"
     :sort-fields="[]"
@@ -35,13 +35,14 @@
     :view-size="viewSize"
     :drag-drop="dragDrop"
     class="metro-view"
-    @file-click="$emit('fileClick', $event)"
+    @file-click="handleTileClick"
     @file-dropped="$emit('fileDropped', $event)"
     @item-visible="$emit('itemVisible', $event)"
     @sort="$emit('sort', $event)"
   >
     <template #image="{ resource }">
       <div class="metro-tile-content" :style="tileStyle(resource)">
+        <oc-icon v-if="isLeaf(resource)" :name="getLeafIcon(resource)" size="large" class="metro-leaf-icon" />
         <span class="metro-tile-label">{{ resource.name }}</span>
         <span v-if="getProp(resource, 'oc:oy.note')" class="metro-tile-note">{{ getProp(resource, 'oc:oy.note') }}</span>
       </div>
@@ -50,21 +51,6 @@
       <slot name="contextMenu" :resource="resource" />
     </template>
   </resource-tiles>
-
-  <!-- Leaf tiles (oy.app set → click opens LearnEditor) -->
-  <div v-if="leafResources.length" class="metro-leaf-grid">
-    <div
-      v-for="r in leafResources"
-      :key="r.id"
-      class="metro-leaf-tile"
-      @click="openLeaf(r)"
-    >
-      <div class="metro-tile-content" :style="tileStyle(r)">
-        <oc-icon :name="getLeafIcon(r)" size="large" class="metro-leaf-icon" />
-        <span class="metro-tile-label">{{ r.name }}</span>
-      </div>
-    </div>
-  </div>
   </template>
   </div>
 </template>
@@ -90,7 +76,7 @@ const props = defineProps<{
   viewSize?: number
 }>()
 
-defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
+const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const leafFolder = ref<Resource | null>(null)
@@ -164,6 +150,15 @@ function openLeaf(resource: Resource) {
   leafFolder.value = resource
 }
 
+function handleTileClick(event: any) {
+  const resource = event?.resources?.[0]
+  if (resource && isLeaf(resource)) {
+    openLeaf(resource)
+  } else {
+    emit('fileClick', event)
+  }
+}
+
 // Prefix name with fileReference, sort numerically
 const sortedResources = computed(() => {
   return props.resources
@@ -178,8 +173,6 @@ const sortedResources = computed(() => {
     .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
 })
 
-const nonLeafResources = computed(() => sortedResources.value.filter(r => !isLeaf(r)))
-const leafResources = computed(() => sortedResources.value.filter(r => r.type === 'folder' && isLeaf(r)))
 </script>
 
 <style>
@@ -221,17 +214,5 @@ const leafResources = computed(() => sortedResources.value.filter(r => r.type ==
 .metro-view .resource-name-wrapper { display: none !important; }
 .metro-view .oc-card-body > .p-2 > .flex { justify-content: flex-end !important; }
 
-.metro-leaf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-  padding: 12px 16px;
-}
-.metro-leaf-tile {
-  cursor: pointer;
-  transition: transform 0.1s;
-  min-height: 190px;
-}
-.metro-leaf-tile:hover { transform: scale(1.02); }
 .metro-leaf-icon { margin-bottom: 8px; opacity: 0.8; }
 </style>
