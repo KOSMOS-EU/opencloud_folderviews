@@ -10,7 +10,6 @@
 
   <!-- Normal Metro view -->
   <template v-else>
-  <typed-folder-toolbar :space="space" />
   <resource-tiles
     v-bind="$attrs"
     v-model:selected-ids="selectedIds"
@@ -59,7 +58,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import LearnEditor from './LearnEditor.vue'
 import { ResourceTiles, useResourcesStore } from '@opencloud-eu/web-pkg'
 
