@@ -53,12 +53,13 @@
       </div>
 
       <!-- Add new metadata attribute -->
-      <div v-if="availableNewFields.length" class="folder-settings-add">
+      <div class="folder-settings-add">
         <div class="folder-settings-add-row">
-          <select v-model="newFieldKey" class="folder-settings-input folder-settings-add-select">
+          <select v-if="availableNewFields.length" v-model="newFieldKey" class="folder-settings-input folder-settings-add-select">
             <option value="">— {{ $gettext('Add attribute') }} —</option>
             <option v-for="f in availableNewFields" :key="f.key" :value="f.key">{{ f.label }}</option>
           </select>
+          <input v-else v-model="newFieldKey" class="folder-settings-input folder-settings-add-select" :placeholder="$gettext('Attribute key (e.g. oy.color)')" />
           <button class="folder-settings-btn-add" :disabled="!newFieldKey" @click="addField">+</button>
         </div>
       </div>
@@ -114,9 +115,15 @@ const availableNewFields = computed(() => {
 
 function addField() {
   if (!newFieldKey.value) return
-  activeFields.value.add(newFieldKey.value)
-  if (!(newFieldKey.value in values.value)) {
-    values.value[newFieldKey.value] = ''
+  const key = newFieldKey.value
+  activeFields.value.add(key)
+  if (!(key in values.value)) {
+    values.value[key] = ''
+  }
+  // If key is not in schema metadata, add a string field definition
+  if (schema.value && !schema.value.metadata?.[key]) {
+    if (!schema.value.metadata) schema.value.metadata = {}
+    schema.value.metadata[key] = { type: 'string', label: key }
   }
   newFieldKey.value = ''
 }
@@ -133,7 +140,11 @@ async function loadSchemaAndMetadata() {
     const typeFile = children.find((r: any) => r.name?.startsWith('_type_'))
     const folderType = typeFile ? typeFile.name!.substring(6) : null
 
-    if (!folderType) { loading.value = false; return }
+    if (!folderType) {
+      schema.value = { metadata: {} }
+      loading.value = false
+      return
+    }
 
     // Load schema
     const { body } = await clientService.webdav.getFileContents(sp, {

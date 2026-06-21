@@ -54,7 +54,7 @@
       @click="openLeaf(r)"
     >
       <div class="metro-tile-content" :style="tileStyle(r)">
-        <oc-icon name="book-open" size="large" class="metro-leaf-icon" />
+        <oc-icon :name="getLeafIcon(r)" size="large" class="metro-leaf-icon" />
         <span class="metro-tile-label">{{ r.name }}</span>
       </div>
     </div>
@@ -68,9 +68,11 @@ import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import LearnEditor from './LearnEditor.vue'
 import ViewTypesTiles from './ViewTypesTiles.vue'
-import { ResourceTiles, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { ResourceTiles, useResourcesStore, useRouter, useOpenWithDefaultApp, createFileRouteOptions, createLocationSpaces } from '@opencloud-eu/web-pkg'
 
 const resourcesStore = useResourcesStore()
+const router = useRouter()
+const { openWithDefaultApp } = useOpenWithDefaultApp()
 
 const props = defineProps<{
   resources: Resource[]
@@ -109,11 +111,37 @@ function isLeaf(resource: Resource): boolean {
   return !!getProp(resource, 'oc:oy.app')
 }
 
+const leafIconMap: Record<string, string> = {
+  'learn-editor': 'book-open',
+  'mdm-editor': 'smartphone'
+}
+
+function getLeafIcon(resource: Resource): string {
+  const app = getProp(resource, 'oc:oy.app')
+  return leafIconMap[app] || 'folder-open'
+}
+
 function openLeaf(resource: Resource) {
   if (!resource.path) {
     (resource as any).path = (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') || '/') + resource.name
   }
-  leafFolder.value = resource
+
+  const appName = getProp(resource, 'oc:oy.app')
+
+  // Built-in LearnEditor for learn-editor app
+  if (appName === 'learn-editor') {
+    leafFolder.value = resource
+    return
+  }
+
+  // Other apps: use openWithDefaultApp to open the entry file
+  // This triggers the registered app for the file extension (e.g. .mdm → mdm-editor)
+  const entryFile = appName === 'mdm-editor' ? 'info.mdm' : 'index.html'
+  const entryPath = (resource.path || resource.name) + '/' + entryFile
+  openWithDefaultApp({
+    space: props.space,
+    resource: { ...resource, path: entryPath, name: entryFile, type: 'file', isFolder: false } as any
+  })
 }
 
 // Prefix name with fileReference, sort numerically
