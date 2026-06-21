@@ -1,29 +1,31 @@
 <template>
   <div class="folder-settings-panel-content">
-    <div v-if="loading" class="folder-settings-loading">{{ $gettext('Loading...') }}</div>
+    <div v-if="loading" class="folder-settings-loading">
+      <oc-spinner size="small" />
+    </div>
 
     <div v-else class="folder-settings-body">
       <!-- Set schema when no type assigned -->
       <div v-if="!folderType" class="folder-settings-field">
-        <label>{{ $gettext('Type schema') }}</label>
+        <label class="oc-label">{{ $gettext('Type schema') }}</label>
         <div class="folder-settings-add-row">
-          <select v-model="selectedSchema" class="folder-settings-input folder-settings-add-select">
+          <select v-model="selectedSchema" class="oc-select-input">
             <option value="">— {{ $gettext('select') }} —</option>
             <option v-for="s in availableSchemas" :key="s" :value="s">{{ s }}</option>
           </select>
-          <button class="folder-settings-btn-add" :disabled="!selectedSchema || settingSchema" @click="setSchema">
+          <oc-button size="small" :disabled="!selectedSchema || settingSchema" @click="setSchema">
             {{ $gettext('Set') }}
-          </button>
+          </oc-button>
         </div>
       </div>
 
       <div v-for="(field, key) in editableFields" :key="key" class="folder-settings-field">
-        <label>{{ field.label }}</label>
+        <label class="oc-label">{{ field.label }}</label>
 
         <input
           v-if="field.type === 'string'"
           v-model="values[key]"
-          class="folder-settings-input"
+          class="oc-text-input"
           :placeholder="field.label"
           :disabled="field.auto"
         />
@@ -31,7 +33,7 @@
         <select
           v-else-if="field.type === 'enum'"
           v-model="values[key]"
-          class="folder-settings-input"
+          class="oc-select-input"
         >
           <option value="">— {{ $gettext('select') }} —</option>
           <option v-for="v in field.values" :key="v" :value="v">{{ v }}</option>
@@ -41,14 +43,14 @@
           v-else-if="field.type === 'number'"
           v-model.number="values[key]"
           type="number"
-          class="folder-settings-input"
+          class="oc-text-input"
         />
 
         <input
           v-else-if="field.type === 'date'"
           v-model="values[key]"
           type="date"
-          class="folder-settings-input"
+          class="oc-text-input"
         />
 
         <div v-if="key === 'oy.color'" class="folder-settings-colors">
@@ -69,19 +71,19 @@
       <!-- Add new metadata attribute -->
       <div class="folder-settings-add">
         <div class="folder-settings-add-row">
-          <select v-if="availableNewFields.length" v-model="newFieldKey" class="folder-settings-input folder-settings-add-select">
+          <select v-if="availableNewFields.length" v-model="newFieldKey" class="oc-select-input folder-settings-add-select">
             <option value="">— {{ $gettext('Add attribute') }} —</option>
             <option v-for="f in availableNewFields" :key="f.key" :value="f.key">{{ f.label }}</option>
           </select>
-          <input v-else v-model="newFieldKey" class="folder-settings-input folder-settings-add-select" :placeholder="$gettext('Attribute key (e.g. oy.color)')" />
-          <button class="folder-settings-btn-add" :disabled="!newFieldKey" @click="addField">+</button>
+          <input v-else v-model="newFieldKey" class="oc-text-input folder-settings-add-select" :placeholder="$gettext('Attribute key (e.g. oy.color)')" />
+          <oc-button size="small" :disabled="!newFieldKey" @click="addField">+</oc-button>
         </div>
       </div>
 
       <div class="folder-settings-actions">
-        <button class="folder-settings-btn-save" :disabled="saving" @click="save">
+        <oc-button variation="primary" appearance="filled" :disabled="saving" @click="save">
           {{ saving ? $gettext('Saving...') : $gettext('Save') }}
-        </button>
+        </oc-button>
       </div>
     </div>
   </div>
@@ -190,7 +192,7 @@ async function loadSchemaAndMetadata() {
 
     // Load schema
     const { body } = await clientService.webdav.getFileContents(sp, {
-      path: `.views/${folderType}.viewtype`
+      path: `.views/${folderType.value}.viewtype`
     }) as any
     schema.value = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body))
 
@@ -254,34 +256,32 @@ watch(() => props.resource, () => loadSchemaAndMetadata(), { immediate: true })
 </script>
 
 <style scoped>
-.folder-settings-panel-content { padding: 12px 16px; }
-.folder-settings-loading { text-align: center; color: #888; padding: 20px; }
-.folder-settings-field { margin-bottom: 14px; }
-.folder-settings-field label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
-.folder-settings-input {
-  width: 100%; padding: 6px 8px; border: 1px solid var(--oc-role-outline-variant, #ccc);
-  border-radius: 4px; font-size: 13px; font-family: inherit;
+.folder-settings-panel-content { padding: var(--oc-space-medium); }
+.folder-settings-loading { display: flex; justify-content: center; padding: var(--oc-space-large); }
+.folder-settings-field { margin-bottom: var(--oc-space-medium); }
+.oc-label { display: block; font-size: var(--oc-font-size-small); font-weight: 600; margin-bottom: var(--oc-space-xsmall); color: var(--oc-role-on-surface-variant); }
+.oc-text-input {
+  width: 100%; padding: var(--oc-space-xsmall) var(--oc-space-small);
+  border: 1px solid var(--oc-role-outline-variant); border-radius: var(--oc-space-xsmall);
+  font-size: var(--oc-font-size-default); font-family: inherit;
+  background: var(--oc-role-surface); color: var(--oc-role-on-surface);
 }
-.folder-settings-input:disabled { opacity: 0.6; background: var(--oc-role-surface-variant, #f5f5f5); }
-.folder-settings-colors { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+.oc-text-input:disabled { opacity: 0.6; background: var(--oc-role-surface-variant); }
+.oc-select-input {
+  width: 100%; padding: var(--oc-space-xsmall) var(--oc-space-small);
+  border: 1px solid var(--oc-role-outline-variant); border-radius: var(--oc-space-xsmall);
+  font-size: var(--oc-font-size-default); font-family: inherit;
+  background: var(--oc-role-surface); color: var(--oc-role-on-surface);
+}
+.folder-settings-colors { display: flex; gap: 5px; flex-wrap: wrap; margin-top: var(--oc-space-xsmall); }
 .folder-settings-color-btn {
   width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
 }
-.folder-settings-color-btn.active { border-color: #000; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; }
-.folder-settings-color-custom { width: 22px; height: 22px; border: 1px dashed #999; border-radius: 50%; cursor: pointer; padding: 0; }
-.folder-settings-hint { font-size: 11px; color: #999; }
-.folder-settings-actions { margin-top: 16px; }
-.folder-settings-btn-save {
-  width: 100%; padding: 8px; background: #1565C0; color: #fff; border: none;
-  border-radius: 4px; font-size: 13px; cursor: pointer;
-}
-.folder-settings-btn-save:disabled { opacity: 0.5; }
-.folder-settings-add { margin-top: 12px; margin-bottom: 8px; }
-.folder-settings-add-row { display: flex; gap: 6px; }
+.folder-settings-color-btn.active { border-color: var(--oc-role-on-surface); box-shadow: 0 0 0 2px var(--oc-role-surface), 0 0 0 4px var(--oc-role-on-surface); }
+.folder-settings-color-custom { width: 22px; height: 22px; border: 1px dashed var(--oc-role-outline); border-radius: 50%; cursor: pointer; padding: 0; }
+.folder-settings-hint { font-size: var(--oc-font-size-small); color: var(--oc-role-on-surface-variant); }
+.folder-settings-actions { margin-top: var(--oc-space-medium); }
+.folder-settings-add { margin-top: var(--oc-space-medium); margin-bottom: var(--oc-space-small); }
+.folder-settings-add-row { display: flex; gap: var(--oc-space-small); align-items: center; }
 .folder-settings-add-select { flex: 1; }
-.folder-settings-btn-add {
-  padding: 6px 12px; background: var(--oc-role-primary, #1565C0); color: #fff;
-  border: none; border-radius: 4px; font-size: 16px; cursor: pointer; line-height: 1;
-}
-.folder-settings-btn-add:disabled { opacity: 0.4; }
 </style>
