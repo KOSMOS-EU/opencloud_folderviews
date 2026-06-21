@@ -37,5 +37,9 @@ echo "[sync] -> $HOST:$REMOTE_BASE/web-extensions/$APP/"
 ssh "root@$HOST" "mkdir -p $REMOTE_BASE/web-extensions/$APP"
 rsync -avz --delete "$SCRIPT_DIR/$DEPLOY_DIR/" "root@$HOST:$REMOTE_BASE/web-extensions/$APP/"
 
+# Restart OpenCloud so it re-reads manifest.json (picks up new entrypoint hash)
+echo "[restart] podman compose up -d opencloud"
+ssh "root@$HOST" "cd $REMOTE_BASE && podman compose up -d opencloud 2>&1 | tail -3"
+
 echo ""
 echo "=== $APP published ==="
