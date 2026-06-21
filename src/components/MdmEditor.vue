@@ -106,7 +106,7 @@
         <!-- Actions -->
         <div v-if="activeTab === 'actions'" class="tab-panel">
           <div v-for="action in availableActions" :key="action.name" class="action-card">
-            <div class="action-header">
+            <div v-if="hasFixedParams(action)" class="action-header">
               <strong>{{ action.label }}</strong>
             </div>
             <!-- Actions with fixed param values: one button per variant -->
@@ -144,7 +144,7 @@
                 @click="executeAction(action)"
               >
                 <oc-icon name="play-circle" size="small" />
-                <span>{{ actionRunning === action.name ? 'Läuft...' : 'Ausführen' }}</span>
+                <span>{{ actionRunning === action.name ? 'Läuft...' : action.label }}</span>
               </oc-button>
             </template>
             <pre v-if="actionResults[action.name]" class="action-result" :class="{ 'action-error': actionResults[action.name].error }">{{ actionResults[action.name].output || actionResults[action.name].error }}</pre>
