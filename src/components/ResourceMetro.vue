@@ -223,15 +223,15 @@ const leafResources = computed(() => sortedResources.value.filter(r => r.type ==
 
 .metro-leaf-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
   padding: 12px 16px;
 }
 .metro-leaf-tile {
   cursor: pointer;
   transition: transform 0.1s;
-  min-height: 140px;
+  min-height: 190px;
 }
-.metro-leaf-tile:hover { transform: scale(1.03); }
-.metro-leaf-icon { margin-bottom: 4px; opacity: 0.8; }
+.metro-leaf-tile:hover { transform: scale(1.02); }
+.metro-leaf-icon { margin-bottom: 8px; opacity: 0.8; }
 </style>
