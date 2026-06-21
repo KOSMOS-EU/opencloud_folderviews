@@ -123,32 +123,32 @@
               <div class="learn-task-col-right">
                 <label>{{ $gettext('Social form') }}</label>
                 <select v-model="selectedTask.socialForm" class="learn-input">
-                  <option>Einzelarbeit</option>
-                  <option>Partnerarbeit</option>
-                  <option>Gruppenarbeit</option>
+                  <option value="individual">{{ $gettext('Individual work') }}</option>
+                  <option value="partner">{{ $gettext('Partner work') }}</option>
+                  <option value="group">{{ $gettext('Group work') }}</option>
                 </select>
                 <label>{{ $gettext('Time required') }}</label>
                 <select v-model="selectedTask.effort" class="learn-input">
-                  <option>5 Minuten</option>
-                  <option>10 Minuten</option>
-                  <option>15 Minuten</option>
-                  <option>20 Minuten</option>
-                  <option>30 Minuten</option>
-                  <option>45 Minuten</option>
-                  <option>60 Minuten</option>
+                  <option value="5min">5 min</option>
+                  <option value="10min">10 min</option>
+                  <option value="15min">15 min</option>
+                  <option value="20min">20 min</option>
+                  <option value="30min">30 min</option>
+                  <option value="45min">45 min</option>
+                  <option value="60min">60 min</option>
                 </select>
                 <label>{{ $gettext('Submission form') }}</label>
                 <select v-model="selectedTask.submissionForm" class="learn-input">
-                  <option>keine</option>
-                  <option>digital</option>
-                  <option>Heft</option>
-                  <option>mündlich</option>
+                  <option value="none">{{ $gettext('None') }}</option>
+                  <option value="digital">{{ $gettext('Digital') }}</option>
+                  <option value="notebook">{{ $gettext('Notebook') }}</option>
+                  <option value="oral">{{ $gettext('Oral') }}</option>
                 </select>
                 <label>{{ $gettext('Correction form') }}</label>
                 <select v-model="selectedTask.correctionForm" class="learn-input">
-                  <option>Selbstkorrektur</option>
-                  <option>Lehrerkorrektur</option>
-                  <option>Partnerkorrektur</option>
+                  <option value="self">{{ $gettext('Self-correction') }}</option>
+                  <option value="teacher">{{ $gettext('Teacher correction') }}</option>
+                  <option value="peer">{{ $gettext('Peer correction') }}</option>
                 </select>
                 <label>{{ $gettext('Attachments') }}</label>
                 <div class="learn-attachments-edit">

@@ -52,6 +52,16 @@
     "Attachments": "Anhänge",
     "Upload file": "Datei hochladen",
     "Uploading...": "Hochladen...",
-    "Solution": "Lösung"
+    "Solution": "Lösung",
+    "Individual work": "Einzelarbeit",
+    "Partner work": "Partnerarbeit",
+    "Group work": "Gruppenarbeit",
+    "None": "Keine",
+    "Digital": "Digital",
+    "Notebook": "Heft",
+    "Oral": "Mündlich",
+    "Self-correction": "Selbstkorrektur",
+    "Teacher correction": "Lehrerkorrektur",
+    "Peer correction": "Partnerkorrektur"
   }
 }
