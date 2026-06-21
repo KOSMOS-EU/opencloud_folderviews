@@ -178,8 +178,7 @@ export default defineWebApplication({
           isVisible: (options: any) => {
             if (!options?.resources?.length) return false
             const r = options.resources[0]
-            // Show on folders (any folder in a space)
-            return r.type === 'folder' && options.resources.length === 1
+            return (r.type === 'folder' || r.type === 'space') && options.resources.length === 1
           }
         }
       }
