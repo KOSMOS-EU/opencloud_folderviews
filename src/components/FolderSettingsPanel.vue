@@ -1,15 +1,15 @@
 <template>
-  <div class="folder-settings-panel-content">
-    <div v-if="loading" class="folder-settings-loading">
+  <div class="p-4">
+    <div v-if="loading" class="flex justify-center py-8">
       <oc-spinner size="small" />
     </div>
 
-    <div v-else class="folder-settings-body">
+    <div v-else>
       <!-- Set schema when no type assigned -->
-      <div v-if="!folderType" class="folder-settings-field">
-        <label class="oc-label">{{ $gettext('Type schema') }}</label>
-        <div class="folder-settings-add-row">
-          <select v-model="selectedSchema" class="oc-select-input">
+      <div v-if="!folderType" class="mb-6">
+        <h4 class="text-sm font-semibold mb-2">{{ $gettext('Type schema') }}</h4>
+        <div class="flex gap-2 items-center">
+          <select v-model="selectedSchema" class="fs-input flex-1">
             <option value="">— {{ $gettext('select') }} —</option>
             <option v-for="s in availableSchemas" :key="s" :value="s">{{ s }}</option>
           </select>
@@ -19,69 +19,58 @@
         </div>
       </div>
 
-      <div v-for="(field, key) in editableFields" :key="key" class="folder-settings-field">
-        <label class="oc-label">{{ field.label }}</label>
+      <!-- Metadata fields -->
+      <div v-for="(field, key) in editableFields" :key="key" class="mb-4">
+        <h4 class="text-sm font-semibold mb-1">{{ field.label }}</h4>
 
         <input
           v-if="field.type === 'string'"
           v-model="values[key]"
-          class="oc-text-input"
+          class="fs-input"
           :placeholder="field.label"
           :disabled="field.auto"
         />
 
-        <select
-          v-else-if="field.type === 'enum'"
-          v-model="values[key]"
-          class="oc-select-input"
-        >
+        <select v-else-if="field.type === 'enum'" v-model="values[key]" class="fs-input">
           <option value="">— {{ $gettext('select') }} —</option>
           <option v-for="v in field.values" :key="v" :value="v">{{ v }}</option>
         </select>
 
-        <input
-          v-else-if="field.type === 'number'"
-          v-model.number="values[key]"
-          type="number"
-          class="oc-text-input"
-        />
+        <input v-else-if="field.type === 'number'" v-model.number="values[key]" type="number" class="fs-input" />
+        <input v-else-if="field.type === 'date'" v-model="values[key]" type="date" class="fs-input" />
 
-        <input
-          v-else-if="field.type === 'date'"
-          v-model="values[key]"
-          type="date"
-          class="oc-text-input"
-        />
-
-        <div v-if="key === 'oy.color'" class="folder-settings-colors">
+        <div v-if="key === 'oy.color'" class="flex gap-1 flex-wrap mt-2">
           <button
             v-for="c in presetColors"
             :key="c"
-            class="folder-settings-color-btn"
-            :class="{ active: values[key] === c }"
+            class="fs-color-swatch"
+            :class="{ 'ring-2 ring-offset-2 ring-current': values[key] === c }"
             :style="{ backgroundColor: c }"
             @click="values[key] = c"
           />
-          <input v-model="values[key]" type="color" class="folder-settings-color-custom" />
+          <input v-model="values[key]" type="color" class="fs-color-picker" />
         </div>
 
-        <span v-if="field.auto" class="folder-settings-hint">{{ $gettext('Assigned automatically') }}</span>
+        <span v-if="field.auto" class="text-xs opacity-60">{{ $gettext('Assigned automatically') }}</span>
       </div>
 
       <!-- Add new metadata attribute -->
-      <div class="folder-settings-add">
-        <div class="folder-settings-add-row">
-          <select v-if="availableNewFields.length" v-model="newFieldKey" class="oc-select-input folder-settings-add-select">
-            <option value="">— {{ $gettext('Add attribute') }} —</option>
+      <div class="mt-4 pt-4 border-t border-[var(--oc-role-outline-variant)]">
+        <div class="flex gap-2 items-center">
+          <select v-if="availableNewFields.length" v-model="newFieldKey" class="fs-input flex-1">
+            <option value="">{{ $gettext('Add attribute') }}...</option>
             <option v-for="f in availableNewFields" :key="f.key" :value="f.key">{{ f.label }}</option>
           </select>
-          <input v-else v-model="newFieldKey" class="oc-text-input folder-settings-add-select" :placeholder="$gettext('Attribute key (e.g. oy.color)')" />
-          <oc-button size="small" :disabled="!newFieldKey" @click="addField">+</oc-button>
+          <input v-else v-model="newFieldKey" class="fs-input flex-1" :placeholder="$gettext('Attribute key (e.g. oy.color)')" />
+          <oc-button size="small" appearance="raw" :disabled="!newFieldKey" @click="addField">
+            <oc-icon name="add" size="small" />
+          </oc-button>
         </div>
       </div>
 
-      <div class="folder-settings-actions">
-        <oc-button variation="primary" appearance="filled" :disabled="saving" @click="save">
+      <!-- Save -->
+      <div class="mt-6">
+        <oc-button class="w-full" variation="primary" appearance="filled" :disabled="saving" @click="save">
           {{ saving ? $gettext('Saving...') : $gettext('Save') }}
         </oc-button>
       </div>
@@ -256,32 +245,26 @@ watch(() => props.resource, () => loadSchemaAndMetadata(), { immediate: true })
 </script>
 
 <style scoped>
-.folder-settings-panel-content { padding: var(--oc-space-medium); }
-.folder-settings-loading { display: flex; justify-content: center; padding: var(--oc-space-large); }
-.folder-settings-field { margin-bottom: var(--oc-space-medium); }
-.oc-label { display: block; font-size: var(--oc-font-size-small); font-weight: 600; margin-bottom: var(--oc-space-xsmall); color: var(--oc-role-on-surface-variant); }
-.oc-text-input {
-  width: 100%; padding: var(--oc-space-xsmall) var(--oc-space-small);
-  border: 1px solid var(--oc-role-outline-variant); border-radius: var(--oc-space-xsmall);
-  font-size: var(--oc-font-size-default); font-family: inherit;
-  background: var(--oc-role-surface); color: var(--oc-role-on-surface);
+.fs-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--oc-role-outline-variant, #ddd);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--oc-role-surface, #fff);
+  color: var(--oc-role-on-surface, #333);
+  transition: border-color 0.15s;
 }
-.oc-text-input:disabled { opacity: 0.6; background: var(--oc-role-surface-variant); }
-.oc-select-input {
-  width: 100%; padding: var(--oc-space-xsmall) var(--oc-space-small);
-  border: 1px solid var(--oc-role-outline-variant); border-radius: var(--oc-space-xsmall);
-  font-size: var(--oc-font-size-default); font-family: inherit;
-  background: var(--oc-role-surface); color: var(--oc-role-on-surface);
+.fs-input:focus { outline: none; border-color: var(--oc-role-primary, #1976d2); }
+.fs-input:disabled { opacity: 0.5; background: var(--oc-role-surface-variant, #f5f5f5); }
+.fs-color-swatch {
+  width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer;
+  transition: transform 0.1s;
 }
-.folder-settings-colors { display: flex; gap: 5px; flex-wrap: wrap; margin-top: var(--oc-space-xsmall); }
-.folder-settings-color-btn {
-  width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+.fs-color-swatch:hover { transform: scale(1.15); }
+.fs-color-picker {
+  width: 24px; height: 24px; border: 1px dashed var(--oc-role-outline, #aaa);
+  border-radius: 50%; cursor: pointer; padding: 0;
 }
-.folder-settings-color-btn.active { border-color: var(--oc-role-on-surface); box-shadow: 0 0 0 2px var(--oc-role-surface), 0 0 0 4px var(--oc-role-on-surface); }
-.folder-settings-color-custom { width: 22px; height: 22px; border: 1px dashed var(--oc-role-outline); border-radius: 50%; cursor: pointer; padding: 0; }
-.folder-settings-hint { font-size: var(--oc-font-size-small); color: var(--oc-role-on-surface-variant); }
-.folder-settings-actions { margin-top: var(--oc-space-medium); }
-.folder-settings-add { margin-top: var(--oc-space-medium); margin-bottom: var(--oc-space-small); }
-.folder-settings-add-row { display: flex; gap: var(--oc-space-small); align-items: center; }
-.folder-settings-add-select { flex: 1; }
 </style>
