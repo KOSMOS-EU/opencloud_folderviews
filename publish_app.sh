@@ -18,6 +18,20 @@ if [ ! -f "$SCRIPT_DIR/$DEPLOY_DIR/remoteEntry.mjs" ]; then
     exit 1
 fi
 
+# Hash the entrypoint for cache-busting
+HASH=$(md5sum "$SCRIPT_DIR/$DEPLOY_DIR/remoteEntry.mjs" | cut -c1-8)
+HASHED_NAME="remoteEntry-${HASH}.mjs"
+mv "$SCRIPT_DIR/$DEPLOY_DIR/remoteEntry.mjs" "$SCRIPT_DIR/$DEPLOY_DIR/$HASHED_NAME"
+
+# Update manifest to point to hashed entrypoint
+cat > "$SCRIPT_DIR/$DEPLOY_DIR/manifest.json" <<MANIFEST
+{
+  "entrypoint": "$HASHED_NAME",
+  "config": {}
+}
+MANIFEST
+echo "[hash] remoteEntry.mjs → $HASHED_NAME"
+
 # Deploy
 echo "[sync] -> $HOST:$REMOTE_BASE/web-extensions/$APP/"
 ssh "root@$HOST" "mkdir -p $REMOTE_BASE/web-extensions/$APP"
