@@ -168,7 +168,9 @@ export default defineWebApplication({
             const space = options?.space
             if (!space) return
             const routeOpts = createFileRouteOptions(space, { path: '.views' })
-            router.push(createLocationSpaces('files-spaces-generic', routeOpts))
+            const location = createLocationSpaces('files-spaces-generic', routeOpts)
+            location.query = { ...location.query, 'view-mode': 'resource-metro' }
+            router.push(location)
           },
           isVisible: (options: any) => {
             if (!options?.resources?.length) return false
