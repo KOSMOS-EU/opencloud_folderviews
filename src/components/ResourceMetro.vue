@@ -24,6 +24,7 @@
 
   <!-- Normal Metro view -->
   <template v-else>
+  <typed-folder-toolbar v-if="!isSpaceRoot" />
   <resource-tiles
     v-bind="$attrs"
     v-model:selected-ids="selectedIds"
@@ -73,12 +74,18 @@
 import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import ViewTypesTiles from './ViewTypesTiles.vue'
+import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import { ResourceTiles, useResourcesStore, useExtensionRegistry } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 
 const resourcesStore = useResourcesStore()
 const extensionRegistry = useExtensionRegistry()
 const { showAktzInName } = useFolderviewSettings()
+
+const isSpaceRoot = computed(() => {
+  const p = resourcesStore.currentFolder?.path || ''
+  return !p || p === '/'
+})
 
 const props = defineProps<{
   resources: Resource[]

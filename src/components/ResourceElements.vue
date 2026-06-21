@@ -5,6 +5,7 @@
     </div>
     <!-- Typed container: toolbar + recursive element rendering -->
     <template v-else-if="rootSchema">
+      <typed-folder-toolbar v-if="!isSpaceRoot" :space="space" />
       <element-container
         :resources="resources"
         :path="currentPath"
@@ -36,6 +37,7 @@ import { useResourcesStore, useRouter, createFileRouteOptions, createLocationSpa
 import { useElementRenderer, ELEMENT_RENDERER_KEY } from '../composables/useElementRenderer'
 import { type TypedFolderSchema, type ElementLayout } from '../composables/types'
 import ElementContainer from './ElementContainer.vue'
+import TypedFolderToolbar from './TypedFolderToolbar.vue'
 
 const props = defineProps<{
   resources: Resource[]
@@ -52,6 +54,10 @@ const props = defineProps<{
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 
 const resourcesStore = useResourcesStore()
+const isSpaceRoot = computed(() => {
+  const p = resourcesStore.currentFolder?.path || ''
+  return !p || p === '/'
+})
 const router = useRouter()
 const spaceRef = computed(() => props.space)
 const ctx = useElementRenderer(spaceRef)

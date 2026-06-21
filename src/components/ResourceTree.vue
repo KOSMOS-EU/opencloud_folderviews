@@ -1,5 +1,6 @@
 <template>
   <div class="resource-tree">
+    <typed-folder-toolbar v-if="!isSpaceRoot" :space="space" />
     <resource-table
       v-model:selected-ids="selectedIds"
       :resources="visibleResources"
@@ -45,7 +46,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { ResourceTable, ResourceIcon, useClientService } from '@opencloud-eu/web-pkg'
+import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
+import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { displayName as buildDisplayName, compareByDisplayName, getFileReference } from '../composables/useFileReference'
 
@@ -62,6 +64,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
+const resourcesStore2 = useResourcesStore()
+const isSpaceRoot = computed(() => {
+  const p = resourcesStore2.currentFolder?.path || ''
+  return !p || p === '/'
+})
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const { showAktzInName } = useFolderviewSettings()
