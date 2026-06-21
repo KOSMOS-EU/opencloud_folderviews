@@ -162,24 +162,19 @@ export default defineWebApplication({
         action: {
           name: 'folder-types',
           icon: 'layout-grid',
-          label: () => 'Ordnertypen',
+          label: () => $gettext('Ordnertypen'),
           category: 'secondary',
-          handler: async (options: any) => {
+          handler: (options: any) => {
             const space = options?.space
             if (!space) return
-            const router = useRouter()
-            const routeOpts = createFileRouteOptions(space, { path: '.views', fileId: space.fileId })
+            const routeOpts = createFileRouteOptions(space, { path: '.views' })
             router.push(createLocationSpaces('files-spaces-generic', routeOpts))
           },
           isVisible: (options: any) => {
-            // Only on space root (no resource selected, or space itself selected)
-            if (options?.resources?.length > 0) {
-              const r = options.resources[0]
-              // Show on the space resource itself (driveType = project)
-              if (r.driveType === 'project') return true
-              return false
-            }
-            return false
+            if (!options?.resources?.length) return false
+            const r = options.resources[0]
+            // Show on folders (any folder in a space)
+            return r.type === 'folder' && options.resources.length === 1
           }
         }
       }
@@ -187,6 +182,8 @@ export default defineWebApplication({
 
     // Extension points: aktenzeichen preference
     const extensionPoints = computed(() => [aktzDefs.extensionPoint])
+
+    const router = useRouter()
 
     // Register oy.* metadata as extra DAV properties (come in PROPFIND, no extra API calls)
     const clientService = useClientService()
