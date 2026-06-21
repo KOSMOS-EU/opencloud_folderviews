@@ -13,6 +13,7 @@
     v-else-if="isViewsFolder"
     :resources="props.resources"
     :space="space"
+    @file-click="$emit('fileClick', $event)"
   />
 
   <!-- Normal Metro view -->

@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
-import { useClientService, useRouter } from '@opencloud-eu/web-pkg'
+import { useClientService } from '@opencloud-eu/web-pkg'
 
 const { $ngettext } = useGettext()
 
@@ -37,8 +37,9 @@ const props = defineProps<{
   space: any
 }>()
 
+const emit = defineEmits<{ fileClick: [{ resources: any[] }] }>()
+
 const clientService = useClientService()
-const router = useRouter()
 const viewTypes = ref<ViewTypeInfo[]>([])
 
 async function loadViewTypes() {
@@ -69,15 +70,7 @@ async function loadViewTypes() {
 }
 
 function openFile(vt: ViewTypeInfo) {
-  router.push({
-    name: 'viewtype-editor',
-    params: {
-      driveAliasAndItem: props.space.getDriveAliasAndItem({ path: vt.resource.path })
-    },
-    query: {
-      fileId: vt.resource.fileId
-    }
-  })
+  emit('fileClick', { resources: [vt.resource] })
 }
 
 onMounted(loadViewTypes)
