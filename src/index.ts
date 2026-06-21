@@ -12,6 +12,7 @@ import ResourceTree from './components/ResourceTree.vue'
 import ResourceMetro from './components/ResourceMetro.vue'
 import ResourceElements from './components/ResourceElements.vue'
 import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
+import translations from '../l10n/translations.json'
 
 const applicationId = 'folderviews'
 
@@ -198,6 +199,7 @@ export default defineWebApplication({
     return {
       appInfo,
       routes,
+      translations,
       extensions,
       extensionPoints,
       folderViewHandlers
