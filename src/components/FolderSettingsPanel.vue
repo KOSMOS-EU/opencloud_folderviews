@@ -52,6 +52,17 @@
         <span v-if="field.auto" class="folder-settings-hint">{{ $gettext('Assigned automatically') }}</span>
       </div>
 
+      <!-- Add new metadata attribute -->
+      <div v-if="availableNewFields.length" class="folder-settings-add">
+        <div class="folder-settings-add-row">
+          <select v-model="newFieldKey" class="folder-settings-input folder-settings-add-select">
+            <option value="">— {{ $gettext('Add attribute') }} —</option>
+            <option v-for="f in availableNewFields" :key="f.key" :value="f.key">{{ f.label }}</option>
+          </select>
+          <button class="folder-settings-btn-add" :disabled="!newFieldKey" @click="addField">+</button>
+        </div>
+      </div>
+
       <div class="folder-settings-actions">
         <button class="folder-settings-btn-save" :disabled="saving" @click="save">
           {{ saving ? $gettext('Saving...') : $gettext('Save') }}
@@ -82,7 +93,33 @@ const presetColors = [
   '#4527A0', '#7B1FA2', '#37474F', '#455A64'
 ]
 
-const editableFields = computed(() => schema.value?.metadata || {})
+const activeFields = ref<Set<string>>(new Set())
+const newFieldKey = ref('')
+
+const editableFields = computed(() => {
+  const meta = schema.value?.metadata || {}
+  const result: Record<string, any> = {}
+  for (const [key, def] of Object.entries(meta)) {
+    if (activeFields.value.has(key)) result[key] = def
+  }
+  return result
+})
+
+const availableNewFields = computed(() => {
+  const meta = schema.value?.metadata || {}
+  return Object.entries(meta)
+    .filter(([key]) => !activeFields.value.has(key))
+    .map(([key, def]: [string, any]) => ({ key, label: def.label || key }))
+})
+
+function addField() {
+  if (!newFieldKey.value) return
+  activeFields.value.add(newFieldKey.value)
+  if (!(newFieldKey.value in values.value)) {
+    values.value[newFieldKey.value] = ''
+  }
+  newFieldKey.value = ''
+}
 
 async function loadSchemaAndMetadata() {
   loading.value = true
@@ -109,17 +146,23 @@ async function loadSchemaAndMetadata() {
     if (httpClient && schema.value?.metadata) {
       const spaceId = sp.id
       const itemId = `${spaceId}!${resource.id.split('!').pop()}`
+      const allKeys = Object.keys(schema.value.metadata)
       try {
         const { data } = await httpClient.get(`/graph/v1beta1/drives/${spaceId}/items/${itemId}/metadata`)
         const vals: Record<string, string> = {}
-        for (const key of Object.keys(schema.value.metadata)) {
-          vals[key] = data?.[key] || ''
+        const active = new Set<string>()
+        for (const key of allKeys) {
+          const val = data?.[key] || ''
+          vals[key] = val
+          if (val) active.add(key)
         }
         values.value = vals
+        activeFields.value = active
       } catch {
         const vals: Record<string, string> = {}
-        for (const key of Object.keys(schema.value.metadata)) vals[key] = ''
+        for (const key of allKeys) vals[key] = ''
         values.value = vals
+        activeFields.value = new Set()
       }
     }
   } catch { /* no schema */ }
@@ -180,4 +223,12 @@ watch(() => props.resource, () => loadSchemaAndMetadata(), { immediate: true })
   border-radius: 4px; font-size: 13px; cursor: pointer;
 }
 .folder-settings-btn-save:disabled { opacity: 0.5; }
+.folder-settings-add { margin-top: 12px; margin-bottom: 8px; }
+.folder-settings-add-row { display: flex; gap: 6px; }
+.folder-settings-add-select { flex: 1; }
+.folder-settings-btn-add {
+  padding: 6px 12px; background: var(--oc-role-primary, #1565C0); color: #fff;
+  border: none; border-radius: 4px; font-size: 16px; cursor: pointer; line-height: 1;
+}
+.folder-settings-btn-add:disabled { opacity: 0.4; }
 </style>
