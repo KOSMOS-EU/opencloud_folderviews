@@ -10,7 +10,7 @@
       <div class="viewtype-tile-label">{{ vt.label || vt.name }}</div>
       <div class="viewtype-tile-name">{{ vt.name }}</div>
       <div v-if="vt.childCount !== undefined" class="viewtype-tile-meta">
-        {{ vt.childCount }} Kind-Typ{{ vt.childCount !== 1 ? 'en' : '' }}
+        {{ $ngettext('%{count} Untertyp', '%{count} Untertypen', vt.childCount, { count: vt.childCount.toString() }) }}
       </div>
     </div>
   </div>
@@ -18,7 +18,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import { useGettext } from 'vue3-gettext'
 import { useClientService, useRouter, createFileRouteOptions, createLocationSpaces } from '@opencloud-eu/web-pkg'
+
+const { $ngettext } = useGettext()
 
 interface ViewTypeInfo {
   filename: string

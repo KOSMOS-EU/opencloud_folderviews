@@ -1,4 +1,5 @@
 import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { useGettext } from 'vue3-gettext'
 import { computed, markRaw } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
@@ -16,6 +17,8 @@ const applicationId = 'folderviews'
 
 export default defineWebApplication({
   setup() {
+    const { $gettext } = useGettext()
+
     const routes = [
       {
         name: 'viewtype-editor',
@@ -29,7 +32,7 @@ export default defineWebApplication({
     ]
 
     const appInfo = {
-      name: 'Folder Views',
+      name: $gettext('Ordneransichten'),
       id: applicationId,
       icon: 'archive',
       color: '#5c6bc0',
@@ -38,7 +41,7 @@ export default defineWebApplication({
         {
           extension: 'viewtype',
           routeName: 'viewtype-editor',
-          label: 'Typ-Schema bearbeiten',
+          label: $gettext('Typ-Schema bearbeiten'),
           icon: 'settings-3',
           newFileMenu: false
         }
@@ -67,7 +70,7 @@ export default defineWebApplication({
         ],
         folderView: {
           name: 'resource-tree',
-          label: 'Tree view',
+          label: $gettext('Baumansicht'),
           icon: { name: 'node-tree', fillType: 'none' },
           component: markRaw(ResourceTree)
         }
@@ -81,7 +84,7 @@ export default defineWebApplication({
         ],
         folderView: {
           name: 'resource-metro',
-          label: 'Metro tiles view',
+          label: $gettext('Kachelansicht'),
           icon: { name: 'dashboard', fillType: 'fill' },
           component: markRaw(ResourceMetro)
         }
@@ -95,7 +98,7 @@ export default defineWebApplication({
         ],
         folderView: {
           name: 'resource-elements',
-          label: 'Element view',
+          label: $gettext('Elementansicht'),
           icon: { name: 'layout-4', fillType: 'line' },
           component: markRaw(ResourceElements)
         }

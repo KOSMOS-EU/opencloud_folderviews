@@ -18,11 +18,11 @@
       <section class="editor-section">
         <h3>Grunddaten</h3>
         <div class="field-row">
-          <label>Label</label>
+          <label>{{ $gettext('Bezeichnung') }}</label>
           <input v-model="schema.label" @input="dirty = true" />
         </div>
         <div class="field-row">
-          <label>Icon</label>
+          <label>{{ $gettext('Symbol') }}</label>
           <input v-model="schema.icon" @input="dirty = true" placeholder="z.B. archive, folder, book-open" />
         </div>
       </section>
@@ -56,11 +56,11 @@
         <h3>Optionen</h3>
         <label class="checkbox-row">
           <input type="checkbox" v-model="schema.isLeaf" @change="dirty = true" />
-          Leaf (öffnet App statt zu navigieren)
+          {{ $gettext('Blatt (öffnet App statt Ordner)') }}
         </label>
         <label class="checkbox-row">
           <input type="checkbox" v-model="schema.isContainer" @change="dirty = true" />
-          Container (rekursives Rendering)
+          {{ $gettext('Container (zeigt Inhalte rekursiv)') }}
         </label>
         <label class="checkbox-row">
           <input type="checkbox" v-model="schema.protectButtonVisible" @change="dirty = true" />
@@ -71,7 +71,7 @@
           <input v-model="schema.app" @input="dirty = true" placeholder="z.B. learn-editor" />
         </div>
         <div class="field-row" v-if="schema.isLeaf">
-          <label>App Entry</label>
+          <label>{{ $gettext('Einstiegsdatei') }}</label>
           <input v-model="schema.appEntry" @input="dirty = true" placeholder="z.B. seite.md" />
         </div>
         <div class="field-row">
@@ -82,7 +82,7 @@
 
       <!-- Metadata -->
       <section class="editor-section" v-if="schema.metadata">
-        <h3>Metadata-Felder</h3>
+        <h3>{{ $gettext('Metadaten-Felder') }}</h3>
         <div v-for="(def, key) in schema.metadata" :key="key" class="meta-field">
           <div class="meta-key">{{ key }}</div>
           <div class="meta-inputs">
@@ -112,8 +112,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useGettext } from 'vue3-gettext'
 import { useClientService } from '@opencloud-eu/web-pkg'
 import type { TypedFolderSchema } from '../composables/types'
+
+const { $gettext } = useGettext()
 
 const props = defineProps<{
   space: any
@@ -175,7 +178,7 @@ async function save() {
 function addMetaField() {
   if (!schema.value) return
   if (!schema.value.metadata) schema.value.metadata = {}
-  const key = prompt('Metadata-Key (z.B. oy.status)')
+  const key = prompt($gettext('Metadaten-Schlüssel (z.B. oy.status)'))
   if (!key) return
   schema.value.metadata[key] = { label: key, type: 'string' }
   dirty.value = true
