@@ -1,6 +1,6 @@
 <template>
   <div v-if="isTyped" class="typed-folder-header">
-    <!-- Typed header: icon + name + label + count -->
+    <!-- Typed header: icon + name + label + count + action buttons -->
     <div class="typed-header-row">
       <oc-icon
         v-if="schema"
@@ -66,18 +66,27 @@
 <script setup lang="ts">
 import { computed, ref, unref } from 'vue'
 import { type SpaceResource } from '@opencloud-eu/web-client'
-import { useResourcesStore, useClientService } from '@opencloud-eu/web-pkg'
+import { useResourcesStore, useClientService, useSpacesStore } from '@opencloud-eu/web-pkg'
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
 import { useTypedFolderSchema } from '../composables/useTypedFolderSchema'
 import CreateDialog from './CreateDialog.vue'
 
 const props = defineProps<{
-  space: SpaceResource
+  space?: SpaceResource
 }>()
 
 const resourcesStore = useResourcesStore()
+const spacesStore = useSpacesStore()
 const clientService = useClientService()
 const currentFolder = computed(() => resourcesStore.currentFolder)
+
+// Space: use prop if given, otherwise derive from currentFolder
+const resolvedSpace = computed(() => {
+  if (props.space) return props.space
+  const folder = unref(currentFolder)
+  if (!folder) return undefined
+  return spacesStore.spaces.find(s => s.id === folder.storageId) as SpaceResource | undefined
+})
 
 const currentType = computed(() => {
   const resources = resourcesStore.resources || []
@@ -87,7 +96,7 @@ const currentType = computed(() => {
 
 const isTyped = computed(() => !!unref(currentType))
 
-const spaceRef = computed(() => props.space)
+const spaceRef = computed(() => unref(resolvedSpace))
 const { schema } = useTypedFolderSchema(spaceRef, currentType)
 const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(
   spaceRef, currentFolder, schema
@@ -112,7 +121,7 @@ const canManageImmutable = computed(() => {
 
 async function doProtect() {
   const folder = unref(currentFolder)
-  const sp = props.space
+  const sp = unref(resolvedSpace)
   if (!folder || !sp) return
   const httpClient = (clientService as any).httpAuthenticated
   if (!httpClient) return
@@ -127,7 +136,7 @@ async function doProtect() {
 
 async function doUnprotect() {
   const folder = unref(currentFolder)
-  const sp = props.space
+  const sp = unref(resolvedSpace)
   if (!folder || !sp) return
   const httpClient = (clientService as any).httpAuthenticated
   if (!httpClient) return

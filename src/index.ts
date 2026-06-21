@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { computed, markRaw } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
@@ -10,6 +10,7 @@ import RegisterView from './views/RegisterView.vue'
 import ResourceTree from './components/ResourceTree.vue'
 import ResourceMetro from './components/ResourceMetro.vue'
 import ResourceElements from './components/ResourceElements.vue'
+import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
 
 const applicationId = 'folderviews'
 
@@ -120,6 +121,13 @@ export default defineWebApplication({
             return context.items[0]?.type === 'folder'
           }
         }
+      },
+      // Space header: replace default SpaceHeader when folder has a _type_ marker
+      {
+        id: 'com.kosmos-eu.folderviews.space-header',
+        type: 'customComponent',
+        extensionPointIds: ['app.files.space-header'],
+        content: markRaw(TypedFolderToolbar)
       },
       // Context menu action to open the sidebar panel
       {
