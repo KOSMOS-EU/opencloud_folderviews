@@ -167,7 +167,9 @@ export default defineWebApplication({
           label: () => $gettext('Folder types'),
           category: 'secondary',
           handler: (options: any) => {
-            const space = options?.space
+            const resource = options?.resources?.[0]
+            // If the resource is a space itself, use it as the space; otherwise use options.space
+            const space = resource?.type === 'space' ? resource : options?.space
             if (!space) return
             const { params, query } = createFileRouteOptions(space, { path: '.views' })
             router.push(createLocationSpaces('files-spaces-generic', {
