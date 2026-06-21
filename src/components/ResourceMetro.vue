@@ -8,6 +8,13 @@
     @close="leafFolder = null"
   />
 
+  <!-- ViewTypes tiles for _type_views folders -->
+  <view-types-tiles
+    v-else-if="isViewsFolder"
+    :resources="props.resources"
+    :space="space"
+  />
+
   <!-- Normal Metro view -->
   <template v-else>
   <resource-tiles
@@ -59,6 +66,7 @@
 import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import LearnEditor from './LearnEditor.vue'
+import ViewTypesTiles from './ViewTypesTiles.vue'
 import { ResourceTiles, useResourcesStore } from '@opencloud-eu/web-pkg'
 
 const resourcesStore = useResourcesStore()
@@ -79,6 +87,12 @@ defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selected
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const leafFolder = ref<Resource | null>(null)
+
+// Detect _type_views folder → show ViewTypesTiles instead of normal metro
+const isViewsFolder = computed(() => {
+  const allResources = resourcesStore.resources || []
+  return allResources.some(r => r.name === '_type_views')
+})
 
 function getProp(resource: Resource, key: string): string {
   return ((resource as any).extraProps?.[key] as string) || ''

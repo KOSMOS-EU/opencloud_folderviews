@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { computed, markRaw } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
@@ -148,6 +148,35 @@ export default defineWebApplication({
             if (!resource || resource.type !== 'folder') return false
             if (options?.resources?.length !== 1) return false
             return true
+          }
+        }
+      },
+      // Context menu action: navigate to .views/ folder (Ordnertypen)
+      {
+        id: 'com.kosmos-eu.folderviews.action.folder-types',
+        type: 'action',
+        extensionPointIds: ['global.files.context-actions'],
+        action: {
+          name: 'folder-types',
+          icon: 'layout-grid',
+          label: () => 'Ordnertypen',
+          category: 'secondary',
+          handler: async (options: any) => {
+            const space = options?.space
+            if (!space) return
+            const router = useRouter()
+            const routeOpts = createFileRouteOptions(space, { path: '.views', fileId: space.fileId })
+            router.push(createLocationSpaces('files-spaces-generic', routeOpts))
+          },
+          isVisible: (options: any) => {
+            // Only on space root (no resource selected, or space itself selected)
+            if (options?.resources?.length > 0) {
+              const r = options.resources[0]
+              // Show on the space resource itself (driveType = project)
+              if (r.driveType === 'project') return true
+              return false
+            }
+            return false
           }
         }
       }
