@@ -51,24 +51,20 @@
     </template>
   </resource-tiles>
 
-  <!-- Leaf tiles — same visual size as ResourceTiles via viewSize -->
-  <resource-tiles
-    v-if="leafResources.length"
-    :resources="leafResources"
-    :space="space"
-    :view-mode="viewMode"
-    :sort-fields="[]"
-    :view-size="viewSize"
-    class="metro-view metro-leaf-view"
-    @file-click="handleLeafClick"
-  >
-    <template #image="{ resource }">
-      <div class="metro-tile-content" :style="tileStyle(resource)">
-        <oc-icon :name="getLeafIcon(resource)" size="large" class="metro-leaf-icon" />
-        <span class="metro-tile-label">{{ resource.name }}</span>
+  <!-- Leaf tiles — own grid with OC tile sizing -->
+  <div v-if="leafResources.length" class="metro-leaf-grid oc-tiles">
+    <div
+      v-for="r in leafResources"
+      :key="r.id"
+      class="oc-tile oc-tile-card metro-leaf-tile"
+      @click="openLeaf(r)"
+    >
+      <div class="metro-tile-content" :style="tileStyle(r)">
+        <oc-icon :name="getLeafIcon(r)" size="xlarge" class="metro-leaf-icon" />
+        <span class="metro-tile-label">{{ r.name }}</span>
       </div>
-    </template>
-  </resource-tiles>
+    </div>
+  </div>
   </template>
   </div>
 </template>
@@ -231,5 +227,22 @@ const sortedResources = computed(() => {
 .metro-view .resource-name-wrapper { display: none !important; }
 .metro-view .oc-card-body > .p-2 > .flex { justify-content: flex-end !important; }
 
+.metro-leaf-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 16px;
+}
+.metro-leaf-tile {
+  cursor: pointer;
+  transition: transform 0.1s;
+  outline: 1px solid var(--oc-role-outline-variant, #ddd);
+  border-radius: var(--oc-radius-md, 8px);
+  overflow: hidden;
+  flex: 0 0 auto;
+  width: var(--oc-size-tiles-default, 250px);
+  aspect-ratio: 16/11;
+}
+.metro-leaf-tile:hover { transform: scale(1.02); outline-color: var(--oc-role-primary, #1976d2); }
 .metro-leaf-icon { margin-bottom: 8px; opacity: 0.8; }
 </style>
