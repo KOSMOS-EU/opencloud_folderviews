@@ -79,26 +79,44 @@
             <div class="action-header">
               <strong>{{ action.label }}</strong>
             </div>
-            <div v-if="action.params && action.params.length" class="action-params">
-              <select
-                v-for="param in action.params"
-                :key="param"
-                v-model="actionParams[action.name + '.' + param]"
-                class="param-select"
+            <!-- Actions with fixed param values: one button per variant -->
+            <template v-if="action.params && action.params.length && hasFixedParams(action)">
+              <div class="action-buttons">
+                <oc-button
+                  v-for="variant in getVariants(action)"
+                  :key="variant.label"
+                  appearance="outline"
+                  size="small"
+                  :disabled="actionRunning === action.name + '.' + variant.label"
+                  @click="executeActionVariant(action, variant)"
+                >
+                  <span>{{ actionRunning === action.name + '.' + variant.label ? 'Läuft...' : variant.label }}</span>
+                </oc-button>
+              </div>
+            </template>
+            <!-- Actions without fixed params or with free-text params: select + button -->
+            <template v-else>
+              <div v-if="action.params && action.params.length" class="action-params">
+                <select
+                  v-for="param in action.params"
+                  :key="param"
+                  v-model="actionParams[action.name + '.' + param]"
+                  class="param-select"
+                >
+                  <option value="">{{ param }}...</option>
+                  <option v-for="v in (paramOptions[action.name + '.' + param] || [])" :key="v" :value="v">{{ v }}</option>
+                </select>
+              </div>
+              <oc-button
+                appearance="outline"
+                size="small"
+                :disabled="actionRunning === action.name"
+                @click="executeAction(action)"
               >
-                <option value="">{{ param }}...</option>
-                <option v-for="v in (paramOptions[action.name + '.' + param] || [param])" :key="v" :value="v">{{ v }}</option>
-              </select>
-            </div>
-            <oc-button
-              appearance="outline"
-              size="small"
-              :disabled="actionRunning === action.name"
-              @click="executeAction(action)"
-            >
-              <oc-icon name="play-circle" size="small" />
-              <span>{{ actionRunning === action.name ? 'Läuft...' : 'Ausführen' }}</span>
-            </oc-button>
+                <oc-icon name="play-circle" size="small" />
+                <span>{{ actionRunning === action.name ? 'Läuft...' : 'Ausführen' }}</span>
+              </oc-button>
+            </template>
             <pre v-if="actionResults[action.name]" class="action-result" :class="{ 'action-error': actionResults[action.name].error }">{{ actionResults[action.name].output || actionResults[action.name].error }}</pre>
           </div>
           <div v-if="!availableActions.length" class="empty">Keine Actions konfiguriert</div>
@@ -148,15 +166,13 @@ const actionResults = ref<Record<string, any>>({})
 const allProfiles = computed(() => info.value?.availableProfiles || [])
 const availableActions = computed(() => info.value?.availableActions || [])
 
+// params in info.mdm are the allowed values (e.g. ["on","off"] for bluetooth)
 const paramOptions = computed(() => {
   const opts: Record<string, string[]> = {}
   for (const action of availableActions.value) {
-    if (action.params) {
-      for (const p of action.params) {
-        if (p === 'profile') {
-          opts[action.name + '.profile'] = allProfiles.value
-        }
-      }
+    if (action.params && action.params.length) {
+      // params are the allowed values for this action
+      opts[action.name + '.value'] = action.params
     }
   }
   return opts
@@ -261,6 +277,40 @@ async function saveProfiles() {
     profilesDirty.value = false
   } catch (e: any) {
     alert('Speichern fehlgeschlagen: ' + e.message)
+  }
+}
+
+// Check if action has fixed param values (e.g. bluetooth: on/off)
+function hasFixedParams(action: ActionDef): boolean {
+  return !!(action.params && action.params.length > 0)
+}
+
+interface ActionVariant { label: string; params: Record<string, string> }
+
+// Generate one button per param value
+function getVariants(action: ActionDef): ActionVariant[] {
+  if (!action.params) return []
+  return action.params.map(v => ({ label: v, params: { state: v } }))
+}
+
+async function executeActionVariant(action: ActionDef, variant: ActionVariant) {
+  const key = action.name + '.' + variant.label
+  actionRunning.value = key
+  actionResults.value[action.name] = null
+
+  const groupName = props.resource.path.split('/').slice(-2, -1)[0] || ''
+  try {
+    const apiUrl = (window as any).__mdmApiUrl || 'https://classroom.mux.nu:4443'
+    const resp = await fetch(`${apiUrl}/api/v1/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action.name, group: groupName, params: variant.params })
+    })
+    actionResults.value[action.name] = await resp.json()
+  } catch (e: any) {
+    actionResults.value[action.name] = { error: e.message }
+  } finally {
+    actionRunning.value = ''
   }
 }
 
@@ -383,6 +433,7 @@ watch(() => props.resource?.path, loadData)
   background: var(--oc-role-surface, #fff);
 }
 .action-header { margin-bottom: var(--oc-space-sm, 8px); }
+.action-buttons { display: flex; gap: var(--oc-space-sm, 8px); flex-wrap: wrap; }
 .action-params { display: flex; gap: var(--oc-space-sm, 8px); margin-bottom: var(--oc-space-sm, 8px); }
 .param-select {
   padding: 6px 10px; border: 1px solid var(--oc-role-outline-variant, #ccc);
