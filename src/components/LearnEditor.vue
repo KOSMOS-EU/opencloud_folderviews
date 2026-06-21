@@ -3,27 +3,27 @@
     <div class="learn-editor-header">
       <button class="learn-back-btn" @click="$emit('close')">
         <oc-icon name="arrow-left-s" size="small" />
-        <span>Zurück</span>
+        <span>{{ $gettext('Back') }}</span>
       </button>
       <span v-if="fileReference" class="learn-fileref">{{ fileReference }}</span>
       <h2 class="learn-title">{{ title || folder?.name || '' }}</h2>
       <div class="learn-header-actions">
         <button v-if="!editing" class="learn-edit-btn" @click="editing = true">
           <oc-icon name="edit-2" size="small" />
-          <span>Bearbeiten</span>
+          <span>{{ $gettext('Edit') }}</span>
         </button>
         <button v-if="editing" class="learn-save-btn" @click="save">
           <oc-icon name="check" size="small" />
-          <span>Speichern</span>
+          <span>{{ $gettext('Save') }}</span>
         </button>
         <button v-if="editing" class="learn-cancel-btn" @click="cancelEdit">
           <oc-icon name="close" size="small" />
-          <span>Abbrechen</span>
+          <span>{{ $gettext('Cancel') }}</span>
         </button>
       </div>
     </div>
 
-    <div v-if="loading" class="learn-loading">Laden...</div>
+    <div v-if="loading" class="learn-loading">{{ $gettext('Loading...') }}</div>
 
     <div v-else class="learn-body">
       <!-- Description -->
@@ -33,14 +33,14 @@
           v-else
           v-model="editDescription"
           class="learn-md-editor"
-          placeholder="Beschreibung (Markdown)..."
+          :placeholder="$gettext('Description (Markdown)...')"
           rows="8"
         ></textarea>
       </div>
 
       <!-- Tasks -->
       <div class="learn-tasks-section">
-        <h3>Aufgaben</h3>
+        <h3>{{ $gettext('Tasks') }}</h3>
         <div class="learn-tasks-grid">
           <div
             v-for="task in tasks"
@@ -55,7 +55,7 @@
           </div>
           <div v-if="editing" class="learn-task-card learn-task-add" @click="addTask">
             <oc-icon name="add" size="large" />
-            <span>Neue Aufgabe</span>
+            <span>{{ $gettext('New task') }}</span>
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@
               <div class="learn-task-col-left">
                 <div class="learn-task-desc" v-html="renderMd(selectedTask.description || '')"></div>
                 <div v-if="selectedTask.attachments?.length" class="learn-task-attachments">
-                  <h4>Anhänge</h4>
+                  <h4>{{ $gettext('Attachments') }}</h4>
                   <div v-for="att in selectedTask.attachments" :key="att.name" class="learn-attachment"
                     @click="downloadAttachment(att)" style="cursor: pointer;">
                     <oc-icon name="download" size="small" />
@@ -86,13 +86,13 @@
               </div>
               <div class="learn-task-col-right">
                 <div class="learn-task-meta-card">
-                  <div class="learn-meta-row"><span class="learn-meta-label">Sozialform</span><span>{{ selectedTask.socialForm || '—' }}</span></div>
-                  <div class="learn-meta-row"><span class="learn-meta-label">Zeitaufwand</span><span>{{ selectedTask.effort || '—' }}</span></div>
-                  <div class="learn-meta-row"><span class="learn-meta-label">Abgabe</span><span>{{ selectedTask.submissionForm || '—' }}</span></div>
-                  <div class="learn-meta-row"><span class="learn-meta-label">Korrektur</span><span>{{ selectedTask.correctionForm || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">{{ $gettext('Social form') }}</span><span>{{ selectedTask.socialForm || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">{{ $gettext('Time required') }}</span><span>{{ selectedTask.effort || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">{{ $gettext('Submission') }}</span><span>{{ selectedTask.submissionForm || '—' }}</span></div>
+                  <div class="learn-meta-row"><span class="learn-meta-label">{{ $gettext('Correction') }}</span><span>{{ selectedTask.correctionForm || '—' }}</span></div>
                 </div>
                 <div v-if="selectedTask.solution" class="learn-task-solution">
-                  <h4>Lösung</h4>
+                  <h4>{{ $gettext('Solution') }}</h4>
                   <div v-html="renderMd(selectedTask.solution)"></div>
                 </div>
               </div>
@@ -101,9 +101,9 @@
             <!-- Edit mode: two-column layout -->
             <div v-else class="learn-task-columns">
               <div class="learn-task-col-left">
-                <label>Titel</label>
+                <label>{{ $gettext('Title') }}</label>
                 <input v-model="selectedTask.title" class="learn-input" />
-                <label>Typ</label>
+                <label>{{ $gettext('Type') }}</label>
                 <div class="learn-type-grid">
                   <button
                     v-for="tt in taskTypes"
@@ -117,17 +117,17 @@
                     <span>{{ tt.label }}</span>
                   </button>
                 </div>
-                <label>Beschreibung (Markdown)</label>
+                <label>{{ $gettext('Description (Markdown)') }}</label>
                 <textarea v-model="selectedTask.description" rows="6" class="learn-input"></textarea>
               </div>
               <div class="learn-task-col-right">
-                <label>Sozialform</label>
+                <label>{{ $gettext('Social form') }}</label>
                 <select v-model="selectedTask.socialForm" class="learn-input">
                   <option>Einzelarbeit</option>
                   <option>Partnerarbeit</option>
                   <option>Gruppenarbeit</option>
                 </select>
-                <label>Zeitaufwand</label>
+                <label>{{ $gettext('Time required') }}</label>
                 <select v-model="selectedTask.effort" class="learn-input">
                   <option>5 Minuten</option>
                   <option>10 Minuten</option>
@@ -137,20 +137,20 @@
                   <option>45 Minuten</option>
                   <option>60 Minuten</option>
                 </select>
-                <label>Abgabeform</label>
+                <label>{{ $gettext('Submission form') }}</label>
                 <select v-model="selectedTask.submissionForm" class="learn-input">
                   <option>keine</option>
                   <option>digital</option>
                   <option>Heft</option>
                   <option>mündlich</option>
                 </select>
-                <label>Korrekturform</label>
+                <label>{{ $gettext('Correction form') }}</label>
                 <select v-model="selectedTask.correctionForm" class="learn-input">
                   <option>Selbstkorrektur</option>
                   <option>Lehrerkorrektur</option>
                   <option>Partnerkorrektur</option>
                 </select>
-                <label>Anhänge</label>
+                <label>{{ $gettext('Attachments') }}</label>
                 <div class="learn-attachments-edit">
                   <div v-for="(att, i) in selectedTask.attachments" :key="att.name" class="learn-attachment-item">
                     <oc-icon name="attachment" size="small" />
@@ -161,17 +161,17 @@
                   </div>
                   <label class="learn-upload-btn">
                     <oc-icon name="upload" size="small" />
-                    <span>{{ uploading ? 'Hochladen...' : 'Datei hochladen' }}</span>
+                    <span>{{ uploading ? $gettext('Uploading...') : $gettext('Upload file') }}</span>
                     <input type="file" multiple hidden @change="uploadFiles($event, selectedTask)" :disabled="uploading" />
                   </label>
                 </div>
 
-                <label>Lösung</label>
+                <label>{{ $gettext('Solution') }}</label>
                 <textarea v-model="selectedTask.solution" rows="3" class="learn-input"></textarea>
                 <div class="learn-task-detail-actions">
                   <button class="learn-delete-btn" @click="deleteTask(selectedTask)">
                     <oc-icon name="delete-bin" size="small" />
-                    Löschen
+                    {{ $gettext('Delete') }}
                   </button>
                 </div>
               </div>

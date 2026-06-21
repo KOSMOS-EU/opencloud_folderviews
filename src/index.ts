@@ -32,7 +32,7 @@ export default defineWebApplication({
     ]
 
     const appInfo = {
-      name: $gettext('Ordneransichten'),
+      name: $gettext('Folder Views'),
       id: applicationId,
       icon: 'archive',
       color: '#5c6bc0',
@@ -41,7 +41,7 @@ export default defineWebApplication({
         {
           extension: 'viewtype',
           routeName: 'viewtype-editor',
-          label: $gettext('Typ-Schema bearbeiten'),
+          label: $gettext('Edit type schema'),
           icon: 'settings-3',
           newFileMenu: false
         }
@@ -70,7 +70,7 @@ export default defineWebApplication({
         ],
         folderView: {
           name: 'resource-tree',
-          label: $gettext('Baumansicht'),
+          label: $gettext('Tree view'),
           icon: { name: 'node-tree', fillType: 'none' },
           component: markRaw(ResourceTree)
         }
@@ -84,7 +84,7 @@ export default defineWebApplication({
         ],
         folderView: {
           name: 'resource-metro',
-          label: $gettext('Kachelansicht'),
+          label: $gettext('Metro view'),
           icon: { name: 'dashboard', fillType: 'fill' },
           component: markRaw(ResourceMetro)
         }
@@ -98,7 +98,7 @@ export default defineWebApplication({
         ],
         folderView: {
           name: 'resource-elements',
-          label: $gettext('Elementansicht'),
+          label: $gettext('Element view'),
           icon: { name: 'layout-4', fillType: 'line' },
           component: markRaw(ResourceElements)
         }
@@ -112,7 +112,7 @@ export default defineWebApplication({
         panel: {
           name: 'folder-settings',
           icon: 'settings-3',
-          title: () => 'Ordner-Einstellungen',
+          title: () => $gettext('Folder settings'),
           component: markRaw(FolderSettingsPanel),
           componentAttrs: (context: any) => ({
             space: context?.root,
@@ -140,7 +140,7 @@ export default defineWebApplication({
         action: {
           name: 'folder-settings',
           icon: 'settings-3',
-          label: () => 'Ordner-Einstellungen',
+          label: () => $gettext('Folder settings'),
           category: 'secondary',
           handler: () => {
             const sidebarStore = useSideBar()
@@ -162,7 +162,7 @@ export default defineWebApplication({
         action: {
           name: 'folder-types',
           icon: 'layout-grid',
-          label: () => $gettext('Ordnertypen'),
+          label: () => $gettext('Folder types'),
           category: 'secondary',
           handler: (options: any) => {
             const space = options?.space

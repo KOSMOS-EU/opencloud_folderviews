@@ -20,7 +20,7 @@ onUnmounted(() => blobUrls.forEach(u => URL.revokeObjectURL(u)))
 function preprocessTags(md: string): string {
   // Replace [[directory:path]] with placeholder divs
   return md.replace(/\[\[directory:([^\]]+)\]\]/g, (_, path) => {
-    return `<div data-directory="${path.trim()}" class="md-directory">Laden...</div>`
+    return `<div data-directory="${path.trim()}" class="md-directory">Loading...</div>`
   })
 }
 

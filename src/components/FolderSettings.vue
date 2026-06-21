@@ -11,7 +11,7 @@
         </button>
       </div>
 
-      <div v-if="loading" class="folder-settings-loading">Laden...</div>
+      <div v-if="loading" class="folder-settings-loading">{{ $gettext('Loading...') }}</div>
 
       <div v-else class="folder-settings-body">
         <div class="folder-settings-info">
@@ -37,7 +37,7 @@
             v-model="values[key]"
             class="folder-settings-input"
           >
-            <option value="">— wählen —</option>
+            <option value="">— {{ $gettext('select') }} —</option>
             <option v-for="v in field.values" :key="v" :value="v">{{ v }}</option>
           </select>
 
@@ -72,18 +72,18 @@
               v-model="values[key]"
               type="color"
               class="folder-settings-color-custom"
-              title="Eigene Farbe"
+              :title="$gettext('Custom color')"
             />
           </div>
 
-          <span v-if="field.auto" class="folder-settings-hint">Automatisch vergeben</span>
+          <span v-if="field.auto" class="folder-settings-hint">{{ $gettext('Assigned automatically') }}</span>
         </div>
       </div>
 
       <div class="folder-settings-footer">
-        <button class="folder-settings-btn folder-settings-btn-cancel" @click="$emit('close')">Abbrechen</button>
+        <button class="folder-settings-btn folder-settings-btn-cancel" @click="$emit('close')">{{ $gettext('Cancel') }}</button>
         <button class="folder-settings-btn folder-settings-btn-save" :disabled="saving" @click="save">
-          {{ saving ? 'Speichern...' : 'Speichern' }}
+          {{ saving ? $gettext('Saving...') : $gettext('Save') }}
         </button>
       </div>
     </div>

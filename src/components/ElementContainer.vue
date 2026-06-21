@@ -42,7 +42,7 @@
       <label>Padding
         <input type="text" v-model="editParams.padding" placeholder="0" />
       </label>
-      <button class="element-div-save" @click="saveDivParams">Speichern</button>
+      <button class="element-div-save" @click="saveDivParams">{{ $gettext('Save') }}</button>
     </div>
     <!-- Add buttons for root when no folderName -->
     <div v-if="!folderName && !loading" class="element-container-actions">

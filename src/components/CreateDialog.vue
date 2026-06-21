@@ -8,17 +8,17 @@
         </button>
       </div>
       <div class="create-dialog-body">
-        <label>Name</label>
+        <label>{{ $gettext('Name') }}</label>
         <input
           ref="nameInput"
           v-model="name"
           class="create-input"
-          placeholder="Name eingeben..."
+          :placeholder="$gettext('Enter name...')"
           @keyup.enter="submit"
         />
 
         <template v-if="showColor">
-          <label>Farbe</label>
+          <label>{{ $gettext('Color') }}</label>
           <div class="create-color-grid">
             <button
               v-for="c in colors"
@@ -33,23 +33,23 @@
               v-model="color"
               type="color"
               class="create-color-custom"
-              title="Eigene Farbe"
+              :title="$gettext('Custom color')"
             />
           </div>
         </template>
 
         <template v-if="showNote">
-          <label>Beschreibung <span class="create-optional">(optional)</span></label>
+          <label>{{ $gettext('Description') }} <span class="create-optional">({{ $gettext('optional') }})</span></label>
           <input
             v-model="note"
             class="create-input"
-            placeholder="Kurzbeschreibung..."
+            :placeholder="$gettext('Short description...')"
           />
         </template>
       </div>
       <div class="create-dialog-footer">
-        <button class="create-btn create-btn-cancel" @click="$emit('cancel')">Abbrechen</button>
-        <button class="create-btn create-btn-ok" :disabled="!name.trim()" @click="submit">Erstellen</button>
+        <button class="create-btn create-btn-cancel" @click="$emit('cancel')">{{ $gettext('Cancel') }}</button>
+        <button class="create-btn create-btn-ok" :disabled="!name.trim()" @click="submit">{{ $gettext('Create') }}</button>
       </div>
     </div>
   </div>

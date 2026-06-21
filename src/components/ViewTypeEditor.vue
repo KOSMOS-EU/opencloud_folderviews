@@ -4,38 +4,38 @@
       <h2>{{ schema?.label || fileName }}</h2>
       <div class="header-actions">
         <button v-if="dirty" class="save-btn" @click="save" :disabled="saving">
-          {{ saving ? 'Speichern...' : 'Speichern' }}
+          {{ saving ? $gettext('Saving...') : $gettext('Save') }}
         </button>
-        <span v-if="saved" class="saved-hint">Gespeichert</span>
+        <span v-if="saved" class="saved-hint">{{ $gettext('Saved') }}</span>
       </div>
     </header>
 
-    <div v-if="loading" class="loading">Laden...</div>
+    <div v-if="loading" class="loading">{{ $gettext('Loading...') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
     <template v-else-if="schema">
       <!-- Basic Info -->
       <section class="editor-section">
-        <h3>Grunddaten</h3>
+        <h3>{{ $gettext('Basic info') }}</h3>
         <div class="field-row">
-          <label>{{ $gettext('Bezeichnung') }}</label>
+          <label>{{ $gettext('Label') }}</label>
           <input v-model="schema.label" @input="dirty = true" />
         </div>
         <div class="field-row">
-          <label>{{ $gettext('Symbol') }}</label>
-          <input v-model="schema.icon" @input="dirty = true" placeholder="z.B. archive, folder, book-open" />
+          <label>{{ $gettext('Icon') }}</label>
+          <input v-model="schema.icon" @input="dirty = true" placeholder="e.g. archive, folder, book-open" />
         </div>
       </section>
 
       <!-- Children -->
       <section class="editor-section">
-        <h3>Erlaubte Kind-Typen</h3>
+        <h3>{{ $gettext('Allowed child types') }}</h3>
         <div v-if="Array.isArray(schema.children)" class="children-list">
           <div v-for="(child, idx) in schema.children" :key="idx" class="child-chip">
             <input v-model="schema.children[idx]" @input="dirty = true" class="chip-input" />
             <button class="chip-remove" @click="schema.children.splice(idx, 1); dirty = true">&times;</button>
           </div>
-          <button class="add-btn" @click="schema.children.push(''); dirty = true">+ Typ</button>
+          <button class="add-btn" @click="schema.children.push(''); dirty = true">+ {{ $gettext('Type') }}</button>
         </div>
         <div v-else class="children-complex">
           <div v-for="key in Object.keys(schema.children)" :key="key" class="child-group">
@@ -53,36 +53,36 @@
 
       <!-- Flags -->
       <section class="editor-section">
-        <h3>Optionen</h3>
+        <h3>{{ $gettext('Options') }}</h3>
         <label class="checkbox-row">
           <input type="checkbox" v-model="schema.isLeaf" @change="dirty = true" />
-          {{ $gettext('Blatt (öffnet App statt Ordner)') }}
+          {{ $gettext('Leaf (opens app instead of folder)') }}
         </label>
         <label class="checkbox-row">
           <input type="checkbox" v-model="schema.isContainer" @change="dirty = true" />
-          {{ $gettext('Container (zeigt Inhalte rekursiv)') }}
+          {{ $gettext('Container (shows contents recursively)') }}
         </label>
         <label class="checkbox-row">
           <input type="checkbox" v-model="schema.protectButtonVisible" @change="dirty = true" />
-          Schützen-Button anzeigen
+          {{ $gettext('Show protect button') }}
         </label>
         <div class="field-row" v-if="schema.isLeaf">
           <label>App</label>
           <input v-model="schema.app" @input="dirty = true" placeholder="z.B. learn-editor" />
         </div>
         <div class="field-row" v-if="schema.isLeaf">
-          <label>{{ $gettext('Einstiegsdatei') }}</label>
-          <input v-model="schema.appEntry" @input="dirty = true" placeholder="z.B. seite.md" />
+          <label>{{ $gettext('Entry file') }}</label>
+          <input v-model="schema.appEntry" @input="dirty = true" placeholder="e.g. page.md" />
         </div>
         <div class="field-row">
-          <label>Nummerierung</label>
+          <label>{{ $gettext('Numbering') }}</label>
           <input v-model="schema.fileReferencePattern" @input="dirty = true" placeholder="{parentRef}.{seq:02}" />
         </div>
       </section>
 
       <!-- Metadata -->
       <section class="editor-section" v-if="schema.metadata">
-        <h3>{{ $gettext('Metadaten-Felder') }}</h3>
+        <h3>{{ $gettext('Metadata fields') }}</h3>
         <div v-for="(def, key) in schema.metadata" :key="key" class="meta-field">
           <div class="meta-key">{{ key }}</div>
           <div class="meta-inputs">
@@ -178,7 +178,7 @@ async function save() {
 function addMetaField() {
   if (!schema.value) return
   if (!schema.value.metadata) schema.value.metadata = {}
-  const key = prompt($gettext('Metadaten-Schlüssel (z.B. oy.status)'))
+  const key = prompt($gettext('Metadata key (e.g. oy.status)'))
   if (!key) return
   schema.value.metadata[key] = { label: key, type: 'string' }
   dirty.value = true
