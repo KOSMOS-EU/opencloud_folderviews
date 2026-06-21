@@ -20,10 +20,7 @@
           class="tree-btn"
           @click.stop.prevent="toggleExpand(resource)"
         >
-          <oc-icon
-            :name="isExpanded(resource.id) ? 'arrow-down-s' : 'arrow-right-s'"
-            size="small"
-          />
+          {{ isExpanded(resource.id) ? '−' : '+' }}
         </button>
         <span v-else class="tree-spacer" />
         <resource-icon :resource="resource" size="small" class="mr-1" />
@@ -174,10 +171,11 @@ watch(() => props.resources, () => {
 
 <style scoped>
 .tree-btn {
-  background: none; border: none; cursor: pointer;
+  background: none; border: 1px solid rgba(0,0,0,0.15); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px; margin-right: 2px; border-radius: 4px; flex-shrink: 0;
+  width: 24px; height: 24px; margin-right: 4px; border-radius: 4px; flex-shrink: 0;
+  font-size: 16px; font-weight: 600; line-height: 1; color: inherit; opacity: 0.6;
 }
-.tree-btn:hover { background: rgba(0,0,0,0.08); }
-.tree-spacer { display: inline-block; width: 20px; margin-right: 2px; flex-shrink: 0; }
+.tree-btn:hover { background: rgba(0,0,0,0.08); opacity: 1; }
+.tree-spacer { display: inline-block; width: 24px; margin-right: 4px; flex-shrink: 0; }
 </style>
