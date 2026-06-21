@@ -1,5 +1,25 @@
 <template>
-  <div v-if="isTyped" class="typed-toolbar">
+  <div v-if="isTyped" class="typed-folder-header">
+    <!-- Typed header: icon + name + label + count -->
+    <div class="typed-header-row">
+      <oc-icon
+        v-if="schema"
+        :name="schema.icon || 'folder'"
+        size="xxlarge"
+        variation="passive"
+      />
+      <oc-icon v-else name="error-warning" size="xxlarge" variation="danger" />
+      <div class="typed-header-text">
+        <h2 class="typed-header-title">
+          <span v-if="currentFolderFileRef" class="typed-header-ref">{{ currentFolderFileRef }}</span>{{ currentFolder?.name || '' }}
+        </h2>
+        <p v-if="schema" class="typed-header-meta">
+          {{ schema.label }} · {{ folderCount }} Einträge
+        </p>
+      </div>
+    </div>
+    <!-- Action buttons -->
+    <div class="typed-toolbar">
     <oc-button
       v-for="child in childButtons"
       v-if="canCreate"
@@ -39,6 +59,7 @@
       @confirm="onDialogConfirm"
     />
 
+    </div>
   </div>
 </template>
 
@@ -71,6 +92,16 @@ const { schema } = useTypedFolderSchema(spaceRef, currentType)
 const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(
   spaceRef, currentFolder, schema
 )
+
+const currentFolderFileRef = computed(() => {
+  const folder = unref(currentFolder) as any
+  return folder?.extraProps?.['oc:oy.fileReference'] || ''
+})
+
+const folderCount = computed(() => {
+  const resources = resourcesStore.resources || []
+  return resources.filter(r => r.type === 'folder' && !r.name?.startsWith('_type_')).length
+})
 
 const immutableState = computed(() => (unref(currentFolder) as any)?.immutableState || '')
 
@@ -166,9 +197,40 @@ function onDialogConfirm(data: { name: string; color?: string; note?: string }) 
 </script>
 
 <style scoped>
+.typed-folder-header {
+  padding: 16px;
+}
+
+.typed-header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.typed-header-text {
+  flex: 1;
+}
+
+.typed-header-title {
+  margin: 0;
+  font-size: 20px;
+  word-break: break-all;
+}
+
+.typed-header-ref {
+  opacity: 0.6;
+  margin-right: 8px;
+}
+
+.typed-header-meta {
+  margin: 4px 0 0;
+  opacity: 0.6;
+  font-size: 14px;
+}
+
 .typed-toolbar {
   display: flex;
   gap: 8px;
-  padding: 6px 16px;
+  margin-top: 8px;
 }
 </style>
