@@ -149,7 +149,8 @@ export default defineWebApplication({
           },
           isVisible: (options: any) => {
             const resource = options?.resources?.[0]
-            if (!resource || resource.type !== 'folder') return false
+            if (!resource) return false
+            if (resource.type !== 'folder' && resource.type !== 'space') return false
             if (options?.resources?.length !== 1) return false
             return true
           }
