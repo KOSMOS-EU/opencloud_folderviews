@@ -31,46 +31,76 @@
       <div class="mdm-content">
         <!-- Devices -->
         <div v-if="activeTab === 'devices'" class="tab-panel">
-          <div v-for="udid in devices" :key="udid" class="list-item device-item">
+          <div class="list-toolbar">
+            <oc-button appearance="outline" size="small" @click="addDevice">
+              <oc-icon name="add" size="small" /><span>Gerät</span>
+            </oc-button>
+            <oc-button v-if="devicesDirty" appearance="filled" size="small" @click="saveDevices">
+              <oc-icon name="save" size="small" /><span>Speichern</span>
+            </oc-button>
+          </div>
+          <div
+            v-for="(udid, idx) in devices"
+            :key="idx"
+            class="list-item device-item"
+            :class="{ selected: selectedDevices.has(idx) }"
+            @click="toggleSelect(selectedDevices, idx)"
+          >
+            <input type="checkbox" :checked="selectedDevices.has(idx)" @click.stop />
             <oc-icon name="smartphone" size="small" />
             <span class="item-text">{{ udid }}</span>
+            <oc-button appearance="raw" size="small" class="delete-btn" @click.stop="removeDevice(idx)">
+              <oc-icon name="delete-bin" size="small" />
+            </oc-button>
           </div>
           <div v-if="!devices.length" class="empty">Keine Geräte</div>
         </div>
 
         <!-- Apps -->
         <div v-if="activeTab === 'apps'" class="tab-panel">
-          <div v-for="app in apps" :key="app.id" class="list-item app-item">
+          <div class="list-toolbar">
+            <oc-button appearance="outline" size="small" @click="addApp">
+              <oc-icon name="add" size="small" /><span>App</span>
+            </oc-button>
+            <oc-button v-if="appsDirty" appearance="filled" size="small" @click="saveApps">
+              <oc-icon name="save" size="small" /><span>Speichern</span>
+            </oc-button>
+          </div>
+          <div
+            v-for="(app, idx) in apps"
+            :key="idx"
+            class="list-item app-item"
+            :class="{ selected: selectedApps.has(idx) }"
+            @click="toggleSelect(selectedApps, idx)"
+          >
+            <input type="checkbox" :checked="selectedApps.has(idx)" @click.stop />
             <oc-icon name="apps" size="small" />
             <span class="item-text">
               <span class="app-name">{{ app.comment || app.id }}</span>
-              <a
-                :href="'https://apps.apple.com/app/id' + app.id"
-                target="_blank"
-                class="store-link"
-              >App Store</a>
+              <span class="app-id">{{ app.id }}</span>
+              <a :href="'https://apps.apple.com/app/id' + app.id" target="_blank" class="store-link" @click.stop>Store</a>
             </span>
+            <oc-button appearance="raw" size="small" class="delete-btn" @click.stop="removeApp(idx)">
+              <oc-icon name="delete-bin" size="small" />
+            </oc-button>
           </div>
           <div v-if="!apps.length" class="empty">Keine Apps</div>
         </div>
 
         <!-- Profiles -->
         <div v-if="activeTab === 'profiles'" class="tab-panel">
+          <div class="list-toolbar">
+            <oc-button v-if="profilesDirty" appearance="filled" size="small" @click="saveProfiles">
+              <oc-icon name="save" size="small" /><span>Speichern</span>
+            </oc-button>
+          </div>
           <div v-for="profile in allProfiles" :key="profile" class="list-item profile-item">
             <label class="profile-check">
-              <input
-                type="checkbox"
-                :checked="activeProfiles.includes(profile)"
-                @change="toggleProfile(profile)"
-              />
+              <input type="checkbox" :checked="activeProfiles.includes(profile)" @change="toggleProfile(profile)" />
               <span>{{ profile }}</span>
             </label>
           </div>
           <div v-if="!allProfiles.length" class="empty">Keine Profile</div>
-          <oc-button v-if="profilesDirty" appearance="filled" size="small" @click="saveProfiles">
-            <oc-icon name="save" size="small" />
-            <span>Speichern</span>
-          </oc-button>
         </div>
 
         <!-- Actions -->
@@ -158,6 +188,11 @@ const devices = ref<string[]>([])
 const apps = ref<AppEntry[]>([])
 const activeProfiles = ref<string[]>([])
 const profilesDirty = ref(false)
+
+const devicesDirty = ref(false)
+const appsDirty = ref(false)
+const selectedDevices = ref(new Set<number>())
+const selectedApps = ref(new Set<number>())
 
 const actionParams = ref<Record<string, string>>({})
 const actionRunning = ref('')
@@ -254,6 +289,66 @@ async function loadSibling(parentPath: string, filename: string): Promise<string
   } catch {
     return ''
   }
+}
+
+function toggleSelect(set: { value: Set<number> } | any, idx: number) {
+  const s = set instanceof Set ? set : set.value
+  if (s.has(idx)) s.delete(idx); else s.add(idx)
+}
+
+function addDevice() {
+  const udid = prompt('Geräte-UDID:')
+  if (!udid) return
+  devices.value.push(udid.trim())
+  devicesDirty.value = true
+}
+
+function removeDevice(idx: number) {
+  devices.value.splice(idx, 1)
+  selectedDevices.value.delete(idx)
+  devicesDirty.value = true
+}
+
+async function saveDevices() {
+  const parentPath = props.resource.path.replace(/\/[^/]+$/, '')
+  try {
+    await clientService.webdav.putFileContents(props.space, {
+      path: parentPath + '/devices',
+      content: devices.value.join('\n') + '\n'
+    })
+    devicesDirty.value = false
+  } catch (e: any) { alert('Speichern fehlgeschlagen: ' + e.message) }
+}
+
+function addApp() {
+  const id = prompt('App Store ID:')
+  if (!id) return
+  const comment = prompt('Name (optional):') || ''
+  apps.value.push({ id: id.trim(), comment })
+  appsDirty.value = true
+}
+
+function removeApp(idx: number) {
+  apps.value.splice(idx, 1)
+  selectedApps.value.delete(idx)
+  appsDirty.value = true
+}
+
+async function saveApps() {
+  const parentPath = props.resource.path.replace(/\/[^/]+$/, '')
+  const lines: string[] = []
+  for (const app of apps.value) {
+    if (app.comment) lines.push('# ' + app.comment)
+    lines.push(app.id)
+    lines.push('')
+  }
+  try {
+    await clientService.webdav.putFileContents(props.space, {
+      path: parentPath + '/apps',
+      content: lines.join('\n') + '\n'
+    })
+    appsDirty.value = false
+  } catch (e: any) { alert('Speichern fehlgeschlagen: ' + e.message) }
 }
 
 function toggleProfile(profile: string) {
@@ -447,6 +542,16 @@ watch(() => props.resource?.path, loadData)
   white-space: pre-wrap; max-height: 150px; overflow-y: auto;
 }
 .action-error { color: var(--oc-role-error, #D32F2F); }
+
+.list-toolbar {
+  display: flex; gap: var(--oc-space-sm, 8px); margin-bottom: var(--oc-space-sm, 8px);
+}
+.list-item { cursor: pointer; }
+.list-item.selected { background: var(--oc-role-surface-container, #f0f0f0); }
+.list-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+.delete-btn { opacity: 0.3; margin-left: auto; flex-shrink: 0; }
+.list-item:hover .delete-btn { opacity: 0.8; }
+.app-id { font-family: monospace; font-size: 12px; opacity: 0.5; margin-left: 4px; }
 
 .empty { padding: 40px; text-align: center; color: var(--oc-role-on-surface-variant, #999); }
 </style>
