@@ -1,7 +1,7 @@
 <template>
   <div class="resource-tree">
     <resource-table
-      :selected-ids="[]"
+      v-model:selected-ids="selectedIds"
       :resources="visibleResources"
       :view-mode="'resource-table-condensed'"
       :space="space"
@@ -66,7 +66,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selectedIds'])
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
-selectedIds.value = []
 const clientService = useClientService()
 const { showAktzInName } = useFolderviewSettings()
 
