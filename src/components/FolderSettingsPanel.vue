@@ -3,6 +3,20 @@
     <div v-if="loading" class="folder-settings-loading">{{ $gettext('Loading...') }}</div>
 
     <div v-else class="folder-settings-body">
+      <!-- Set schema when no type assigned -->
+      <div v-if="!folderType" class="folder-settings-field">
+        <label>{{ $gettext('Type schema') }}</label>
+        <div class="folder-settings-add-row">
+          <select v-model="selectedSchema" class="folder-settings-input folder-settings-add-select">
+            <option value="">— {{ $gettext('select') }} —</option>
+            <option v-for="s in availableSchemas" :key="s" :value="s">{{ s }}</option>
+          </select>
+          <button class="folder-settings-btn-add" :disabled="!selectedSchema || settingSchema" @click="setSchema">
+            {{ $gettext('Set') }}
+          </button>
+        </div>
+      </div>
+
       <div v-for="(field, key) in editableFields" :key="key" class="folder-settings-field">
         <label>{{ field.label }}</label>
 
@@ -85,8 +99,12 @@ const props = defineProps<{
 const clientService = useClientService()
 const loading = ref(true)
 const saving = ref(false)
+const settingSchema = ref(false)
 const values = ref<Record<string, string>>({})
 const schema = ref<any>(null)
+const folderType = ref<string | null>(null)
+const availableSchemas = ref<string[]>([])
+const selectedSchema = ref('')
 
 const presetColors = [
   '#8B1A1A', '#C62828', '#E65100', '#6D4C41',
@@ -113,6 +131,22 @@ const availableNewFields = computed(() => {
     .map(([key, def]: [string, any]) => ({ key, label: def.label || key }))
 })
 
+async function setSchema() {
+  if (!selectedSchema.value || !props.space || !props.resource) return
+  settingSchema.value = true
+  try {
+    const path = (props.resource.path || '/').replace(/\/$/, '') + `/_type_${selectedSchema.value}`
+    await clientService.webdav.putFileContents(props.space, { path }, '')
+    folderType.value = selectedSchema.value
+    // Reload to pick up schema metadata
+    await loadSchemaAndMetadata()
+  } catch (e) {
+    console.error('[FolderSettingsPanel] setSchema failed:', e)
+  } finally {
+    settingSchema.value = false
+  }
+}
+
 function addField() {
   if (!newFieldKey.value) return
   const key = newFieldKey.value
@@ -138,9 +172,17 @@ async function loadSchemaAndMetadata() {
     // Detect folder type
     const { children } = await clientService.webdav.listFiles(sp, { path: resource.path || '/' })
     const typeFile = children.find((r: any) => r.name?.startsWith('_type_'))
-    const folderType = typeFile ? typeFile.name!.substring(6) : null
+    folderType.value = typeFile ? typeFile.name!.substring(6) : null
 
-    if (!folderType) {
+    // Load available schemas from .views/
+    try {
+      const { children: viewFiles } = await clientService.webdav.listFiles(sp, { path: '.views' })
+      availableSchemas.value = viewFiles
+        .filter((r: any) => r.name?.endsWith('.viewtype'))
+        .map((r: any) => r.name!.replace('.viewtype', ''))
+    } catch { availableSchemas.value = [] }
+
+    if (!folderType.value) {
       schema.value = { metadata: {} }
       loading.value = false
       return

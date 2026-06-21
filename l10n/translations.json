@@ -62,6 +62,10 @@
     "Oral": "Mündlich",
     "Self-correction": "Selbstkorrektur",
     "Teacher correction": "Lehrerkorrektur",
-    "Peer correction": "Partnerkorrektur"
+    "Peer correction": "Partnerkorrektur",
+    "Type schema": "Typ-Schema",
+    "Set": "Setzen",
+    "Add attribute": "Attribut hinzufügen",
+    "Attribute key (e.g. oy.color)": "Attribut-Schlüssel (z.B. oy.color)"
   }
 }
