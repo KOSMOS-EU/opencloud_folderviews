@@ -74,9 +74,11 @@ import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import ViewTypesTiles from './ViewTypesTiles.vue'
 import { ResourceTiles, useResourcesStore, useExtensionRegistry } from '@opencloud-eu/web-pkg'
+import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 
 const resourcesStore = useResourcesStore()
 const extensionRegistry = useExtensionRegistry()
+const { showAktzInName } = useFolderviewSettings()
 
 const props = defineProps<{
   resources: Resource[]
@@ -172,11 +174,12 @@ function handleLeafClick(event: any) {
 const nonLeafResources = computed(() => sortedResources.value.filter(r => !isLeaf(r)))
 const leafResources = computed(() => sortedResources.value.filter(r => r.type === 'folder' && isLeaf(r)))
 
-// Prefix name with fileReference, sort numerically
+// Prefix name with fileReference (if enabled in settings), sort numerically
 const sortedResources = computed(() => {
   return props.resources
     .filter(r => !r.name?.startsWith('_type_'))
     .map(r => {
+      if (!showAktzInName.value) return r
       const ref = getProp(r, 'oc:oy.fileReference')
       if (!ref) return r
       return Object.assign(Object.create(Object.getPrototypeOf(r)), r, {
