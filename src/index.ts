@@ -1,5 +1,6 @@
-import { defineWebApplication, useClientService, useSideBar } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { computed, markRaw } from 'vue'
+import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
@@ -14,13 +15,33 @@ const applicationId = 'folderviews'
 
 export default defineWebApplication({
   setup() {
+    const routes = [
+      {
+        name: 'viewtype-editor',
+        path: '/:driveAliasAndItem(.*)?',
+        component: AppWrapperRoute(ViewTypeEditor, { applicationId }),
+        meta: {
+          authContext: 'hybrid',
+          patchCleanPath: true
+        }
+      }
+    ]
+
     const appInfo = {
       name: 'Folder Views',
       id: applicationId,
       icon: 'archive',
       color: '#5c6bc0',
-      defaultExtension: '',
-      extensions: [] as any[]
+      defaultExtension: 'viewtype',
+      extensions: [
+        {
+          extension: 'viewtype',
+          routeName: 'viewtype-editor',
+          label: 'Typ-Schema bearbeiten',
+          icon: 'settings-3',
+          newFileMenu: false
+        }
+      ]
     }
 
     // Typed FolderView handlers keyed by _type_ name
@@ -136,6 +157,7 @@ export default defineWebApplication({
 
     return {
       appInfo,
+      routes,
       extensions,
       extensionPoints,
       folderViewHandlers

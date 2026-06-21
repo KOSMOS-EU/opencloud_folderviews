@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# setup_views.sh — Richtet .views/<type>.json Schemas in einem Space ein
+# setup_views.sh — Richtet .views/<type>.viewtype Schemas in einem Space ein
 #
 # Usage:
 #   ./setup_views.sh <space-webdav-url> <user:password>
@@ -27,11 +27,11 @@ esac
 # Upload schema files
 upload() {
   local name="$1" json="$2"
-  CODE=$(curl -s -k -u "$AUTH" -X PUT -H 'Content-Type: application/json' \
-    -d "$json" "$SPACE_URL/.views/${name}.json" -o /dev/null -w "%{http_code}")
+  CODE=$(curl -s -k -u "$AUTH" -X PUT -H 'Content-Type: application/json+viewtype' \
+    -d "$json" "$SPACE_URL/.views/${name}.viewtype" -o /dev/null -w "%{http_code}")
   case $CODE in
-    201|204) echo "[ok] ${name}.json" ;;
-    *)       echo "[warn] ${name}.json → $CODE" ;;
+    201|204) echo "[ok] ${name}.viewtype" ;;
+    *)       echo "[warn] ${name}.viewtype → $CODE" ;;
   esac
 }
 
@@ -71,10 +71,10 @@ upload register '{
 echo ""
 echo "=== Verifying ==="
 for type in aktenplan akte vorgang register; do
-  CODE=$(curl -s -k -u "$AUTH" -o /dev/null -w "%{http_code}" "$SPACE_URL/.views/${type}.json")
-  echo "  ${type}.json → $CODE"
+  CODE=$(curl -s -k -u "$AUTH" -o /dev/null -w "%{http_code}" "$SPACE_URL/.views/${type}.viewtype")
+  echo "  ${type}.viewtype → $CODE"
 done
 
 echo ""
 echo "=== Done ==="
-echo "Schemas are at .views/*.json (hidden from listing, readable by path)"
+echo "Schemas are at .views/*.viewtype (hidden from listing, readable by path)"

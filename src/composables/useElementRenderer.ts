@@ -45,7 +45,7 @@ export function useElementRenderer(space: Ref<SpaceResource>) {
     if (schemaCache.has(typeName)) return schemaCache.get(typeName)!
     try {
       const { body } = await clientService.webdav.getFileContents(space.value, {
-        path: `.views/${typeName}.json`
+        path: `.views/${typeName}.viewtype`
       }) as any
       const schema = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body))
       schemaCache.set(typeName, schema)

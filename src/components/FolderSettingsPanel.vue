@@ -100,7 +100,7 @@ async function loadSchemaAndMetadata() {
 
     // Load schema
     const { body } = await clientService.webdav.getFileContents(sp, {
-      path: `.views/${folderType}.json`
+      path: `.views/${folderType}.viewtype`
     }) as any
     schema.value = JSON.parse(typeof body === 'string' ? body : new TextDecoder().decode(body))
 

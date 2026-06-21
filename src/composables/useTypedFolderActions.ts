@@ -103,7 +103,7 @@ export function useTypedFolderActions(
         // Check if child schema defines an app → set oy.app
         try {
           const { body: childBody } = await clientService.webdav.getFileContents(sp, {
-            path: `.views/${childType}.json`
+            path: `.views/${childType}.viewtype`
           }) as any
           const childSchema = JSON.parse(typeof childBody === 'string' ? childBody : new TextDecoder().decode(childBody))
           if (childSchema?.app) meta['oy.app'] = childSchema.app
@@ -124,7 +124,7 @@ export function useTypedFolderActions(
       if (isRoot && httpClient) {
         try {
           const { body: childBody } = await clientService.webdav.getFileContents(sp, {
-            path: `.views/${childType}.json`
+            path: `.views/${childType}.viewtype`
           }) as any
           const childSchema = JSON.parse(typeof childBody === 'string' ? childBody : new TextDecoder().decode(childBody))
           if (childSchema?.protectButtonVisible) {

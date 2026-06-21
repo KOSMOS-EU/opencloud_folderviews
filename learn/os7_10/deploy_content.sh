@@ -125,7 +125,7 @@ set_meta() {
 echo "=== Uploading schemas ==="
 mkfolder ".views"
 
-putcontent ".views/lernplan.json" '{
+putcontent ".views/lernplan.viewtype" '{
   "label": "Lernplan",
   "icon": "folder",
   "children": {
@@ -142,7 +142,7 @@ putcontent ".views/lernplan.json" '{
   }
 }'
 
-putcontent ".views/thema.json" '{
+putcontent ".views/thema.viewtype" '{
   "label": "Thema",
   "icon": "book-open",
   "app": "learn-editor",

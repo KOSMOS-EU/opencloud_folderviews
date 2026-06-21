@@ -102,10 +102,10 @@ SCHEMAS = {
 
 
 def deploy_schemas(session, base_url):
-    """Deploy .views/<typ>.json schema files to space root."""
+    """Deploy .views/<typ>.viewtype schema files to space root."""
     webdav_mkcol(session, base_url, '.views')
     for name, content in SCHEMAS.items():
-        webdav_put(session, base_url, f'.views/{name}.json', content)
+        webdav_put(session, base_url, f'.views/{name}.viewtype', content)
     print(f"[ok] .views/ schemas deployed: {', '.join(SCHEMAS.keys())}")
 
 
