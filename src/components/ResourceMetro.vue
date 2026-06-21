@@ -1,12 +1,22 @@
 <template>
   <div>
-  <!-- Learn Editor overlay -->
+  <!-- Leaf app overlays -->
   <learn-editor
-    v-if="leafFolder"
+    v-if="leafFolder && leafApp === 'learn-editor'"
     :space="space"
     :folder="leafFolder"
     @close="leafFolder = null"
   />
+  <mdm-editor
+    v-else-if="leafFolder && leafApp === 'mdm-editor'"
+    :space="space"
+    :resource="leafEntryResource"
+    @close="leafFolder = null"
+  />
+  <div v-else-if="leafFolder" class="leaf-fallback">
+    <button @click="leafFolder = null">Zurück</button>
+    <p>Keine eingebettete App für "{{ leafApp }}"</p>
+  </div>
 
   <!-- ViewTypes tiles for _type_views folders -->
   <view-types-tiles
@@ -67,12 +77,11 @@
 import { ref, computed } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import LearnEditor from './LearnEditor.vue'
+import MdmEditor from './MdmEditor.vue'
 import ViewTypesTiles from './ViewTypesTiles.vue'
-import { ResourceTiles, useResourcesStore, useRouter, useOpenWithDefaultApp, createFileRouteOptions, createLocationSpaces } from '@opencloud-eu/web-pkg'
+import { ResourceTiles, useResourcesStore } from '@opencloud-eu/web-pkg'
 
 const resourcesStore = useResourcesStore()
-const router = useRouter()
-const { openWithDefaultApp } = useOpenWithDefaultApp()
 
 const props = defineProps<{
   resources: Resource[]
@@ -90,6 +99,19 @@ defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'update:selected
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 
 const leafFolder = ref<Resource | null>(null)
+
+const leafApp = computed(() => {
+  if (!leafFolder.value) return ''
+  return getProp(leafFolder.value, 'oc:oy.app')
+})
+
+// For MDM editor: create a fake resource pointing to info.mdm inside the leaf folder
+const leafEntryResource = computed(() => {
+  if (!leafFolder.value) return null
+  const folder = leafFolder.value
+  const path = (folder.path || folder.name) + '/info.mdm'
+  return { ...folder, path, name: 'info.mdm', type: 'file', isFolder: false }
+})
 
 // Detect _type_views folder → show ViewTypesTiles instead of normal metro
 const isViewsFolder = computed(() => {
@@ -126,22 +148,8 @@ function openLeaf(resource: Resource) {
     (resource as any).path = (resourcesStore.currentFolder?.path?.replace(/\/?$/, '/') || '/') + resource.name
   }
 
-  const appName = getProp(resource, 'oc:oy.app')
-
-  // Built-in LearnEditor for learn-editor app
-  if (appName === 'learn-editor') {
-    leafFolder.value = resource
-    return
-  }
-
-  // Other apps: use openWithDefaultApp to open the entry file
-  // This triggers the registered app for the file extension (e.g. .mdm → mdm-editor)
-  const entryFile = appName === 'mdm-editor' ? 'info.mdm' : 'index.html'
-  const entryPath = (resource.path || resource.name) + '/' + entryFile
-  openWithDefaultApp({
-    space: props.space,
-    resource: { ...resource, path: entryPath, name: entryFile, type: 'file', isFolder: false } as any
-  })
+  // Open leaf folder as overlay — the template selects the component based on oy.app
+  leafFolder.value = resource
 }
 
 // Prefix name with fileReference, sort numerically
