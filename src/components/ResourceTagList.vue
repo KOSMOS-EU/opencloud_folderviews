@@ -2,7 +2,7 @@
   <div class="resource-tag-list">
     <!-- Toolbar: search + two tag selects -->
     <div class="tag-list-toolbar">
-      <div v-if="!isSpaceListing" class="tag-search">
+      <div class="tag-search">
         <oc-icon name="search" size="small" class="tag-search-icon" />
         <input
           v-model="searchText"
