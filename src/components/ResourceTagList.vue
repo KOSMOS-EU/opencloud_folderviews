@@ -1,19 +1,7 @@
 <template>
   <div class="resource-tag-list">
-    <!-- Toolbar: search + tag select -->
+    <!-- Toolbar: tag select -->
     <div class="tag-list-toolbar">
-      <div class="tag-search">
-        <oc-icon name="search" size="small" class="tag-search-icon" />
-        <input
-          v-model="searchText"
-          type="text"
-          class="tag-search-input"
-          :placeholder="$gettext('Search by name...')"
-        />
-        <oc-button v-if="searchText" appearance="raw" size="small" @click="searchText = ''">
-          <oc-icon name="close" size="small" />
-        </oc-button>
-      </div>
       <oc-select
         v-model="selectedTagOptions"
         class="tag-filter-select"
@@ -102,7 +90,7 @@
     <div v-if="searching" class="tag-searching">
       <oc-spinner size="small" /> {{ $gettext('Searching...') }}
     </div>
-    <div v-else-if="!filteredResources.length && (searchText || activeTagFilters.size)" class="tag-empty">
+    <div v-else-if="!filteredResources.length && activeTagFilters.size" class="tag-empty">
       {{ $gettext('No results for this filter.') }}
     </div>
   </div>
@@ -111,7 +99,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { ResourceTable, ResourceIcon, useClientService, useResourcesStore, useSearch } from '@opencloud-eu/web-pkg'
+import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { DavProperties } from '@opencloud-eu/web-client/webdav'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -132,9 +121,7 @@ const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'up
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
-const { buildSearchTerm, search } = useSearch()
 
-const searchText = ref('')
 const activeTagFilters = ref(new Set<string>())
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
@@ -142,7 +129,6 @@ const depthMap = ref(new Map<string, number>())
 const loadingSet = ref(new Set<string>())
 const searchResults = ref<Resource[]>([])
 const searching = ref(false)
-const hasServerSearch = computed(() => activeTagFilters.value.size > 0 || searchText.value.trim().length > 2)
 
 // Load all known tags from server (like TagsSelect sidebar)
 const knownTags = ref<string[]>([])
@@ -201,97 +187,54 @@ function toggleTagFilter(tag: string) {
   doServerSearch()
 }
 
-// Server-side search via OpenCloud Search API
-let searchTimeout: ReturnType<typeof setTimeout> | null = null
-function doServerSearch() {
-  if (searchTimeout) clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(async () => {
-    const tags = Array.from(activeTagFilters.value).join('+')
-    const term = searchText.value.trim()
-
-    if (!tags && !term) {
-      searchResults.value = []
-      return
-    }
-
-    searching.value = true
-    try {
-      const query = buildSearchTerm({
-        term: term || '',
-        tags: tags || undefined
-      })
-      const searchStr = query.filter(Boolean).join(' AND ')
-      if (!searchStr) { searchResults.value = []; searching.value = false; return }
-      console.log('[TagList] search query:', searchStr)
-      const result = await search(searchStr, 200)
-      // Show all results (cross-space search)
-      searchResults.value = (result.values || [])
-        .map((v: any) => v.data || v)
-      console.log('[TagList] results:', searchResults.value.length, 'of', result.values?.length)
-    } catch (e) {
-      console.warn('[TagList] search failed:', e)
-      searchResults.value = []
-    } finally {
-      searching.value = false
-    }
-  }, 300)
-}
-
-watch(searchText, () => {
-  if (searchText.value.trim().length > 2 || activeTagFilters.value.size > 0) {
-    doServerSearch()
-  } else {
+// Server-side search via WebDAV search API
+async function doServerSearch() {
+  const tags = Array.from(activeTagFilters.value)
+  if (!tags.length) {
     searchResults.value = []
-  }
-})
-
-// Filter + expand logic
-function matchesFilter(r: Resource): boolean {
-  const search = searchText.value.toLowerCase().trim()
-  const tags = activeTagFilters.value
-
-  // Tag filter: resource must have ALL active tags
-  if (tags.size > 0) {
-    const rTags = new Set(r.tags || [])
-    for (const t of tags) {
-      if (!rTags.has(t)) return false
-    }
+    return
   }
 
-  // Text search: name or tags
-  if (search) {
-    const nameMatch = (r.name || '').toLowerCase().includes(search)
-    const tagMatch = (r.tags || []).some(t => t.toLowerCase().includes(search))
-    if (!nameMatch && !tagMatch) return false
-  }
+  // Build KQL: tag:("dringlich" OR "überarbeiten")
+  const tagQuery = tags.map(t => `"${t}"`).join(' OR ')
+  const query = `tag:(${tagQuery})`
 
-  return true
+  searching.value = true
+  try {
+    console.log('[TagList] search:', query)
+    const { resources } = await clientService.webdav.search(query, {
+      searchLimit: 200,
+      davProperties: DavProperties.Default
+    })
+    searchResults.value = resources
+    console.log('[TagList] found:', resources.length)
+  } catch (e) {
+    console.warn('[TagList] search failed:', e)
+    searchResults.value = []
+  } finally {
+    searching.value = false
+  }
 }
+
 
 const filteredResources = computed(() => {
-  // Server search results available → show those (flat list, no tree)
+  // Server search results → flat list
   if (searchResults.value.length > 0) {
     return searchResults.value
       .filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
       .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
   }
 
-  // No server search → show local resources with tree expand
+  // No active tag filter → show local resources with tree expand
   const result: Resource[] = []
-  const hasFilter = searchText.value.trim() || activeTagFilters.value.size > 0
 
   function walk(resources: Resource[], depth: number) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
     const sorted = [...filtered].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
 
     for (const r of sorted) {
-      const dm = depthMap.value
-      if (!dm.has(r.id)) { dm.set(r.id, depth) }
-
-      if (!hasFilter || matchesFilter(r)) {
-        result.push(r)
-      }
-
+      if (!depthMap.value.has(r.id)) depthMap.value.set(r.id, depth)
+      result.push(r)
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!, depth + 1)
       }
@@ -355,29 +298,9 @@ onMounted(loadKnownTags)
   border-bottom: 1px solid var(--oc-role-outline-variant, #ddd);
 }
 
-.tag-search {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--oc-role-surface-container, #f5f5f5);
-  border-radius: 20px;
-  padding: 6px 12px;
-  flex: 1;
-  min-width: 180px;
-  max-width: 360px;
-}
-
-.tag-search-icon { opacity: 0.5; flex-shrink: 0; }
-
-.tag-search-input {
-  border: none; background: transparent; outline: none;
-  font-size: 14px; flex: 1; min-width: 0;
-  color: inherit;
-}
-
 .tag-filter-select {
-  min-width: 200px;
-  max-width: 400px;
+  min-width: 250px;
+  max-width: 500px;
   flex: 1;
 }
 
