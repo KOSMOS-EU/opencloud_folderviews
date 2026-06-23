@@ -131,7 +131,7 @@ export default defineWebApplication({
       {
         id: 'com.kosmos-eu.folderviews.space-header',
         type: 'customComponent',
-        extensionPointIds: ['app.files.space-header'],
+        extensionPointIds: ['app.files.generic-space-header'],
         content: markRaw(TypedFolderToolbar)
       },
       // Context menu action to open the sidebar panel
