@@ -2,7 +2,7 @@
   <div class="resource-tag-list">
     <!-- Toolbar: search + two tag selects -->
     <div class="tag-list-toolbar">
-      <div class="tag-search">
+      <div v-if="!isSpaceListing" class="tag-search">
         <oc-icon name="search" size="small" class="tag-search-icon" />
         <input
           v-model="searchText"
@@ -152,6 +152,11 @@ const resourcesStore = useResourcesStore()
 
 const searchText = ref('')
 const activeTagFilters = ref(new Set<string>())
+
+// Detect if we're on the space listing (Projects view) vs inside a space
+const isSpaceListing = computed(() => {
+  return props.resources.length > 0 && props.resources[0]?.type === 'space'
+})
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
 const depthMap = ref(new Map<string, number>())
