@@ -56,7 +56,7 @@
     <resource-table
       v-model:selected-ids="selectedIds"
       :resources="filteredResources"
-      :fields-displayed="tableFields"
+      :fields-displayed="hasActiveFilter ? fileFields : undefined"
       :view-mode="'resource-table-condensed'"
       :space="space"
       :sort-fields="[]"
@@ -248,13 +248,8 @@ async function doServerSearch() {
 
 const hasActiveFilter = computed(() => primaryTags.value.length > 0 || secondaryTags.value.length > 0)
 
-// When search is active, show file columns instead of space/quota columns
-const tableFields = computed(() => {
-  if (hasActiveFilter.value) {
-    return ['name', 'size', 'tags', 'mdate']
-  }
-  return undefined // default columns
-})
+// When search active: force file columns (override space listing columns from parent)
+const fileFields = ['image', 'name', 'size', 'tags', 'mdate']
 
 const filteredResources = computed(() => {
   // Tag filter active → show server results (even if empty)
