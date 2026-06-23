@@ -1,7 +1,20 @@
 <template>
   <div class="resource-tag-list">
-    <!-- Toolbar: two tag selects (primary AND secondary) -->
+    <!-- Toolbar: search + two tag selects -->
     <div class="tag-list-toolbar">
+      <div class="tag-search">
+        <oc-icon name="search" size="small" class="tag-search-icon" />
+        <input
+          v-model="searchText"
+          type="text"
+          class="tag-search-input"
+          :placeholder="$gettext('Name...')"
+          @input="onSearchInput"
+        />
+        <oc-button v-if="searchText" appearance="raw" size="small" @click="searchText = ''; onSearchInput()">
+          <oc-icon name="close" size="small" />
+        </oc-button>
+      </div>
       <oc-select
         v-model="primaryTags"
         class="tag-filter-select"
@@ -137,6 +150,7 @@ const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
 
+const searchText = ref('')
 const activeTagFilters = ref(new Set<string>())
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
@@ -197,6 +211,12 @@ function onTagChanged() {
   doServerSearch()
 }
 
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+function onSearchInput() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => doServerSearch(), 400)
+}
+
 function toggleTagFilter(tag: string) {
   // Add to primary tags from inline chip click
   const has = primaryTags.value.some(t => t.label === tag)
@@ -212,14 +232,18 @@ function toggleTagFilter(tag: string) {
 async function doServerSearch() {
   const primary = primaryTags.value.map(t => t.label)
   const secondary = secondaryTags.value.map(t => t.label)
+  const term = searchText.value.trim()
 
-  if (!primary.length && !secondary.length) {
+  if (!primary.length && !secondary.length && !term) {
     searchResults.value = []
     return
   }
 
-  // Build KQL: OR(primary) AND OR(secondary)
+  // Build KQL: name:"*term*" AND OR(primary) AND OR(secondary)
   const parts: string[] = []
+  if (term) {
+    parts.push(`name:"*${term}*"`)
+  }
   if (primary.length) {
     parts.push(`tag:(${primary.map(t => `"${t}"`).join(' OR ')})`)
   }
@@ -246,7 +270,7 @@ async function doServerSearch() {
 }
 
 
-const hasActiveFilter = computed(() => primaryTags.value.length > 0 || secondaryTags.value.length > 0)
+const hasActiveFilter = computed(() => primaryTags.value.length > 0 || secondaryTags.value.length > 0 || searchText.value.trim().length > 0)
 
 // When search active: force file columns (override space listing columns from parent)
 const fileFields = ['image', 'name', 'size', 'tags', 'mdate']
@@ -332,9 +356,28 @@ onMounted(loadKnownTags)
   border-bottom: 1px solid var(--oc-role-outline-variant, #ddd);
 }
 
+.tag-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--oc-role-surface-container, #f5f5f5);
+  border-radius: 20px;
+  padding: 6px 12px;
+  min-width: 120px;
+  max-width: 220px;
+}
+
+.tag-search-icon { opacity: 0.5; flex-shrink: 0; }
+
+.tag-search-input {
+  border: none; background: transparent; outline: none;
+  font-size: 14px; flex: 1; min-width: 0;
+  color: inherit;
+}
+
 .tag-filter-select {
-  min-width: 250px;
-  max-width: 500px;
+  min-width: 180px;
+  max-width: 300px;
   flex: 1;
 }
 
