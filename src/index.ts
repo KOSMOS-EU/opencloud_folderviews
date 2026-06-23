@@ -11,6 +11,7 @@ import RegisterView from './views/RegisterView.vue'
 import ResourceTree from './components/ResourceTree.vue'
 import ResourceMetro from './components/ResourceMetro.vue'
 import ResourceElements from './components/ResourceElements.vue'
+import ResourceTagList from './components/ResourceTagList.vue'
 import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
 import LearnEditor from './components/LearnEditor.vue'
 import translations from '../l10n/translations.json'
@@ -103,6 +104,20 @@ export default defineWebApplication({
           label: $gettext('Element view'),
           icon: { name: 'layout-4', fillType: 'line' },
           component: markRaw(ResourceElements)
+        }
+      },
+      {
+        id: 'com.kosmos-eu.folderviews.folder-view.resource-tag-list',
+        type: 'folderView',
+        extensionPointIds: [
+          'app.files.folder-views.folder',
+          'app.files.folder-views.project-spaces'
+        ],
+        folderView: {
+          name: 'resource-tag-list',
+          label: $gettext('Tag search'),
+          icon: { name: 'price-tag-3', fillType: 'line' },
+          component: markRaw(ResourceTagList)
         }
       },
       ...aktzDefs.extensions,
