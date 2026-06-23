@@ -56,7 +56,6 @@
       :resources="filteredResources"
       :view-mode="'resource-table-condensed'"
       :space="space"
-      :header-position="headerPosition"
       :sort-fields="[]"
       @file-click="handleFileClick"
       @sort="() => {}"
