@@ -79,7 +79,10 @@
       </template>
     </resource-table>
 
-    <div v-if="!filteredResources.length && (searchText || activeTagFilters.size)" class="tag-empty">
+    <div v-if="searching" class="tag-searching">
+      <oc-spinner size="small" /> {{ $gettext('Searching...') }}
+    </div>
+    <div v-else-if="!filteredResources.length && (searchText || activeTagFilters.size)" class="tag-empty">
       {{ $gettext('No results for this filter.') }}
     </div>
   </div>
@@ -88,7 +91,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
-import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
+import { ResourceTable, ResourceIcon, useClientService, useResourcesStore, useSearch } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -109,6 +112,7 @@ const emit = defineEmits(['fileClick', 'fileDropped', 'itemVisible', 'sort', 'up
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const resourcesStore = useResourcesStore()
+const { buildSearchTerm, search } = useSearch()
 
 const searchText = ref('')
 const activeTagFilters = ref(new Set<string>())
@@ -116,6 +120,9 @@ const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
 const depthMap = ref(new Map<string, number>())
 const loadingSet = ref(new Set<string>())
+const searchResults = ref<Resource[]>([])
+const searching = ref(false)
+const hasServerSearch = computed(() => activeTagFilters.value.size > 0 || searchText.value.trim().length > 2)
 
 // Load all known tags from server (like TagsSelect sidebar)
 const knownTags = ref<string[]>([])
@@ -159,7 +166,50 @@ function toggleTagFilter(tag: string) {
   const s = new Set(activeTagFilters.value)
   if (s.has(tag)) s.delete(tag); else s.add(tag)
   activeTagFilters.value = s
+  doServerSearch()
 }
+
+// Server-side search via OpenCloud Search API
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+function doServerSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(async () => {
+    const tags = Array.from(activeTagFilters.value).join('+')
+    const term = searchText.value.trim()
+
+    if (!tags && !term) {
+      searchResults.value = []
+      return
+    }
+
+    searching.value = true
+    try {
+      const query = buildSearchTerm({
+        term: term || '*',
+        tags: tags || undefined
+      })
+      const result = await search(query.join(' AND '), 200)
+      // Filter to current space
+      const spaceId = props.space?.id
+      searchResults.value = (result.values || [])
+        .map((v: any) => v.data || v)
+        .filter((r: Resource) => !spaceId || r.storageId === spaceId)
+    } catch (e) {
+      console.warn('[TagList] search failed:', e)
+      searchResults.value = []
+    } finally {
+      searching.value = false
+    }
+  }, 300)
+}
+
+watch(searchText, () => {
+  if (searchText.value.trim().length > 2 || activeTagFilters.value.size > 0) {
+    doServerSearch()
+  } else {
+    searchResults.value = []
+  }
+})
 
 // Filter + expand logic
 function matchesFilter(r: Resource): boolean {
@@ -185,6 +235,14 @@ function matchesFilter(r: Resource): boolean {
 }
 
 const filteredResources = computed(() => {
+  // Server search results available → show those (flat list, no tree)
+  if (searchResults.value.length > 0) {
+    return searchResults.value
+      .filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
+  }
+
+  // No server search → show local resources with tree expand
   const result: Resource[] = []
   const hasFilter = searchText.value.trim() || activeTagFilters.value.size > 0
 
@@ -200,7 +258,6 @@ const filteredResources = computed(() => {
         result.push(r)
       }
 
-      // Show children if expanded
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!, depth + 1)
       }
@@ -239,15 +296,6 @@ async function toggleExpand(resource: Resource) {
 
 function handleFileClick(options: any) { emit('fileClick', options) }
 
-// Auto-expand folders that match tag filter
-watch([activeTagFilters, searchText], async () => {
-  if (!activeTagFilters.value.size && !searchText.value.trim()) return
-  for (const r of props.resources) {
-    if (r.type === 'folder' && matchesFilter(r) && !expanded.value.has(r.id)) {
-      await toggleExpand(r)
-    }
-  }
-})
 
 // Reset on folder change
 watch(() => props.resources, () => {
@@ -361,6 +409,12 @@ onMounted(loadKnownTags)
 }
 .tree-btn:hover { background: rgba(0,0,0,0.08); opacity: 1; }
 .tree-spacer { display: inline-block; width: 24px; margin-right: 4px; flex-shrink: 0; }
+
+.tag-searching {
+  display: flex; align-items: center; gap: 8px;
+  padding: 40px; justify-content: center;
+  color: var(--oc-role-on-surface-variant, #666);
+}
 
 .tag-empty {
   padding: 40px;
