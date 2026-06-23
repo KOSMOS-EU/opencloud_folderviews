@@ -24,7 +24,7 @@
         >
           <oc-icon name="price-tag-3" size="xsmall" />
           {{ tag.name }}
-          <span class="tag-count">{{ tag.count }}</span>
+          <span v-if="tag.count" class="tag-count">{{ tag.count }}</span>
         </span>
       </div>
     </div>
@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
@@ -117,13 +117,24 @@ const childrenMap = ref(new Map<string, Resource[]>())
 const depthMap = ref(new Map<string, number>())
 const loadingSet = ref(new Set<string>())
 
-// Collect all tags from visible resources with counts
-const allTags = computed(() => {
-  const tagCounts = new Map<string, number>()
+// Load all known tags from server (like TagsSelect sidebar)
+const knownTags = ref<string[]>([])
+async function loadKnownTags() {
+  try {
+    const tags = await clientService.graphAuthenticated.tags.listTags({})
+    knownTags.value = tags.sort()
+  } catch (e) {
+    console.warn('[TagList] failed to load tags:', e)
+  }
+}
+
+// Count tags in currently visible resources (for badge counts)
+const tagCounts = computed(() => {
+  const counts = new Map<string, number>()
   function countTags(resources: Resource[]) {
     for (const r of resources) {
       for (const tag of r.tags || []) {
-        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1)
+        counts.set(tag, (counts.get(tag) || 0) + 1)
       }
       if (expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         countTags(childrenMap.value.get(r.id)!)
@@ -131,8 +142,16 @@ const allTags = computed(() => {
     }
   }
   countTags(props.resources)
-  return Array.from(tagCounts.entries())
-    .map(([name, count]) => ({ name, count }))
+  return counts
+})
+
+// All tags: known from server, with local counts where available
+const allTags = computed(() => {
+  const tags = new Set([...knownTags.value])
+  // Also add tags from current resources that server might not know yet
+  for (const [tag] of tagCounts.value) { tags.add(tag) }
+  return Array.from(tags)
+    .map(name => ({ name, count: tagCounts.value.get(name) || 0 }))
     .sort((a, b) => a.name.localeCompare(b.name))
 })
 
@@ -236,6 +255,8 @@ watch(() => props.resources, () => {
   childrenMap.value = new Map()
   depthMap.value = new Map()
 })
+
+onMounted(loadKnownTags)
 </script>
 
 <style scoped>
