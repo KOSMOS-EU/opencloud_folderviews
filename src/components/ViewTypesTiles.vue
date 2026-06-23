@@ -90,9 +90,13 @@ watch(() => props.resources, loadViewTypes)
 <style scoped>
 .viewtypes-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 16px;
   padding: 16px;
+}
+
+@media (max-width: 639px) {
+  .viewtypes-tiles { gap: 10px; padding: 10px; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
 
 .viewtype-tile {

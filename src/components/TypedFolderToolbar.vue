@@ -1,14 +1,14 @@
 <template>
-  <div v-if="isTyped" class="typed-folder-header">
+  <div v-if="isTyped" class="typed-folder-header" :class="{ 'typed-folder-header-mobile': isMobile }">
     <!-- Typed header: icon + name + label + count + action buttons -->
     <div class="typed-header-row">
       <oc-icon
         v-if="schema"
         :name="schema.icon || 'folder'"
-        size="xxlarge"
+        :size="isMobile ? 'large' : 'xxlarge'"
         variation="passive"
       />
-      <oc-icon v-else name="error-warning" size="xxlarge" variation="danger" />
+      <oc-icon v-else name="error-warning" :size="isMobile ? 'large' : 'xxlarge'" variation="danger" />
       <div class="typed-header-text">
         <h2 class="typed-header-title">
           <span v-if="currentFolderFileRef" class="typed-header-ref">{{ currentFolderFileRef }}</span>{{ currentFolder?.name || '' }}
@@ -29,7 +29,7 @@
       @click="openCreateDialog(child.type, child.label)"
     >
       <oc-icon name="add" size="small" />
-      <span>{{ child.label }}</span>
+      <span v-if="!isMobile">{{ child.label }}</span>
     </oc-button>
     <oc-button
       v-if="schema?.protectButtonVisible && canManageImmutable && immutableState === 'protected'"
@@ -38,7 +38,7 @@
       @click="doUnprotect"
     >
       <oc-icon name="lock-unlock" size="small" />
-      <span>Schutz aufheben</span>
+      <span v-if="!isMobile">Schutz aufheben</span>
     </oc-button>
     <oc-button
       v-if="schema?.protectButtonVisible && canManageImmutable && immutableState !== 'protected'"
@@ -47,7 +47,7 @@
       @click="doProtect"
     >
       <oc-icon name="lock" size="small" />
-      <span>Schützen</span>
+      <span v-if="!isMobile">Schützen</span>
     </oc-button>
 
     <create-dialog
@@ -78,6 +78,9 @@ const props = defineProps<{
 const resourcesStore = useResourcesStore()
 const spacesStore = useSpacesStore()
 const clientService = useClientService()
+const windowWidth = ref(window.innerWidth)
+window.addEventListener('resize', () => { windowWidth.value = window.innerWidth })
+const isMobile = computed(() => windowWidth.value < 640)
 const currentFolder = computed(() => resourcesStore.currentFolder)
 
 // Space: use prop if given, otherwise derive from currentFolder
@@ -210,20 +213,35 @@ function onDialogConfirm(data: { name: string; color?: string; note?: string }) 
   padding: 16px;
 }
 
+.typed-folder-header-mobile {
+  padding: 8px 12px;
+}
+
 .typed-header-row {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+.typed-folder-header-mobile .typed-header-row {
+  gap: 10px;
+}
+
 .typed-header-text {
   flex: 1;
+  min-width: 0;
 }
 
 .typed-header-title {
   margin: 0;
   font-size: 20px;
   word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.typed-folder-header-mobile .typed-header-title {
+  font-size: 16px;
 }
 
 .typed-header-ref {
@@ -237,9 +255,14 @@ function onDialogConfirm(data: { name: string; color?: string; note?: string }) 
   font-size: 14px;
 }
 
+.typed-folder-header-mobile .typed-header-meta {
+  font-size: 12px;
+}
+
 .typed-toolbar {
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  flex-wrap: wrap;
 }
 </style>

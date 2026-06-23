@@ -250,8 +250,15 @@ const sortedResources = computed(() => {
   border-radius: var(--oc-radius-md, 8px);
   overflow: hidden;
   flex: 0 0 auto;
-  width: var(--oc-size-tiles-default, 250px);
+  width: var(--oc-size-tiles-actual, var(--oc-size-tiles-default, 250px));
   aspect-ratio: 16/11;
+}
+@media (max-width: 639px) {
+  .metro-leaf-grid { gap: 10px; padding: 8px 12px; }
+  .metro-leaf-tile { width: calc(50% - 5px); }
+}
+@media (max-width: 380px) {
+  .metro-leaf-tile { width: 100%; }
 }
 .metro-leaf-tile:hover { transform: scale(1.02); outline-color: var(--oc-role-primary, #1976d2); }
 .metro-leaf-icon { margin-bottom: 8px; opacity: 0.8; }
