@@ -56,6 +56,7 @@
     <resource-table
       v-model:selected-ids="selectedIds"
       :resources="filteredResources"
+      :fields-displayed="tableFields"
       :view-mode="'resource-table-condensed'"
       :space="space"
       :sort-fields="[]"
@@ -246,6 +247,14 @@ async function doServerSearch() {
 
 
 const hasActiveFilter = computed(() => primaryTags.value.length > 0 || secondaryTags.value.length > 0)
+
+// When search is active, show file columns instead of space/quota columns
+const tableFields = computed(() => {
+  if (hasActiveFilter.value) {
+    return ['name', 'size', 'tags', 'mdate']
+  }
+  return undefined // default columns
+})
 
 const filteredResources = computed(() => {
   // Tag filter active → show server results (even if empty)
