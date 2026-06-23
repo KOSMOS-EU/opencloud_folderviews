@@ -1,40 +1,54 @@
 <template>
   <div class="resource-tag-list">
-    <!-- Toolbar: tag select -->
+    <!-- Toolbar: two tag selects (primary AND secondary) -->
     <div class="tag-list-toolbar">
       <oc-select
-        v-model="selectedTagOptions"
+        v-model="primaryTags"
         class="tag-filter-select"
-        :label="$gettext('Tags')"
+        :label="$gettext('Primärtag')"
         :multiple="true"
         :options="availableTagOptions"
-        @update:model-value="onTagSelectionChanged"
+        @update:model-value="onTagChanged"
       >
         <template #selected-option-container="{ option, deselect }">
           <oc-tag class="ml-1" :rounded="true" size="small">
-            <span class="flex items-center">
-              <oc-icon name="price-tag-3" class="mr-1" size="small" />
-              <span class="truncate">{{ option.label }}</span>
-            </span>
-            <oc-button
-              appearance="raw"
-              class="vs__deselect mx-0"
-              @mousedown.stop.prevent
-              @click="deselect(option)"
-            >
+            <oc-icon name="price-tag-3" class="mr-1" size="small" />
+            <span class="truncate">{{ option.label }}</span>
+            <oc-button appearance="raw" class="vs__deselect mx-0" @mousedown.stop.prevent @click="deselect(option)">
               <oc-icon name="close" size="small" />
             </oc-button>
           </oc-tag>
         </template>
         <template #option="{ label }">
           <oc-tag class="ml-1" :rounded="true" size="small">
-            <oc-icon name="price-tag-3" size="small" />
-            <span class="truncate">{{ label }}</span>
+            <oc-icon name="price-tag-3" size="small" /><span class="truncate">{{ label }}</span>
           </oc-tag>
         </template>
-        <template #no-options>
-          <span class="text-sm" v-text="$gettext('No tags available')" />
+        <template #no-options><span class="text-sm" v-text="$gettext('No tags available')" /></template>
+      </oc-select>
+      <oc-select
+        v-model="secondaryTags"
+        class="tag-filter-select"
+        :label="$gettext('Sekundärtag')"
+        :multiple="true"
+        :options="availableTagOptions"
+        @update:model-value="onTagChanged"
+      >
+        <template #selected-option-container="{ option, deselect }">
+          <oc-tag class="ml-1" :rounded="true" size="small">
+            <oc-icon name="price-tag-3" class="mr-1" size="small" />
+            <span class="truncate">{{ option.label }}</span>
+            <oc-button appearance="raw" class="vs__deselect mx-0" @mousedown.stop.prevent @click="deselect(option)">
+              <oc-icon name="close" size="small" />
+            </oc-button>
+          </oc-tag>
         </template>
+        <template #option="{ label }">
+          <oc-tag class="ml-1" :rounded="true" size="small">
+            <oc-icon name="price-tag-3" size="small" /><span class="truncate">{{ label }}</span>
+          </oc-tag>
+        </template>
+        <template #no-options><span class="text-sm" v-text="$gettext('No tags available')" /></template>
       </oc-select>
     </div>
 
@@ -168,36 +182,50 @@ const allTags = computed(() => {
     .sort((a, b) => a.name.localeCompare(b.name))
 })
 
-const selectedTagOptions = ref<{ label: string }[]>([])
+const primaryTags = ref<{ label: string }[]>([])
+const secondaryTags = ref<{ label: string }[]>([])
 const availableTagOptions = computed(() =>
   allTags.value.map(t => ({ label: t.name }))
 )
 
-function onTagSelectionChanged(selection: { label: string }[]) {
-  selectedTagOptions.value = selection
-  activeTagFilters.value = new Set(selection.map(s => s.label))
+function onTagChanged() {
+  activeTagFilters.value = new Set([
+    ...primaryTags.value.map(t => t.label),
+    ...secondaryTags.value.map(t => t.label)
+  ])
   doServerSearch()
 }
 
 function toggleTagFilter(tag: string) {
-  const s = new Set(activeTagFilters.value)
-  if (s.has(tag)) s.delete(tag); else s.add(tag)
-  activeTagFilters.value = s
-  selectedTagOptions.value = Array.from(s).map(t => ({ label: t }))
-  doServerSearch()
+  // Add to primary tags from inline chip click
+  const has = primaryTags.value.some(t => t.label === tag)
+  if (has) {
+    primaryTags.value = primaryTags.value.filter(t => t.label !== tag)
+  } else {
+    primaryTags.value = [...primaryTags.value, { label: tag }]
+  }
+  onTagChanged()
 }
 
 // Server-side search via WebDAV search API
 async function doServerSearch() {
-  const tags = Array.from(activeTagFilters.value)
-  if (!tags.length) {
+  const primary = primaryTags.value.map(t => t.label)
+  const secondary = secondaryTags.value.map(t => t.label)
+
+  if (!primary.length && !secondary.length) {
     searchResults.value = []
     return
   }
 
-  // Build KQL: tag:("dringlich" OR "überarbeiten")
-  const tagQuery = tags.map(t => `"${t}"`).join(' OR ')
-  const query = `tag:(${tagQuery})`
+  // Build KQL: OR(primary) AND OR(secondary)
+  const parts: string[] = []
+  if (primary.length) {
+    parts.push(`tag:(${primary.map(t => `"${t}"`).join(' OR ')})`)
+  }
+  if (secondary.length) {
+    parts.push(`tag:(${secondary.map(t => `"${t}"`).join(' OR ')})`)
+  }
+  const query = parts.join(' AND ')
 
   searching.value = true
   try {
