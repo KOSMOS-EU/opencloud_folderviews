@@ -245,9 +245,11 @@ async function doServerSearch() {
 }
 
 
+const hasActiveFilter = computed(() => primaryTags.value.length > 0 || secondaryTags.value.length > 0)
+
 const filteredResources = computed(() => {
-  // Server search results → flat list
-  if (searchResults.value.length > 0) {
+  // Tag filter active → show server results (even if empty)
+  if (hasActiveFilter.value) {
     return searchResults.value
       .filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
       .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
