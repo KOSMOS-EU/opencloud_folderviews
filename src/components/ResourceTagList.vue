@@ -1,6 +1,6 @@
 <template>
   <div class="resource-tag-list">
-    <!-- Toolbar: search + tag filter -->
+    <!-- Toolbar: search + tag select -->
     <div class="tag-list-toolbar">
       <div class="tag-search">
         <oc-icon name="search" size="small" class="tag-search-icon" />
@@ -8,25 +8,46 @@
           v-model="searchText"
           type="text"
           class="tag-search-input"
-          :placeholder="$gettext('Search by name or tag...')"
+          :placeholder="$gettext('Search by name...')"
         />
         <oc-button v-if="searchText" appearance="raw" size="small" @click="searchText = ''">
           <oc-icon name="close" size="small" />
         </oc-button>
       </div>
-      <div class="tag-chips">
-        <span
-          v-for="tag in allTags"
-          :key="tag.name"
-          class="tag-chip"
-          :class="{ active: activeTagFilters.has(tag.name) }"
-          @click="toggleTagFilter(tag.name)"
-        >
-          <oc-icon name="price-tag-3" size="xsmall" />
-          {{ tag.name }}
-          <span v-if="tag.count" class="tag-count">{{ tag.count }}</span>
-        </span>
-      </div>
+      <oc-select
+        v-model="selectedTagOptions"
+        class="tag-filter-select"
+        :label="$gettext('Tags')"
+        :multiple="true"
+        :options="availableTagOptions"
+        @update:model-value="onTagSelectionChanged"
+      >
+        <template #selected-option-container="{ option, deselect }">
+          <oc-tag class="ml-1" :rounded="true" size="small">
+            <span class="flex items-center">
+              <oc-icon name="price-tag-3" class="mr-1" size="small" />
+              <span class="truncate">{{ option.label }}</span>
+            </span>
+            <oc-button
+              appearance="raw"
+              class="vs__deselect mx-0"
+              @mousedown.stop.prevent
+              @click="deselect(option)"
+            >
+              <oc-icon name="close" size="small" />
+            </oc-button>
+          </oc-tag>
+        </template>
+        <template #option="{ label }">
+          <oc-tag class="ml-1" :rounded="true" size="small">
+            <oc-icon name="price-tag-3" size="small" />
+            <span class="truncate">{{ label }}</span>
+          </oc-tag>
+        </template>
+        <template #no-options>
+          <span class="text-sm" v-text="$gettext('No tags available')" />
+        </template>
+      </oc-select>
     </div>
 
     <!-- Results table -->
@@ -162,10 +183,22 @@ const allTags = computed(() => {
     .sort((a, b) => a.name.localeCompare(b.name))
 })
 
+const selectedTagOptions = ref<{ label: string }[]>([])
+const availableTagOptions = computed(() =>
+  allTags.value.map(t => ({ label: t.name }))
+)
+
+function onTagSelectionChanged(selection: { label: string }[]) {
+  selectedTagOptions.value = selection
+  activeTagFilters.value = new Set(selection.map(s => s.label))
+  doServerSearch()
+}
+
 function toggleTagFilter(tag: string) {
   const s = new Set(activeTagFilters.value)
   if (s.has(tag)) s.delete(tag); else s.add(tag)
   activeTagFilters.value = s
+  selectedTagOptions.value = Array.from(s).map(t => ({ label: t }))
   doServerSearch()
 }
 
@@ -341,38 +374,10 @@ onMounted(loadKnownTags)
   color: inherit;
 }
 
-.tag-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  background: var(--oc-role-surface-container, #f0f0f0);
-  color: var(--oc-role-on-surface-variant, #555);
-  transition: all 0.15s;
-  user-select: none;
-}
-
-.tag-chip:hover { background: var(--oc-role-surface-container-high, #e0e0e0); }
-
-.tag-chip.active {
-  background: var(--oc-role-primary, #1976d2);
-  color: #fff;
-}
-
-.tag-count {
-  font-size: 10px;
-  opacity: 0.7;
-  margin-left: 2px;
+.tag-filter-select {
+  min-width: 200px;
+  max-width: 400px;
+  flex: 1;
 }
 
 .tag-cell {
