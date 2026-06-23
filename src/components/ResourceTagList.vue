@@ -217,15 +217,17 @@ function doServerSearch() {
     searching.value = true
     try {
       const query = buildSearchTerm({
-        term: term || '*',
+        term: term || '',
         tags: tags || undefined
       })
-      const result = await search(query.join(' AND '), 200)
-      // Filter to current space
-      const spaceId = props.space?.id
+      const searchStr = query.filter(Boolean).join(' AND ')
+      if (!searchStr) { searchResults.value = []; searching.value = false; return }
+      console.log('[TagList] search query:', searchStr)
+      const result = await search(searchStr, 200)
+      // Show all results (cross-space search)
       searchResults.value = (result.values || [])
         .map((v: any) => v.data || v)
-        .filter((r: Resource) => !spaceId || r.storageId === spaceId)
+      console.log('[TagList] results:', searchResults.value.length, 'of', result.values?.length)
     } catch (e) {
       console.warn('[TagList] search failed:', e)
       searchResults.value = []
