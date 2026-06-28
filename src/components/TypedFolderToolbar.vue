@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isTyped" class="typed-folder-header" :class="{ 'typed-folder-header-mobile': isMobile }">
+  <div v-if="isTyped" class="typed-folder-header typed-folder-active" :class="{ 'typed-folder-header-mobile': isMobile }">
     <!-- Typed header: icon + name + label + count + action buttons -->
     <div class="typed-header-row">
       <oc-icon

@@ -8,48 +8,17 @@ REMOTE_BASE="${DATAPATH:?Set DATAPATH in DIST}"
 
 echo "=== Publish: $APP ==="
 
-# Build
+# Build (production mode: minified + content-hashed)
 echo "[build] $BUILD_CMD"
 (cd "$SCRIPT_DIR" && eval "$BUILD_CMD")
 
-# Verify
-if [ ! -f "$SCRIPT_DIR/$DEPLOY_DIR/remoteEntry.mjs" ]; then
-    echo "ERROR: $DEPLOY_DIR/remoteEntry.mjs not found"
+# Verify manifest exists and has entrypoint
+if [ ! -f "$SCRIPT_DIR/$DEPLOY_DIR/manifest.json" ]; then
+    echo "ERROR: $DEPLOY_DIR/manifest.json not found"
     exit 1
 fi
-
-# Hash ALL unhashed .mjs files in js/ for cache-busting
-# Files already containing a hash (pattern: -XXXXXXXX.mjs) are skipped
-echo "[hash] Hashing unhashed chunks..."
-for f in "$SCRIPT_DIR/$DEPLOY_DIR/js/"*.mjs; do
-    [ -f "$f" ] || continue
-    base=$(basename "$f")
-    # Skip if already has hash pattern (name-XXXXXXXX.mjs or name-XXXX.mjs)
-    if echo "$base" | grep -qE '\-[A-Za-z0-9_]{6,}\.' ; then
-        continue
-    fi
-    HASH=$(md5sum "$f" | cut -c1-8)
-    name="${base%.mjs}"
-    hashed="${name}-${HASH}.mjs"
-    mv "$f" "$SCRIPT_DIR/$DEPLOY_DIR/js/$hashed"
-    # Update all references in other files
-    find "$SCRIPT_DIR/$DEPLOY_DIR" -name "*.mjs" -exec sed -i "s|$base|$hashed|g" {} +
-    echo "  $base → $hashed"
-done
-
-# Hash the entrypoint
-HASH=$(md5sum "$SCRIPT_DIR/$DEPLOY_DIR/remoteEntry.mjs" | cut -c1-8)
-HASHED_NAME="remoteEntry-${HASH}.mjs"
-mv "$SCRIPT_DIR/$DEPLOY_DIR/remoteEntry.mjs" "$SCRIPT_DIR/$DEPLOY_DIR/$HASHED_NAME"
-
-# Update manifest to point to hashed entrypoint
-cat > "$SCRIPT_DIR/$DEPLOY_DIR/manifest.json" <<MANIFEST
-{
-  "entrypoint": "$HASHED_NAME",
-  "config": {}
-}
-MANIFEST
-echo "[hash] remoteEntry.mjs → $HASHED_NAME"
+ENTRYPOINT=$(python3 -c "import json; print(json.load(open('$SCRIPT_DIR/$DEPLOY_DIR/manifest.json'))['entrypoint'])")
+echo "[verify] entrypoint: $ENTRYPOINT"
 
 # Deploy
 echo "[sync] -> $HOST:$REMOTE_BASE/web-extensions/$APP/"

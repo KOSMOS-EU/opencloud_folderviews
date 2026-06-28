@@ -1,12 +1,10 @@
 <template>
   <div class="resource-tree">
-    <typed-folder-toolbar v-if="!isSpaceRoot" :space="space" />
     <resource-table
       v-model:selected-ids="selectedIds"
       :resources="visibleResources"
       :view-mode="'resource-table-condensed'"
       :space="space"
-      :header-position="headerPosition"
       :sort-fields="[]"
       @file-click="handleFileClick"
       @sort="() => {}"
@@ -47,7 +45,6 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
-import TypedFolderToolbar from './TypedFolderToolbar.vue'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 import { displayName as buildDisplayName, compareByDisplayName, getFileReference } from '../composables/useFileReference'
 

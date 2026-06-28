@@ -142,7 +142,8 @@ export default defineWebApplication({
           }
         }
       },
-      // Space header: replace default SpaceHeader when folder has a _type_ marker
+      // Space header: TypedFolderToolbar renders its own header when folder is typed,
+      // otherwise passes through to SpaceHeader for normal folders
       {
         id: 'com.kosmos-eu.folderviews.space-header',
         type: 'customComponent',
