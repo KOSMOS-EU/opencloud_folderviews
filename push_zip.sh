@@ -36,9 +36,9 @@ if [ ! -f "$SCRIPT_DIR/$DEPLOY_DIR/manifest.json" ]; then
 fi
 
 # Create ZIP
-TMPZIP="$(mktemp -t "${PACKAGE}-XXXXXX.zip")"
-trap 'rm -f "$TMPZIP"' EXIT
-(cd "$SCRIPT_DIR/$DEPLOY_DIR" && zip -qr "$TMPZIP" .)
+TMPZIP="/tmp/${PACKAGE}-${TAG}.zip"
+rm -f "$TMPZIP"
+(cd "$SCRIPT_DIR/$DEPLOY_DIR" && zip -r "$TMPZIP" .)
 ZIP_SIZE="$(du -h "$TMPZIP" | cut -f1)"
 echo "[zip] $ZIP_SIZE"
 

@@ -175,8 +175,7 @@ watch(() => props.resources, () => {
 
 <style scoped>
 .resource-tree {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
 }
 .tree-btn {
   background: none; border: 1px solid rgba(0,0,0,0.15); cursor: pointer;
