@@ -6,6 +6,11 @@ import { TypedFolderSchema } from './types'
 // Cache schemas per space to avoid re-fetching on every folder navigation
 const schemaCache = new Map<string, Map<string, TypedFolderSchema | null>>()
 
+/** Look up a schema from cache (returns null if not yet loaded) */
+export function getCachedSchema(spaceId: string, type: string): TypedFolderSchema | null {
+  return schemaCache.get(spaceId)?.get(type) ?? null
+}
+
 export function useTypedFolderSchema(
   space: Ref<SpaceResource>,
   folderType: Ref<string | undefined>
