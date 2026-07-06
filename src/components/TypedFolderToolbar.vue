@@ -68,7 +68,7 @@ import { computed, ref, unref } from 'vue'
 import { type SpaceResource } from '@opencloud-eu/web-client'
 import { useResourcesStore, useClientService, useSpacesStore } from '@opencloud-eu/web-pkg'
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
-import { useTypedFolderSchema, getCachedSchema } from '../composables/useTypedFolderSchema'
+import { useTypedFolderSchema } from '../composables/useTypedFolderSchema'
 import CreateDialog from './CreateDialog.vue'
 
 const props = defineProps<{
@@ -168,49 +168,11 @@ const isSpaceRoot = computed(() => {
   return !p || p === '/'
 })
 
-// Determine which child types are leaf (from their schemas)
-const leafChildTypes = computed(() => {
-  const sp = unref(resolvedSpace)
-  if (!sp) return new Set<string>()
-  const children = unref(allowedChildren)
-  const leafTypes = new Set<string>()
-  for (const childType of children) {
-    const childSchema = getCachedSchema(sp.id, childType)
-    if (childSchema?.isLeaf) {
-      leafTypes.add(childType)
-    }
-  }
-  return leafTypes
-})
-
-// Check if any leaf-type child already exists in this folder
-const hasLeafChild = computed(() => {
-  const resources = resourcesStore.resources || []
-  const leafTypes = unref(leafChildTypes)
-  if (leafTypes.size === 0) return false
-  return resources.some(r => {
-    if (r.type !== 'folder' || !r.name) return false
-    // Check _type_ files in resources list (they're listed as files)
-    return false
-  }) || resources.some(r => {
-    // Folders with oy.app xattr are leaf folders
-    return r.type === 'folder' && (r as any).extraProps?.['oc:oy.app']
-  })
-})
-
 const childButtons = computed(() => {
   const children = unref(allowedChildren)
-  let filtered = unref(isSpaceRoot)
+  const filtered = unref(isSpaceRoot)
     ? children.filter(t => t === unref(currentType))
     : children
-
-  // If leafStrict and a leaf child exists, hide non-leaf child types
-  const s = unref(schema)
-  if (s?.leafStrict && unref(hasLeafChild)) {
-    const leafTypes = unref(leafChildTypes)
-    filtered = filtered.filter(t => leafTypes.has(t))
-  }
-
   return filtered.map(childType => ({
     type: childType,
     label: typeLabels[childType] || `Neu: ${childType}`

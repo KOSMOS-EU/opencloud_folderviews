@@ -11,7 +11,6 @@ export interface TypedFolderSchema {
   isContainer?: boolean               // renders children recursively
   protectButtonVisible?: boolean      // show protect/unprotect button for managers
   isLeaf?: boolean                    // leaf folder: click opens app instead of navigating
-  leafStrict?: boolean                // if true: once a leaf child exists, non-leaf children are hidden
   app?: string                        // registered web-app to open for leaf folders
   appEntry?: string                   // entry file passed to the app (e.g. "seite.md")
   fileReferencePattern?: string       // pattern for auto-numbering (e.g. "{parentRef}.{seq:02}")
