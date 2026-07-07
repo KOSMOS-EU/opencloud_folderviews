@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useSpacesStore, useRouter } from '@opencloud-eu/web-pkg'
 
 interface MenuItem {
@@ -70,8 +70,13 @@ const appConfig = ref<AppConfig | null>(null)
 const updateConfig = () => {
   const apps = (window as any).__spaceApps || []
   const space = spacesStore.currentSpace
+  console.log('[AppMode] updateConfig', 'space:', space?.id, space?.name, 'apps:', apps.length, 'isAppMode:', isAppMode.value, 'query:', router.currentRoute.value.query)
   if (!space) return
+  for (const a of apps) {
+    console.log('[AppMode] compare:', space.id, 'vs', a.spaceId, 'includes:', space.id?.includes(a.spaceId?.split('!')[0]))
+  }
   const app = apps.find((a: any) => space.id?.includes(a.spaceId?.split('!')[0]))
+  console.log('[AppMode] matched app:', app?.name)
   if (app) {
     appConfig.value = app
   }
@@ -91,6 +96,7 @@ function navigateToPath(path: string) {
   if (!space) return
   const alias = `${space.driveType}/${space.name?.toLowerCase().replace(/\s+/g, '-')}`
   const fullPath = `/files/spaces/${alias}${path === '/' ? '' : path}`
+  console.log('[AppMode] navigate', 'path:', path, 'alias:', alias, 'fullPath:', fullPath, 'driveType:', space.driveType, 'name:', space.name)
   router.push({ path: fullPath, query: { appMode: 'true' } })
 }
 
@@ -122,27 +128,7 @@ function exitAppMode() {
   router.push({ path: router.currentRoute.value.path, query: rest })
 }
 
-// Inject CSS class on body for app mode styling
-onMounted(() => {
-  if (isAppMode.value) document.body.classList.add('app-mode')
-})
-
-onUnmounted(() => {
-  document.body.classList.remove('app-mode')
-})
-
-watch(isAppMode, (val) => {
-  if (val) document.body.classList.add('app-mode')
-  else document.body.classList.remove('app-mode')
-})
 </script>
-
-<style>
-/* Global app mode overrides */
-body.app-mode .oc-sidebar-nav { display: none !important; }
-body.app-mode #oc-topbar .topbar-center { display: none !important; }
-body.app-mode .app-content { border-radius: 0 !important; }
-</style>
 
 <style scoped>
 .app-mode-bar {
