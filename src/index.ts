@@ -255,6 +255,8 @@ export default defineWebApplication({
     interface SpaceApp {
       spaceId: string
       spaceName: string
+      driveAlias?: string
+      driveType?: string
       name: string
       icon?: string
       color?: string
@@ -289,7 +291,13 @@ export default defineWebApplication({
         label: () => app.name,
         icon: app.icon || 'grid',
         color: app.color,
-        path: `files/spaces/project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}?appMode=true`
+        handler: () => {
+          const alias = app.driveAlias || `project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}`
+          router.push({
+            path: `/files/spaces/${alias}`,
+            query: { appMode: 'true' }
+          })
+        }
       }))
     )
 
