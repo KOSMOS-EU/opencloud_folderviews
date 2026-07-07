@@ -144,10 +144,11 @@ export default defineWebApplication({
         }
       },
       // App mode bar: renders when ?appMode=true, hides sidebar/search
+      // App mode: primary nav in topbar center (replaces search bar)
       {
-        id: 'com.kosmos-eu.folderviews.app-mode-bar',
+        id: 'com.kosmos-eu.folderviews.app-mode-primary-nav',
         type: 'customComponent',
-        extensionPointIds: ['app.files.generic-space-header'],
+        extensionPointIds: ['app.runtime.appMode.primaryNav'],
         content: markRaw(AppModeBar)
       },
       // Space header: TypedFolderToolbar renders its own header when folder is typed,
