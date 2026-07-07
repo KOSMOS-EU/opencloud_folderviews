@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isTyped" class="typed-folder-header typed-folder-active" :class="{ 'typed-folder-header-mobile': isMobile }">
+  <div v-if="isTyped && !appModeStore.isEnabled" class="typed-folder-header typed-folder-active" :class="{ 'typed-folder-header-mobile': isMobile }">
     <!-- Typed header: icon + name + label + count + action buttons -->
     <div class="typed-header-row">
       <oc-icon
@@ -69,6 +69,7 @@ import { type SpaceResource } from '@opencloud-eu/web-client'
 import { useResourcesStore, useClientService, useSpacesStore } from '@opencloud-eu/web-pkg'
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
 import { useTypedFolderSchema, getCachedSchema } from '../composables/useTypedFolderSchema'
+import { useAppModeStore } from '../composables/useAppModeStore'
 import CreateDialog from './CreateDialog.vue'
 
 const props = defineProps<{
@@ -103,6 +104,7 @@ const currentType = computed(() => {
 })
 
 const isTyped = computed(() => !!unref(currentType))
+const appModeStore = useAppModeStore()
 
 const spaceRef = computed(() => unref(resolvedSpace))
 const { schema } = useTypedFolderSchema(spaceRef, currentType)

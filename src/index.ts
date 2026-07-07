@@ -15,6 +15,7 @@ import ResourceTagList from './components/ResourceTagList.vue'
 import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
 import LearnEditor from './components/LearnEditor.vue'
 import AppModeBar from './components/AppModeBar.vue'
+import { useAppModeStore } from './composables/useAppModeStore'
 import translations from '../l10n/translations.json'
 
 const applicationId = 'folderviews'
@@ -293,7 +294,9 @@ export default defineWebApplication({
         icon: app.icon || 'grid',
         color: app.color,
         handler: () => {
+          const appModeStore = useAppModeStore()
           const alias = app.driveAlias || `project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}`
+          appModeStore.enable(app, alias)
           router.push({
             path: `/files/spaces/${alias}`,
             query: { appMode: 'true', 'view-mode': 'resource-metro' }
