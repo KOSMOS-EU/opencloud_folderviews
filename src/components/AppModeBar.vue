@@ -12,7 +12,6 @@
         <span>{{ item.label }}</span>
         <span v-if="item.url" class="external-marker">↗</span>
       </button>
-      <button class="app-mode-close" @click="exitAppMode" title="App Mode verlassen">✕</button>
     </nav>
     <nav v-if="secondaryItems.length > 0" class="app-mode-secondary">
       <button
@@ -80,11 +79,6 @@ function onSecondaryClick(item: any, cidx: number) {
   if (item.path) navigateToPath(item.path)
 }
 
-function exitAppMode() {
-  appModeStore.disable()
-  const { appMode, ...rest } = router.currentRoute.value.query
-  router.push({ path: router.currentRoute.value.path, query: rest })
-}
 </script>
 
 <style scoped>
@@ -130,22 +124,6 @@ function exitAppMode() {
 .app-mode-item.secondary {
   font-size: 13px;
   padding: 4px 12px;
-}
-
-.app-mode-close {
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: inherit;
-  opacity: 0.5;
-}
-
-.app-mode-close:hover {
-  opacity: 1;
 }
 
 .external-marker {
