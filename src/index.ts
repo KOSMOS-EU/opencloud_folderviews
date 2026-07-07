@@ -1,6 +1,6 @@
 import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, useExtensionRegistry, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
-import { computed, markRaw } from 'vue'
+import { computed, markRaw, ref } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
@@ -243,11 +243,52 @@ export default defineWebApplication({
     clientService.webdav.registerExtraProp('oc:oy.app')
     clientService.webdav.registerExtraProp('oc:oy.ftype')
 
+    // Space Apps: load from server and register as appMenuItem extensions
+    interface SpaceApp {
+      spaceId: string
+      spaceName: string
+      name: string
+      icon?: string
+      color?: string
+      menu?: any[]
+    }
+
+    const spaceApps = ref<SpaceApp[]>([])
+
+    // Load space apps from server (async, non-blocking)
+    const httpClient = (clientService as any).httpAuthenticated
+    if (httpClient) {
+      httpClient.get('/graph/v1.0/extensions/apps')
+        .then((res: any) => {
+          const apps = res?.data?.apps || []
+          if (apps.length > 0) {
+            spaceApps.value = apps
+          }
+        })
+        .catch(() => { /* ignore — server may not support apps endpoint */ })
+    }
+
+    const spaceAppExtensions = computed(() =>
+      spaceApps.value.map(app => ({
+        id: `com.kosmos-eu.folderviews.space-app.${app.spaceId}`,
+        type: 'appMenuItem' as const,
+        label: () => app.name,
+        icon: app.icon || 'grid',
+        color: app.color,
+        path: `files/spaces/project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}?appMode=true`
+      }))
+    )
+
+    const allExtensions = computed(() => [
+      ...extensions.value,
+      ...spaceAppExtensions.value
+    ])
+
     return {
       appInfo,
       routes,
       translations,
-      extensions,
+      extensions: allExtensions,
       extensionPoints,
       folderViewHandlers
     }
