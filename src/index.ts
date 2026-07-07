@@ -14,6 +14,7 @@ import ResourceElements from './components/ResourceElements.vue'
 import ResourceTagList from './components/ResourceTagList.vue'
 import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
 import LearnEditor from './components/LearnEditor.vue'
+import AppModeBar from './components/AppModeBar.vue'
 import translations from '../l10n/translations.json'
 
 const applicationId = 'folderviews'
@@ -142,6 +143,13 @@ export default defineWebApplication({
           }
         }
       },
+      // App mode bar: renders when ?appMode=true, hides sidebar/search
+      {
+        id: 'com.kosmos-eu.folderviews.app-mode-bar',
+        type: 'customComponent',
+        extensionPointIds: ['app.files.generic-space-header'],
+        content: markRaw(AppModeBar)
+      },
       // Space header: TypedFolderToolbar renders its own header when folder is typed,
       // otherwise passes through to SpaceHeader for normal folders
       {
@@ -263,7 +271,10 @@ export default defineWebApplication({
       httpClient.get('/graph/v1beta1/extensions/apps')
         .then((res: any) => {
           const apps = res?.data?.apps || []
-          if (apps.length > 0) spaceApps.value = apps
+          if (apps.length > 0) {
+            spaceApps.value = apps;
+            (window as any).__spaceApps = apps
+          }
         })
         .catch(() => { /* server may not support apps endpoint */ })
     }
