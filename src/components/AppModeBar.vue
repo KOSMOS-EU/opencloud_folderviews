@@ -1,9 +1,5 @@
 <template>
   <div v-if="isAppMode" class="app-mode-bar">
-    <div class="app-mode-header">
-      <span class="app-mode-title">{{ appConfig?.name }}</span>
-      <button class="app-mode-close" @click="exitAppMode" title="Zurück zur Cloud">✕</button>
-    </div>
     <nav class="app-mode-primary">
       <button
         v-for="(item, idx) in menuItems"

@@ -296,7 +296,7 @@ export default defineWebApplication({
           const alias = app.driveAlias || `project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}`
           router.push({
             path: `/files/spaces/${alias}`,
-            query: { appMode: 'true' }
+            query: { appMode: 'true', 'view-mode': 'resource-metro' }
           })
         }
       }))
