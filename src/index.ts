@@ -258,7 +258,7 @@ export default defineWebApplication({
     // Load space apps from server (async, non-blocking)
     const httpClient = (clientService as any).httpAuthenticated
     if (httpClient) {
-      httpClient.get('/graph/v1.0/extensions/apps')
+      httpClient.get('/graph/v1beta1/extensions/apps')
         .then((res: any) => {
           const apps = res?.data?.apps || []
           if (apps.length > 0) {
