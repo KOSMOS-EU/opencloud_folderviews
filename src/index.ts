@@ -1,6 +1,6 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, useExtensionRegistry, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, useExtensionRegistry, useAuthStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
-import { computed, markRaw, ref } from 'vue'
+import { computed, markRaw, ref, watch } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
@@ -255,18 +255,21 @@ export default defineWebApplication({
 
     const spaceApps = ref<SpaceApp[]>([])
 
-    // Load space apps from server (async, non-blocking)
-    const httpClient = (clientService as any).httpAuthenticated
-    if (httpClient) {
+    // Load space apps after authentication
+    const authStore = useAuthStore()
+    const loadSpaceApps = () => {
+      const httpClient = (clientService as any).httpAuthenticated
+      if (!httpClient) return
       httpClient.get('/graph/v1beta1/extensions/apps')
         .then((res: any) => {
           const apps = res?.data?.apps || []
-          if (apps.length > 0) {
-            spaceApps.value = apps
-          }
+          if (apps.length > 0) spaceApps.value = apps
         })
-        .catch(() => { /* ignore — server may not support apps endpoint */ })
+        .catch(() => { /* server may not support apps endpoint */ })
     }
+    watch(() => authStore.userContextReady, (ready) => {
+      if (ready) loadSpaceApps()
+    }, { immediate: true })
 
     const spaceAppExtensions = computed(() =>
       spaceApps.value.map(app => ({
