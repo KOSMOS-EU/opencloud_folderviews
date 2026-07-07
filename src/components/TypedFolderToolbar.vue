@@ -68,7 +68,7 @@ import { computed, ref, unref } from 'vue'
 import { type SpaceResource } from '@opencloud-eu/web-client'
 import { useResourcesStore, useClientService, useSpacesStore } from '@opencloud-eu/web-pkg'
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
-import { useTypedFolderSchema } from '../composables/useTypedFolderSchema'
+import { useTypedFolderSchema, getCachedSchema } from '../composables/useTypedFolderSchema'
 import CreateDialog from './CreateDialog.vue'
 
 const props = defineProps<{
@@ -92,6 +92,11 @@ const resolvedSpace = computed(() => {
 })
 
 const currentType = computed(() => {
+  // Prefer oy.ftype xattr on current folder
+  const folder = unref(currentFolder) as any
+  const ftype = folder?.extraProps?.['oc:oy.ftype']
+  if (ftype) return ftype
+  // Fallback: _type_* file in resources
   const resources = resourcesStore.resources || []
   const typeFile = resources.find(r => r.name?.startsWith('_type_'))
   return typeFile ? typeFile.name.substring(6) : undefined
@@ -168,11 +173,39 @@ const isSpaceRoot = computed(() => {
   return !p || p === '/'
 })
 
+// Check if any child folder is a leaf type (via oy.ftype + cached schema)
+const hasLeafChild = computed(() => {
+  const s = unref(schema)
+  if (!s?.leafStrict) return false
+  const sp = unref(resolvedSpace)
+  if (!sp) return false
+  const resources = resourcesStore.resources || []
+  return resources.some(r => {
+    if (r.type !== 'folder') return false
+    const ftype = (r as any).extraProps?.['oc:oy.ftype']
+    if (!ftype) return false
+    const childSchema = getCachedSchema(sp.id, ftype)
+    return !!childSchema?.isLeaf
+  })
+})
+
 const childButtons = computed(() => {
   const children = unref(allowedChildren)
-  const filtered = unref(isSpaceRoot)
+  let filtered = unref(isSpaceRoot)
     ? children.filter(t => t === unref(currentType))
     : children
+
+  // leafStrict: once a leaf child exists, only offer leaf types
+  if (unref(hasLeafChild)) {
+    const sp = unref(resolvedSpace)
+    if (sp) {
+      filtered = filtered.filter(t => {
+        const cs = getCachedSchema(sp.id, t)
+        return !!cs?.isLeaf
+      })
+    }
+  }
+
   return filtered.map(childType => ({
     type: childType,
     label: typeLabels[childType] || `Neu: ${childType}`

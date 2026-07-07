@@ -90,17 +90,18 @@ const rootDivParams = ref<ElementLayout | null>(null)
 
 async function detectRootType() {
   ready.value = false
-  // Use resourcesStore.resources (unfiltered) because GenericSpace strips _type_* from displayResources
+  // Prefer oy.ftype xattr, fallback to _type_* file
+  const folder = resourcesStore.currentFolder as any
+  const ftype = folder?.extraProps?.['oc:oy.ftype']
   const allResources = resourcesStore.resources || props.resources
   const typeFile = allResources.find(r => r.name?.startsWith('_type_'))
-  if (!typeFile) {
+  const typeName = ftype || (typeFile ? typeFile.name.substring(6) : null)
+  if (!typeName) {
     rootSchema.value = null
     rootDivParams.value = null
     ready.value = true
     return
   }
-
-  const typeName = typeFile.name.substring(6)
   rootSchema.value = await ctx.getSchema(typeName)
 
   if (typeName === 'div' && typeFile.path) {

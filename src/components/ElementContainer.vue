@@ -150,11 +150,12 @@ async function loadAndAnalyze() {
     const cTypes = new Map<string, { schema: TypedFolderSchema; params: ElementLayout | null }>()
     for (const r of items) {
       if (r.type !== 'folder') continue
+      // Prefer oy.ftype xattr, fallback to _type_* file in children
+      const ftype = (r as any).extraProps?.['oc:oy.ftype']
       const subChildren = await ctx.loadChildren(r.path)
       const typeFile = subChildren.find(c => c.name?.startsWith('_type_'))
-      if (!typeFile) continue
-
-      const typeName = typeFile.name.substring(6)
+      const typeName = ftype || (typeFile ? typeFile.name.substring(6) : null)
+      if (!typeName) continue
       const schema = await ctx.getSchema(typeName)
       if (!schema?.isContainer) continue
 

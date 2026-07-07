@@ -75,6 +75,7 @@ import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import ViewTypesTiles from './ViewTypesTiles.vue'
 import { ResourceTiles, useResourcesStore, useExtensionRegistry } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import { getCachedSchema } from '../composables/useTypedFolderSchema'
 
 const resourcesStore = useResourcesStore()
 const extensionRegistry = useExtensionRegistry()
@@ -104,10 +105,20 @@ const leafFolder = ref<Resource | null>(null)
 
 const leafApp = computed(() => {
   if (!leafFolder.value) return ''
+  // Prefer: look up app from schema via oy.ftype
+  const ftype = getProp(leafFolder.value, 'oc:oy.ftype')
+  if (ftype) {
+    const sp = props.space
+    if (sp) {
+      const s = getCachedSchema(sp.id, ftype)
+      if (s?.app) return s.app
+    }
+  }
+  // Fallback: direct oy.app xattr (legacy)
   return getProp(leafFolder.value, 'oc:oy.app')
 })
 
-// Find registered leaf-app extension matching oy.app value
+// Find registered leaf-app extension matching app value
 const leafExtension = computed(() => {
   if (!leafApp.value) return null
   const exts = extensionRegistry.requestExtensions({
@@ -147,12 +158,23 @@ function tileStyle(resource: Resource): Record<string, string> {
   return { backgroundColor: color, color: '#fff' }
 }
 
+function getLeafApp(resource: Resource): string {
+  // Prefer: schema lookup via oy.ftype
+  const ftype = getProp(resource, 'oc:oy.ftype')
+  if (ftype && props.space) {
+    const s = getCachedSchema(props.space.id, ftype)
+    if (s?.app) return s.app
+  }
+  // Fallback: direct oy.app xattr (legacy)
+  return getProp(resource, 'oc:oy.app')
+}
+
 function isLeaf(resource: Resource): boolean {
-  return !!getProp(resource, 'oc:oy.app')
+  return !!getLeafApp(resource)
 }
 
 function getLeafIcon(resource: Resource): string {
-  const app = getProp(resource, 'oc:oy.app')
+  const app = getLeafApp(resource)
   const exts = extensionRegistry.requestExtensions({
     id: 'app.folderviews.leaf-apps',
     extensionType: 'customComponent',

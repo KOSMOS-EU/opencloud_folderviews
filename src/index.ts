@@ -241,6 +241,7 @@ export default defineWebApplication({
     clientService.webdav.registerExtraProp('oc:oy.color')
     clientService.webdav.registerExtraProp('oc:oy.note')
     clientService.webdav.registerExtraProp('oc:oy.app')
+    clientService.webdav.registerExtraProp('oc:oy.ftype')
 
     return {
       appInfo,

@@ -98,9 +98,10 @@ export function useTypedFolderActions(
       if (httpClient2) {
         const itemId = `${sp.id}!${newFolder.id.split('!').pop()}`
         const meta: Record<string, string> = {}
+        meta['oy.ftype'] = childType
         if (fileRef) meta['oy.fileReference'] = fileRef
 
-        // Check if child schema defines an app → set oy.app
+        // Check if child schema defines an app → set oy.app (legacy)
         try {
           const { body: childBody } = await clientService.webdav.getFileContents(sp, {
             path: `.views/${childType}.viewtype`
