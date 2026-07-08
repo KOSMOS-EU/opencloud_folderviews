@@ -53,7 +53,10 @@ function navigateToPath(path: string) {
   if (!space) return
   const alias = appModeStore.spaceAlias || `${space.driveType}/${space.name?.toLowerCase().replace(/\s+/g, '-')}`
   const fullPath = `/files/spaces/${alias}${path === '/' ? '' : path}`
-  router.push({ path: fullPath, query: { appMode: 'true', 'view-mode': 'resource-metro' } })
+  const ts = router.currentRoute.value.query['tiles-size']
+  const query: Record<string, string> = { appMode: 'true', 'view-mode': 'resource-metro' }
+  if (ts) query['tiles-size'] = String(ts)
+  router.push({ path: fullPath, query })
 }
 
 function onPrimaryClick(item: any, idx: number) {

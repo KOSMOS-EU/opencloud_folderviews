@@ -244,6 +244,19 @@ export default defineWebApplication({
     ])
 
     const router = useRouter()
+    const appModeStore = useAppModeStore()
+
+    // App Mode: preserve query params (appMode, view-mode, tiles-size) across navigation
+    router.beforeEach((to, from) => {
+      if (!appModeStore.isEnabled) return
+      const needed = ['appMode', 'view-mode', 'tiles-size']
+      const missing = needed.filter(k => from.query[k] && !to.query[k])
+      if (missing.length > 0) {
+        const merged = { ...to.query }
+        for (const k of missing) merged[k] = from.query[k] as string
+        return { ...to, query: merged }
+      }
+    })
 
     // Register oy.* metadata as extra DAV properties (come in PROPFIND, no extra API calls)
     const clientService = useClientService()
@@ -297,9 +310,12 @@ export default defineWebApplication({
           const appModeStore = useAppModeStore()
           const alias = app.driveAlias || `project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}`
           appModeStore.enable(app, alias)
+          const ts = router.currentRoute.value.query['tiles-size']
+          const query: Record<string, string> = { appMode: 'true', 'view-mode': 'resource-metro' }
+          if (ts) query['tiles-size'] = String(ts)
           router.push({
             path: `/files/spaces/${alias}`,
-            query: { appMode: 'true', 'view-mode': 'resource-metro' }
+            query
           })
         }
       }))
