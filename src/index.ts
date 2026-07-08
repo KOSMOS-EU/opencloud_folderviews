@@ -246,9 +246,18 @@ export default defineWebApplication({
     const router = useRouter()
     const appModeStore = useAppModeStore()
 
-    // App Mode: preserve query params (appMode, view-mode, tiles-size) across navigation
+    // App Mode: preserve query params within app space, disable when leaving
     router.beforeEach((to, from) => {
       if (!appModeStore.isEnabled) return
+      // Leaving the app space → disable app mode, strip app-mode query params
+      if (appModeStore.spaceAlias && !to.path.includes(appModeStore.spaceAlias)) {
+        appModeStore.disable()
+        const clean = { ...to.query }
+        delete clean['appMode']
+        delete clean['view-mode']
+        return { ...to, query: clean }
+      }
+      // Within app space → preserve query params
       const needed = ['appMode', 'view-mode', 'tiles-size']
       const missing = needed.filter(k => from.query[k] && !to.query[k])
       if (missing.length > 0) {
@@ -275,6 +284,8 @@ export default defineWebApplication({
       name: string
       icon?: string
       color?: string
+      defaultView?: string
+      defaultPath?: string
       menu?: any[]
     }
 
@@ -307,14 +318,21 @@ export default defineWebApplication({
         icon: app.icon || 'grid',
         color: app.color,
         handler: () => {
-          const appModeStore = useAppModeStore()
           const alias = app.driveAlias || `project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}`
-          appModeStore.enable(app, alias)
+          const isApp = app.menu && app.menu.length > 0
+          const subPath = app.defaultPath || ''
+          const query: Record<string, string> = {}
+          if (app.defaultView) query['view-mode'] = app.defaultView
+          else if (isApp) query['view-mode'] = 'resource-metro'
           const ts = router.currentRoute.value.query['tiles-size']
-          const query: Record<string, string> = { appMode: 'true', 'view-mode': 'resource-metro' }
           if (ts) query['tiles-size'] = String(ts)
+          if (isApp) {
+            const appModeStore = useAppModeStore()
+            appModeStore.enable(app, alias)
+            query['appMode'] = 'true'
+          }
           router.push({
-            path: `/files/spaces/${alias}`,
+            path: `/files/spaces/${alias}${subPath}`,
             query
           })
         }
