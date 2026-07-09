@@ -32,7 +32,7 @@
     :view-mode="viewMode"
     :sort-fields="[]"
     :header-position="headerPosition"
-    :view-size="viewSize"
+    :view-size="viewSize || 2"
     :drag-drop="dragDrop"
     class="metro-view"
     @file-click="$emit('fileClick', $event)"

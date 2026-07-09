@@ -255,6 +255,7 @@ export default defineWebApplication({
         const clean = { ...to.query }
         delete clean['appMode']
         delete clean['view-mode']
+        delete clean['tiles-size']
         return { ...to, query: clean }
       }
       // Within app space → preserve query params
@@ -318,18 +319,15 @@ export default defineWebApplication({
         icon: app.icon || 'grid',
         color: app.color,
         handler: () => {
+          appModeStore.disable()
           const alias = app.driveAlias || `project/${app.spaceName.toLowerCase().replace(/\s+/g, '-')}`
-          const isApp = app.menu && app.menu.length > 0
           const subPath = app.defaultPath || ''
           const query: Record<string, string> = {}
           if (app.defaultView) query['view-mode'] = app.defaultView
-          else if (isApp) query['view-mode'] = 'resource-metro'
-          const ts = router.currentRoute.value.query['tiles-size']
-          if (ts) query['tiles-size'] = String(ts)
-          if (isApp) {
-            const appModeStore = useAppModeStore()
+          if (app.menu?.length) {
             appModeStore.enable(app, alias)
             query['appMode'] = 'true'
+            if (!query['view-mode']) query['view-mode'] = 'resource-metro'
           }
           router.push({
             path: `/files/spaces/${alias}${subPath}`,
@@ -339,9 +337,24 @@ export default defineWebApplication({
       }))
     )
 
+    // Replace the built-in "Dateien" menu item with our own that clears app mode
+    const filesMenuItem = {
+      id: 'com.kosmos-eu.folderviews.files-menu-item',
+      type: 'appMenuItem' as const,
+      label: () => $gettext('Files'),
+      icon: 'folder-6',
+      color: 'var(--oc-role-secondary)',
+      priority: 10,
+      handler: () => {
+        appModeStore.disable()
+        router.push({ path: '/files/spaces/personal/home', query: { 'view-mode': 'resource-table' } })
+      }
+    }
+
     const allExtensions = computed(() => [
       ...extensions.value,
-      ...spaceAppExtensions.value
+      ...spaceAppExtensions.value,
+      filesMenuItem
     ])
 
     return {
