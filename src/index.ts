@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useRouter, useExtensionRegistry, useAuthStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
@@ -347,7 +347,14 @@ export default defineWebApplication({
       priority: 10,
       handler: () => {
         appModeStore.disable()
-        router.push({ path: '/files/spaces/personal/home', query: { 'view-mode': 'resource-table' } })
+        const spacesStore = useSpacesStore()
+        const personal = spacesStore.personalSpace
+        const alias = personal?.driveAlias || 'personal/home'
+        const path = `/files/spaces/${alias}`
+        // Force navigation with clean query, even if same path
+        router.push({ path, query: {} }).then(() => {
+          router.replace({ path, query: { 'view-mode': 'resource-table' } })
+        })
       }
     }
 
