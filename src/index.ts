@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useFileActions, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useAppsStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
@@ -255,35 +255,30 @@ export default defineWebApplication({
             try {
               const resource = options?.resources?.[0]
               const space = options?.space
-              console.log('[Pin] resource:', resource?.name, 'space:', space?.driveAlias)
               if (!resource || !space) return
 
-              // Resolve the default editor action's route
-              const { getDefaultAction } = useFileActions()
-              const action = getDefaultAction(options) as any
-              console.log('[Pin] action:', action?.name, 'hasRoute:', !!action?.route)
+              const driveAliasAndItem = space.getDriveAliasAndItem(resource)
+              const fileId = resource.fileId
+              if (!driveAliasAndItem || !fileId) return
 
-              if (action?.route) {
-                const resolved = action.route(options)
-                console.log('[Pin] resolved:', resolved)
-                if (resolved) {
-                  const query = { ...resolved.query, appCompact: 'true' }
-                  const href = router.resolve({ ...resolved, query }).href
-                  const url = window.location.origin + href
-                  console.log('[Pin] url:', url)
-                  downloadUrlFile(resource.name, url)
-                  return
-                }
-              }
+              // Find the editor route for this file extension
+              const appsStore = useAppsStore()
+              const ext = resource.extension?.toLowerCase()
+              const match = appsStore.fileExtensions.find(
+                (fe: any) => fe.extension?.toLowerCase() === ext && fe.hasPriority
+              ) || appsStore.fileExtensions.find(
+                (fe: any) => fe.extension?.toLowerCase() === ext
+              )
+              const routeName = match?.routeName || match?.app
+              if (!routeName) return
 
-              // Fallback: build URL from space + resource
-              const driveAliasAndItem = space.getDriveAliasAndItem?.(resource)
-              if (driveAliasAndItem && resource.fileId) {
-                const currentRoute = router.currentRoute.value
-                const url = window.location.origin + currentRoute.path + '?fileId=' + encodeURIComponent(resource.fileId) + '&appCompact=true'
-                console.log('[Pin] fallback url:', url)
-                downloadUrlFile(resource.name, url)
-              }
+              const href = router.resolve({
+                name: routeName,
+                params: { driveAliasAndItem },
+                query: { fileId, appCompact: 'true' }
+              }).href
+
+              downloadUrlFile(resource.name, window.location.origin + href)
             } catch (e) {
               console.error('[Pin] error:', e)
             }
