@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useFileActions, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useAppsStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
@@ -241,24 +241,46 @@ export default defineWebApplication({
           category: 'secondary',
           handler: (options: any) => {
             const resource = options?.resources?.[0]
-            if (!resource) return
-            const { getDefaultAction } = useFileActions()
-            const action = getDefaultAction(options) as any
-            if (!action?.route) return
+            const space = options?.space
+            if (!resource || !space) return
 
-            const resolved = action.route(options)
-            if (!resolved) return
+            const driveAliasAndItem = space.getDriveAliasAndItem(resource)
+            const fileId = resource.fileId
+            if (!driveAliasAndItem || !fileId) return
 
-            const query = { ...resolved.query, appCompact: 'true' }
-            const href = router.resolve({ ...resolved, query }).href
+            // Find the default app route for this file extension
+            const appsStore = useAppsStore()
+            const ext = resource.extension?.toLowerCase()
+            const match = appsStore.fileExtensions.find(
+              (fe: any) => fe.extension?.toLowerCase() === ext && fe.hasPriority
+            ) || appsStore.fileExtensions.find(
+              (fe: any) => fe.extension?.toLowerCase() === ext
+            )
+            const routeName = match?.routeName || match?.app
+            if (!routeName) return
+
+            const routeOpts = {
+              name: routeName,
+              params: { driveAliasAndItem },
+              query: { fileId, appCompact: 'true' }
+            }
+
+            let href: string
+            try {
+              href = router.resolve(routeOpts).href
+            } catch {
+              return
+            }
+
             const url = window.location.origin + href
-
             const content = `[InternetShortcut]\r\nURL=${url}\r\n`
             const blob = new Blob([content], { type: 'application/internet-shortcut' })
             const a = document.createElement('a')
             a.href = URL.createObjectURL(blob)
             a.download = `${resource.name}.url`
+            document.body.appendChild(a)
             a.click()
+            document.body.removeChild(a)
             URL.revokeObjectURL(a.href)
           },
           isVisible: (options: any) => {
