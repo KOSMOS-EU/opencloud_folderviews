@@ -1,4 +1,4 @@
-import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
+import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useFileActions, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
@@ -226,6 +226,45 @@ export default defineWebApplication({
             if (!options?.resources?.length) return false
             const r = options.resources[0]
             return r.type === 'space' && options.resources.length === 1
+          }
+        }
+      },
+      // Pin: download a .url shortcut file pointing to the document in compact app mode
+      {
+        id: 'com.kosmos-eu.folderviews.action.pin-to-desktop',
+        type: 'action',
+        extensionPointIds: ['global.files.context-actions'],
+        action: {
+          name: 'pin-to-desktop',
+          icon: 'pushpin',
+          label: () => 'Pin',
+          category: 'secondary',
+          handler: (options: any) => {
+            const resource = options?.resources?.[0]
+            if (!resource) return
+            const { getDefaultAction } = useFileActions()
+            const action = getDefaultAction(options) as any
+            if (!action?.route) return
+
+            const resolved = action.route(options)
+            if (!resolved) return
+
+            const query = { ...resolved.query, appCompact: 'true' }
+            const href = router.resolve({ ...resolved, query }).href
+            const url = window.location.origin + href
+
+            const content = `[InternetShortcut]\r\nURL=${url}\r\n`
+            const blob = new Blob([content], { type: 'application/internet-shortcut' })
+            const a = document.createElement('a')
+            a.href = URL.createObjectURL(blob)
+            a.download = `${resource.name}.url`
+            a.click()
+            URL.revokeObjectURL(a.href)
+          },
+          isVisible: (options: any) => {
+            if (!options?.resources?.length || options.resources.length !== 1) return false
+            const r = options.resources[0]
+            return r.type === 'file'
           }
         }
       }
