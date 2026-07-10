@@ -269,27 +269,25 @@ export default defineWebApplication({
     })
 
     // App Compact + New Window: intercept navigation to external-* app routes
-    const { userAppCompact, userAppNewWindow } = useFolderviewSettings()
-    router.beforeEach((to) => {
+    router.beforeEach((to, from) => {
       const routeName = String(to.name || '')
       if (!routeName.startsWith('external-')) return
 
-      if (userAppCompact.value && !to.query.appCompact) {
-        const query = { ...to.query, appCompact: 'true' }
+      // Read settings lazily inside guard to avoid init-order issues
+      const { userAppCompact, userAppNewWindow } = useFolderviewSettings()
 
-        if (userAppNewWindow.value) {
-          const resolved = router.resolve({ ...to, query })
-          window.open(resolved.href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
-          return false
-        }
-
-        return { ...to, query }
-      }
+      const query = { ...to.query }
+      if (userAppCompact.value) query.appCompact = 'true'
 
       if (userAppNewWindow.value) {
-        const resolved = router.resolve(to)
+        const resolved = router.resolve({ ...to, query })
         window.open(resolved.href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
-        return false
+        // Stay on current page
+        return { path: from.path, query: from.query }
+      }
+
+      if (userAppCompact.value && !to.query.appCompact) {
+        return { ...to, query }
       }
     })
 
