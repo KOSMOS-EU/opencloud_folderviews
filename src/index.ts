@@ -65,11 +65,31 @@ export default defineWebApplication({
     const prefDefs = getPreferenceDefinitions()
 
     function downloadUrlFile(fileName: string, url: string) {
-      const content = `[InternetShortcut]\r\nURL=${url}\r\n`
-      const blob = new Blob([content], { type: 'application/internet-shortcut' })
+      const isLinux = /Linux/.test(navigator.userAgent)
+      const isMac = /Mac/.test(navigator.userAgent)
+
+      let content: string
+      let ext: string
+      let mime: string
+
+      if (isLinux) {
+        content = `[Desktop Entry]\nType=Link\nName=${fileName}\nURL=${url}\nIcon=text-x-generic\n`
+        ext = 'desktop'
+        mime = 'application/x-desktop'
+      } else if (isMac) {
+        content = `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>URL</key><string>${url}</string></dict></plist>`
+        ext = 'webloc'
+        mime = 'application/xml'
+      } else {
+        content = `[InternetShortcut]\r\nURL=${url}\r\n`
+        ext = 'url'
+        mime = 'application/internet-shortcut'
+      }
+
+      const blob = new Blob([content], { type: mime })
       const a = document.createElement('a')
       a.href = URL.createObjectURL(blob)
-      a.download = `${fileName}.url`
+      a.download = `${fileName}.${ext}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
