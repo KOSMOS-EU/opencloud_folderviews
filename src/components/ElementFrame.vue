@@ -38,6 +38,7 @@
 import { ref } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { useRouter, useResourcesStore, useFileActions, useDownloadFile, useClientService } from '@opencloud-eu/web-pkg'
+import { useFolderviewSettings } from '../composables/useFolderviewSettings'
 
 const props = defineProps<{
   resource: Resource
@@ -47,8 +48,9 @@ const props = defineProps<{
 const router = useRouter()
 const resourcesStore = useResourcesStore()
 const clientService = useClientService()
-const { triggerDefaultAction } = useFileActions()
+const { getDefaultAction } = useFileActions()
 const { downloadFile } = useDownloadFile()
+const { userAppCompact, userAppNewWindow } = useFolderviewSettings()
 
 const emit = defineEmits<{ deleted: [] }>()
 const menuOpen = ref(false)
@@ -77,9 +79,31 @@ function doOpen() {
   if (props.resource.isFolder) {
     const currentPath = router.currentRoute.value.path
     router.push({ path: currentPath.replace(/\/$/, '') + '/' + props.resource.name })
-  } else {
-    triggerDefaultAction({ resources: [props.resource], space: props.space })
+    return
   }
+
+  const opts = { resources: [props.resource], space: props.space }
+  const action = getDefaultAction(opts) as any
+  if (!action) return
+
+  // If user has compact or new-window enabled, resolve route and open with extra params
+  if ((userAppCompact.value || userAppNewWindow.value) && action.route) {
+    const resolved = action.route(opts)
+    if (resolved) {
+      const query = { ...resolved.query }
+      if (userAppCompact.value) query.appCompact = 'true'
+      const href = router.resolve({ ...resolved, query }).href
+
+      if (userAppNewWindow.value) {
+        window.open(href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
+        return
+      }
+      router.push({ path: resolved.path, query })
+      return
+    }
+  }
+
+  action.handler(opts)
 }
 
 function doDetails() {

@@ -1,9 +1,9 @@
 import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
-import { computed, markRaw, ref, watch } from 'vue'
+import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
-import { getAktenzeichenPreferenceDefinitions } from './composables/useFolderviewSettings'
+import { getPreferenceDefinitions } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
@@ -61,8 +61,8 @@ export default defineWebApplication({
       register: markRaw(RegisterView)
     }
 
-    // Aktenzeichen user preference (checkbox on /account/extensions)
-    const aktzDefs = getAktenzeichenPreferenceDefinitions()
+    // User preferences (checkboxes on /account/extensions)
+    const prefDefs = getPreferenceDefinitions()
 
     // Extensions: folder views + aktenzeichen preference toggle
     const extensions = computed(() => [
@@ -122,7 +122,7 @@ export default defineWebApplication({
           component: markRaw(ResourceTagList)
         }
       },
-      ...aktzDefs.extensions,
+      ...prefDefs.extensions,
       // Folder Settings sidebar panel
       {
         id: 'com.kosmos-eu.folderviews.sidebar-panel.folder-settings',
@@ -239,7 +239,7 @@ export default defineWebApplication({
     }
 
     const extensionPoints = computed(() => [
-      aktzDefs.extensionPoint,
+      ...prefDefs.extensionPoints,
       leafAppExtensionPoint
     ])
 
@@ -337,7 +337,15 @@ export default defineWebApplication({
       }))
     )
 
-    // Replace the built-in "Dateien" menu item with our own that clears app mode
+    // Navigate to space with view-mode: two-step push (reset) + replace (set view)
+    // Single push doesn't work because useRouteQuery setters restore old params
+    const navigateWithView = (path: string, viewMode: string) => {
+      appModeStore.disable()
+      router.push({ path, query: {} }).catch(() => {}).finally(() => {
+        setTimeout(() => router.replace({ path, query: { 'view-mode': viewMode } }), 50)
+      })
+    }
+
     const filesMenuItem = {
       id: 'com.kosmos-eu.folderviews.files-menu-item',
       type: 'appMenuItem' as const,
@@ -346,22 +354,28 @@ export default defineWebApplication({
       color: 'var(--oc-role-secondary)',
       priority: 10,
       handler: () => {
-        appModeStore.disable()
         const spacesStore = useSpacesStore()
         const personal = spacesStore.personalSpace
         const alias = personal?.driveAlias || 'personal/home'
-        const path = `/files/spaces/${alias}`
-        // Force navigation with clean query, even if same path
-        router.push({ path, query: {} }).then(() => {
-          router.replace({ path, query: { 'view-mode': 'resource-table' } })
-        })
+        navigateWithView(`/files/spaces/${alias}`, 'resource-table')
       }
+    }
+
+    const intranetMenuItem = {
+      id: 'com.kosmos-eu.folderviews.intranet-menu-item',
+      type: 'appMenuItem' as const,
+      label: () => 'Intranet',
+      icon: 'global',
+      color: '#1565C0',
+      priority: 20,
+      handler: () => navigateWithView('/files/spaces/project/intranet', 'resource-elements')
     }
 
     const allExtensions = computed(() => [
       ...extensions.value,
       ...spaceAppExtensions.value,
-      filesMenuItem
+      filesMenuItem,
+      intranetMenuItem
     ])
 
     return {
