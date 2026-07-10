@@ -3,7 +3,7 @@ import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
-import { getPreferenceDefinitions } from './composables/useFolderviewSettings'
+import { getPreferenceDefinitions, useFolderviewSettings } from './composables/useFolderviewSettings'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
@@ -265,6 +265,31 @@ export default defineWebApplication({
         const merged = { ...to.query }
         for (const k of missing) merged[k] = from.query[k] as string
         return { ...to, query: merged }
+      }
+    })
+
+    // App Compact + New Window: intercept navigation to external-* app routes
+    const { userAppCompact, userAppNewWindow } = useFolderviewSettings()
+    router.beforeEach((to) => {
+      const routeName = String(to.name || '')
+      if (!routeName.startsWith('external-')) return
+
+      if (userAppCompact.value && !to.query.appCompact) {
+        const query = { ...to.query, appCompact: 'true' }
+
+        if (userAppNewWindow.value) {
+          const resolved = router.resolve({ ...to, query })
+          window.open(resolved.href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
+          return false
+        }
+
+        return { ...to, query }
+      }
+
+      if (userAppNewWindow.value) {
+        const resolved = router.resolve(to)
+        window.open(resolved.href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
+        return false
       }
     })
 
