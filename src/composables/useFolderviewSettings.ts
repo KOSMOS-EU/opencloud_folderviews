@@ -36,7 +36,7 @@ export function getPreferenceDefinitions() {
       id: COMPACT_EP,
       extensionType: 'customComponent' as const,
       multiple: false,
-      defaultExtensionId: COMPACT_DISABLED,
+      defaultExtensionId: COMPACT_ENABLED,
       userPreference: {
         label: 'Apps kompakt öffnen',
         description: 'Externe Apps (z.B. Collabora) ohne Navigationsleiste öffnen',
@@ -47,7 +47,7 @@ export function getPreferenceDefinitions() {
       id: NEWWIN_EP,
       extensionType: 'customComponent' as const,
       multiple: false,
-      defaultExtensionId: NEWWIN_DISABLED,
+      defaultExtensionId: NEWWIN_ENABLED,
       userPreference: {
         label: 'Datei in neuem Fenster öffnen',
         description: 'Externe Apps in einem separaten Browserfenster öffnen',
@@ -126,6 +126,12 @@ export function useFolderviewSettings() {
   const userAppNewWindow = computed(() => {
     const pref = store.getExtensionPreference(NEWWIN_EP, [NEWWIN_DISABLED])
     return pref.selectedExtensionIds.includes(NEWWIN_ENABLED)
+  })
+
+  // Debug helper — remove after testing
+  ;(window as any).__fvSettings = () => ({
+    compact: userAppCompact.value,
+    newWindow: userAppNewWindow.value
   })
 
   return { showAktzInName, userAppCompact, userAppNewWindow }
