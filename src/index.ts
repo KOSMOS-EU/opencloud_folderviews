@@ -272,9 +272,11 @@ export default defineWebApplication({
     router.beforeEach((to, from) => {
       const routeName = String(to.name || '')
       if (!routeName.startsWith('external-')) return
+      // Already opened in compact/new window — don't intercept again
+      if (to.query.appCompact) return
 
-      // Read settings lazily inside guard to avoid init-order issues
       const { userAppCompact, userAppNewWindow } = useFolderviewSettings()
+      if (!userAppCompact.value && !userAppNewWindow.value) return
 
       const query = { ...to.query }
       if (userAppCompact.value) query.appCompact = 'true'
@@ -282,13 +284,10 @@ export default defineWebApplication({
       if (userAppNewWindow.value) {
         const resolved = router.resolve({ ...to, query })
         window.open(resolved.href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
-        // Stay on current page
         return { path: from.path, query: from.query }
       }
 
-      if (userAppCompact.value && !to.query.appCompact) {
-        return { ...to, query }
-      }
+      return { ...to, query }
     })
 
     // Register oy.* metadata as extra DAV properties (come in PROPFIND, no extra API calls)
