@@ -95,7 +95,7 @@ function doOpen() {
       const href = router.resolve({ ...resolved, query }).href
 
       if (userAppNewWindow.value) {
-        window.open(href, '_blank', 'noopener,menubar=no,toolbar=no,location=no,status=no')
+        window.open(href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         return
       }
       router.push({ path: resolved.path, query })
