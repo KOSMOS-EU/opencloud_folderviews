@@ -352,7 +352,9 @@ export default defineWebApplication({
     // App Compact + New Window: intercept navigation to external-* app routes
     router.beforeEach((to, from) => {
       const routeName = String(to.name || '')
-      if (!routeName.startsWith('external-')) return
+      if (!routeName.startsWith('external-') &&
+          !routeName.includes('viewer') &&
+          !routeName.includes('editor')) return
       // Already opened in compact/new window — don't intercept again
       if (to.query.appCompact) return
 
