@@ -16,14 +16,14 @@ fi
 : "${CODEBERG_TOKEN:?Set CODEBERG_TOKEN or create ~/.codeberg-token}"
 
 # Build (skip if already built by worker)
-if [ -z "${DIST_DIR:-}" ]; then
+if [ -z "${SKIP_BUILD:-}" ]; then
     bash "$SCRIPT_DIR/build_web.sh"
 fi
 
 # ZIP
 TMPZIP="/tmp/${PACKAGE}-${TAG}.zip"
 rm -f "$TMPZIP"
-(cd "${DIST_DIR:-$SCRIPT_DIR/$DEPLOY_DIR}" && zip -r "$TMPZIP" .)
+(cd "$SCRIPT_DIR/$DEPLOY_DIR" && zip -r "$TMPZIP" .)
 echo "[zip] $(du -h "$TMPZIP" | cut -f1)"
 
 # Push
