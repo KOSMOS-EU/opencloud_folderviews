@@ -95,6 +95,7 @@ function doOpen() {
       const href = router.resolve({ ...resolved, query }).href
 
       if (userAppNewWindow.value) {
+        console.error('[ELEMENTFRAME] window.open:', href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         window.open(href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         return
       }

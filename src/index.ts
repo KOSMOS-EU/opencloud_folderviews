@@ -366,6 +366,7 @@ export default defineWebApplication({
 
       if (userAppNewWindow.value) {
         const resolved = router.resolve({ ...to, query })
+        console.error('[FOLDERVIEWS] window.open:', resolved.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         window.open(resolved.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         return { path: from.path, query: from.query }
       }
