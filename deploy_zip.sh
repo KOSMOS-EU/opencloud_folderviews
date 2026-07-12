@@ -71,4 +71,16 @@ if [ -n "$RESTART_CMD" ]; then
 fi
 
 echo ""
+# Wait for cloud to come back
+echo -n "Waiting for https://${HOST} ..."
+for i in $(seq 1 30); do
+    sleep 2
+    STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "https://${HOST}" 2>/dev/null || echo "000")
+    if [ "$STATUS" = "200" ]; then
+        echo " OK"
+        break
+    fi
+    echo -n "."
+done
+[ "$STATUS" != "200" ] && echo " WARNING: not 200 after 60s"
 echo "=== ${PACKAGE}:${TAG} deployed to ${HOST} ==="
