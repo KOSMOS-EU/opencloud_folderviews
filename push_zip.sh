@@ -23,7 +23,7 @@ fi
 # ZIP
 TMPZIP="/tmp/${PACKAGE}-${TAG}.zip"
 rm -f "$TMPZIP"
-(cd "$SCRIPT_DIR/$DEPLOY_DIR" && zip -r "$TMPZIP" .)
+(cd "$SCRIPT_DIR/${DEPLOY_DIR:-deploy/folderviews}" && zip -r "$TMPZIP" .)
 echo "[zip] $(du -h "$TMPZIP" | cut -f1)"
 
 # Push
