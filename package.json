@@ -15,7 +15,7 @@
     "vue": "^3.5.0"
   },
   "devDependencies": {
-    "@opencloud-eu/extension-sdk": "^7.0.1",
+    "@opencloud-eu/extension-sdk": "7.0.1",
     "@opencloud-eu/web-client": "^4.0.0",
     "@opencloud-eu/web-pkg": "^4.0.0",
     "@vitejs/plugin-vue": "^6.0.0",

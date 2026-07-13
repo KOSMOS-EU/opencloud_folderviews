@@ -16,8 +16,8 @@ importers:
         version: 3.5.39(typescript@5.6.3)
     devDependencies:
       '@opencloud-eu/extension-sdk':
-        specifier: ^7.0.1
-        version: 7.1.2(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vitest@4.1.10(@types/node@26.1.1)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0)))(vue-tsc@2.2.12(typescript@5.6.3))(vue@3.5.39(typescript@5.6.3))
+        specifier: 7.0.1
+        version: 7.0.1(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vitest@4.1.10(@types/node@26.1.1)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0)))(vue-tsc@2.2.12(typescript@5.6.3))(vue@3.5.39(typescript@5.6.3))
       '@opencloud-eu/web-client':
         specifier: ^4.0.0
         version: 4.3.0
@@ -255,8 +255,8 @@ packages:
   '@microsoft/fetch-event-source@2.0.1':
     resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
 
-  '@module-federation/dts-plugin@2.3.1':
-    resolution: {integrity: sha512-6BJvu+dLDtW/ngpyuOLgpKOgtOnMUTZY51JUyargVckerKRbe7Ul+414YaHj32mu2FpsiHVMl4ig1XnxgnRg2Q==}
+  '@module-federation/dts-plugin@2.4.0':
+    resolution: {integrity: sha512-sa6v5ByyqMRHzpwDu0zc7s5mZ39EFIkG0jkRfZU09pzkrJEIy4uZ1Kt9SLysFB8RBMIAvAakAfqDlVWvf1lndg==}
     peerDependencies:
       typescript: ^4.9.0 || ^5.0.0
       vue-tsc: '>=1.0.24'
@@ -264,31 +264,31 @@ packages:
       vue-tsc:
         optional: true
 
-  '@module-federation/error-codes@2.3.1':
-    resolution: {integrity: sha512-s3IjT2OYrSBNNmxdTmmrWBpsFfeNszdL6BSqjXLHb1CgXWUYLNXpb05IopnzMhRLcur6MTGuKR0ZSjJbmvQBbg==}
+  '@module-federation/error-codes@2.4.0':
+    resolution: {integrity: sha512-ktCZtwOoiKR1URJyBt223OsOFAUvc13rICYif55mt7+DomtELlh5FicnEz6mPLBUwmNM9vyBMvkxOdp+fQ5oUg==}
 
-  '@module-federation/managers@2.3.1':
-    resolution: {integrity: sha512-kK/4FkoaIxbJbN+R6+cq+igv095hPox8oheZOKkrYA9P6Xv5FiHza+gHlCntiWTMrU8bzqJHH4VYm6gq1RB+dQ==}
+  '@module-federation/managers@2.4.0':
+    resolution: {integrity: sha512-Z8j6aog44G1gt4yIAaeDowwZ7xg0aAxTA1Hq69euJK9cR9MDEaLbLUk57jDoiRj6xLwlCiw7ozY+U15BQATk6Q==}
 
-  '@module-federation/runtime-core@2.3.1':
-    resolution: {integrity: sha512-E0WgaCn32AWzD0n6SCH7VQ+kxk46XyX432PQWARgyQzCX/wyLkaT+We3A18RVNUevRT85YHLrrVIhMKJJVHgjA==}
+  '@module-federation/runtime-core@2.4.0':
+    resolution: {integrity: sha512-0S8fDw28DXDW17lTQwq5vfJWe2lG0Lw3+w4vk3DVVImLwXXay+OGxLDxzWUfypWcMznfpnoAnFUMO3PtuXziuA==}
 
-  '@module-federation/runtime@2.3.1':
-    resolution: {integrity: sha512-NiKelHKzOf1Vz8oqcxC/XRUAW224O6lKj9xD0cfp5Bp343iu6s58RlLvX1ypF+UpCl3jA4JM8npGax/3jjyifw==}
+  '@module-federation/runtime@2.4.0':
+    resolution: {integrity: sha512-IrLAMwUuteRgFlEkg9jrn4bk8uC897FnXvfNmkKD8/qIoNtSd+32e5ouQn+PEYbX/RjRUB1TYveY6rYHpTPkyg==}
 
-  '@module-federation/sdk@2.3.1':
-    resolution: {integrity: sha512-lgWxFZyLRKDXWRGlV6ROjFJ6MRaJTxs0bBnS6hS9ONfr/0TkeW4JzDbsfzrB8g4p6IgSKB+wQ9XfibJCGBI5OQ==}
+  '@module-federation/sdk@2.4.0':
+    resolution: {integrity: sha512-eZDdF5B69W9npuka0VL24FY7XDM+YAwwfkscSeWOSqv4/8Hm0xmcmSurlP6NIOrwbeogerRCtEcnx/TFXYjoow==}
     peerDependencies:
-      node-fetch: ^3.3.2
+      node-fetch: ^2.7.0 || ^3.3.2
     peerDependenciesMeta:
       node-fetch:
         optional: true
 
-  '@module-federation/third-party-dts-extractor@2.3.1':
-    resolution: {integrity: sha512-YpTLzM7H9damh31JX7eFBiCCR1mbibzS4i4JEa4fZ5ICT4hfNIuaAx1OeICGDOzSdl35TYegegCjk91oX6xCJQ==}
+  '@module-federation/third-party-dts-extractor@2.4.0':
+    resolution: {integrity: sha512-4v24t6L3dET/6abMOM2fiM3roT0c8mi21/i+uDc6WG7U0i+Xp2SojBppTs6gnT0lkwMTe+u6xIpNQakdUftHsg==}
 
-  '@module-federation/vite@1.14.2':
-    resolution: {integrity: sha512-SkmwmHzjP73oSpSUIhn/CuSC7wgF5jJEuA66WGVqkkglWPGlx1Zpc9B8Ec/xSgYsA/cR1OHOwC1YaU6UTytpkQ==}
+  '@module-federation/vite@1.15.4':
+    resolution: {integrity: sha512-44l8xYOermWM0hhuTLuGE0AKaX6W2yqQ/hTyVqiEHa23gPHFUNjJs1Cr6+A5fG38XMl+0Vzn11luT3zwp1xJjQ==}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
 
@@ -304,8 +304,8 @@ packages:
   '@opencloud-eu/design-system@4.3.0':
     resolution: {integrity: sha512-i9UYRXiLaor1O6sGw29YVOu2VmdQfGf/4xVR7cgbyleX4QxgMm/ihOxOjkAv77J8NCH2cIxt1PpHvVQ0lkEbqg==}
 
-  '@opencloud-eu/extension-sdk@7.1.2':
-    resolution: {integrity: sha512-N12Y+T4qNXBdeTc/FI6WhKFaCPuXjcqDfnbXuRp10Atb3eYd0uCBAioftBwSBBU6QoN7uRPEndzYL3IYf2e93w==}
+  '@opencloud-eu/extension-sdk@7.0.1':
+    resolution: {integrity: sha512-G6u96v8XEiV5S+e81vRs19dwkMkL6lm4F3iMCBNUaPV4BYZD7ruIR0DNGFhPHyHW/aJZAzSD4e8pvFrbgOKrkA==}
     peerDependencies:
       vite: ^7.2.0 || ^8.0.0
       vitest: ^4.0.0
@@ -413,15 +413,6 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
-
-  '@rollup/pluginutils@5.4.0':
-    resolution: {integrity: sha512-MfPp06CjRLfXQ3wY0R8vJDYBy/MvVcc9OulEfR0B8Iv9ko+GCNaRZ+EpJYFl27LhKsZK0o420sYCRHCjfCgeUg==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
 
   '@sentry/browser-utils@10.65.0':
     resolution: {integrity: sha512-4J0mkfNJAGUOkpg1ZggizyftFTn9N20b+Jl87UnWsDUkNG0Ic1l/FIzMPTVxXrAnhBGu0ULO0TFWMoQ5s3QtZw==}
@@ -770,9 +761,9 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
-  adm-zip@0.5.18:
-    resolution: {integrity: sha512-ufJnssQGbxzLNS1Ho9bCtX4rQKCCvoVuDLHoJyc3F9dOGDB4BkWs2Ci0kv53lqocAEQ/Cbi+I2XCsNYGqVYqng==}
-    engines: {node: '>=12.0'}
+  adm-zip@0.5.10:
+    resolution: {integrity: sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==}
+    engines: {node: '>=6.0'}
 
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
@@ -805,13 +796,6 @@ packages:
 
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
-
-  at-least-node@1.0.0:
-    resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
-    engines: {node: '>= 4.0.0'}
-
-  axios@1.13.5:
-    resolution: {integrity: sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==}
 
   axios@1.18.1:
     resolution: {integrity: sha512-3nTvFlvpn9Zu/RkHUqtc7/+al4UpRW5az71ap5zccp6e8RAYEzhMTecX8Dz1wWDYrPpUoB1HAQEGEAEvUr7S9g==}
@@ -954,9 +938,6 @@ packages:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
 
-  defu@6.1.7:
-    resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
-
   delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
@@ -1095,10 +1076,6 @@ packages:
   formdata-polyfill@4.0.10:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
     engines: {node: '>=12.20.0'}
-
-  fs-extra@9.1.0:
-    resolution: {integrity: sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==}
-    engines: {node: '>=10'}
 
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
@@ -1243,9 +1220,6 @@ packages:
 
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
-
-  jsonfile@6.2.1:
-    resolution: {integrity: sha512-zwOTdL3rFQ/lRdBnntKVOX6k5cKJwEc1HdilT71BWEu7J41gXIB2MRp+vxduPSwZJPWBxEzv4yH1wYLJGUHX4Q==}
 
   jwt-decode@4.0.0:
     resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
@@ -1581,8 +1555,8 @@ packages:
       vue:
         optional: true
 
-  postcss@8.5.17:
-    resolution: {integrity: sha512-J7EF+8X+CzRPaJPOv9Ck2wNWJvGnnl3PcNPAdGg6GTLjyVpyQ0yATMSXRFRV01BviT/9Gwuc3rjEyJbDJG9a4w==}
+  postcss@8.5.19:
+    resolution: {integrity: sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   preact@10.29.7:
@@ -1599,9 +1573,6 @@ packages:
 
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
-
-  proxy-from-env@1.1.0:
-    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
@@ -1767,9 +1738,9 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  universalify@2.0.1:
-    resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
-    engines: {node: '>= 10.0.0'}
+  undici@7.24.7:
+    resolution: {integrity: sha512-H/nlJ/h0ggGC+uRL3ovD+G0i4bqhvsDOpbDv7At5eFLlj2b41L8QliGbnl2H7SnDiYhENphh1tQFJZf+MyfLsQ==}
+    engines: {node: '>=20.18.1'}
 
   url-join@5.0.0:
     resolution: {integrity: sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==}
@@ -2392,80 +2363,71 @@ snapshots:
 
   '@microsoft/fetch-event-source@2.0.1': {}
 
-  '@module-federation/dts-plugin@2.3.1(node-fetch@3.3.2)(typescript@5.6.3)(vue-tsc@2.2.12(typescript@5.6.3))':
+  '@module-federation/dts-plugin@2.4.0(node-fetch@3.3.2)(typescript@5.6.3)(vue-tsc@2.2.12(typescript@5.6.3))':
     dependencies:
-      '@module-federation/error-codes': 2.3.1
-      '@module-federation/managers': 2.3.1(node-fetch@3.3.2)
-      '@module-federation/sdk': 2.3.1(node-fetch@3.3.2)
-      '@module-federation/third-party-dts-extractor': 2.3.1
-      adm-zip: 0.5.18
+      '@module-federation/error-codes': 2.4.0
+      '@module-federation/managers': 2.4.0(node-fetch@3.3.2)
+      '@module-federation/sdk': 2.4.0(node-fetch@3.3.2)
+      '@module-federation/third-party-dts-extractor': 2.4.0
+      adm-zip: 0.5.10
       ansi-colors: 4.1.3
-      axios: 1.13.5
-      fs-extra: 9.1.0
       isomorphic-ws: 5.0.0(ws@8.18.0)
       node-schedule: 2.1.1
       typescript: 5.6.3
+      undici: 7.24.7
       ws: 8.18.0
     optionalDependencies:
       vue-tsc: 2.2.12(typescript@5.6.3)
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - node-fetch
       - utf-8-validate
 
-  '@module-federation/error-codes@2.3.1': {}
+  '@module-federation/error-codes@2.4.0': {}
 
-  '@module-federation/managers@2.3.1(node-fetch@3.3.2)':
+  '@module-federation/managers@2.4.0(node-fetch@3.3.2)':
     dependencies:
-      '@module-federation/sdk': 2.3.1(node-fetch@3.3.2)
+      '@module-federation/sdk': 2.4.0(node-fetch@3.3.2)
       find-pkg: 2.0.0
-      fs-extra: 9.1.0
     transitivePeerDependencies:
       - node-fetch
 
-  '@module-federation/runtime-core@2.3.1(node-fetch@3.3.2)':
+  '@module-federation/runtime-core@2.4.0(node-fetch@3.3.2)':
     dependencies:
-      '@module-federation/error-codes': 2.3.1
-      '@module-federation/sdk': 2.3.1(node-fetch@3.3.2)
+      '@module-federation/error-codes': 2.4.0
+      '@module-federation/sdk': 2.4.0(node-fetch@3.3.2)
     transitivePeerDependencies:
       - node-fetch
 
-  '@module-federation/runtime@2.3.1(node-fetch@3.3.2)':
+  '@module-federation/runtime@2.4.0(node-fetch@3.3.2)':
     dependencies:
-      '@module-federation/error-codes': 2.3.1
-      '@module-federation/runtime-core': 2.3.1(node-fetch@3.3.2)
-      '@module-federation/sdk': 2.3.1(node-fetch@3.3.2)
+      '@module-federation/error-codes': 2.4.0
+      '@module-federation/runtime-core': 2.4.0(node-fetch@3.3.2)
+      '@module-federation/sdk': 2.4.0(node-fetch@3.3.2)
     transitivePeerDependencies:
       - node-fetch
 
-  '@module-federation/sdk@2.3.1(node-fetch@3.3.2)':
+  '@module-federation/sdk@2.4.0(node-fetch@3.3.2)':
     optionalDependencies:
       node-fetch: 3.3.2
 
-  '@module-federation/third-party-dts-extractor@2.3.1':
+  '@module-federation/third-party-dts-extractor@2.4.0':
     dependencies:
       find-pkg: 2.0.0
-      fs-extra: 9.1.0
       resolve: 1.22.8
 
-  '@module-federation/vite@1.14.2(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vue-tsc@2.2.12(typescript@5.6.3))':
+  '@module-federation/vite@1.15.4(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vue-tsc@2.2.12(typescript@5.6.3))':
     dependencies:
-      '@module-federation/dts-plugin': 2.3.1(node-fetch@3.3.2)(typescript@5.6.3)(vue-tsc@2.2.12(typescript@5.6.3))
-      '@module-federation/runtime': 2.3.1(node-fetch@3.3.2)
-      '@module-federation/sdk': 2.3.1(node-fetch@3.3.2)
-      '@rollup/pluginutils': 5.4.0
-      defu: 6.1.7
+      '@module-federation/dts-plugin': 2.4.0(node-fetch@3.3.2)(typescript@5.6.3)(vue-tsc@2.2.12(typescript@5.6.3))
+      '@module-federation/runtime': 2.4.0(node-fetch@3.3.2)
+      '@module-federation/sdk': 2.4.0(node-fetch@3.3.2)
       es-module-lexer: 2.3.1
       estree-walker: 3.0.3
-      magic-string: 0.30.21
       pathe: 2.0.3
       vite: 8.1.4(@types/node@26.1.1)(jiti@2.7.0)
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - node-fetch
-      - rollup
       - typescript
       - utf-8-validate
       - vue-tsc
@@ -2503,9 +2465,9 @@ snapshots:
       - typescript
       - vue
 
-  '@opencloud-eu/extension-sdk@7.1.2(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vitest@4.1.10(@types/node@26.1.1)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0)))(vue-tsc@2.2.12(typescript@5.6.3))(vue@3.5.39(typescript@5.6.3))':
+  '@opencloud-eu/extension-sdk@7.0.1(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vitest@4.1.10(@types/node@26.1.1)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0)))(vue-tsc@2.2.12(typescript@5.6.3))(vue@3.5.39(typescript@5.6.3))':
     dependencies:
-      '@module-federation/vite': 1.14.2(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vue-tsc@2.2.12(typescript@5.6.3))
+      '@module-federation/vite': 1.15.4(node-fetch@3.3.2)(typescript@5.6.3)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vue-tsc@2.2.12(typescript@5.6.3))
       '@tailwindcss/vite': 4.3.2(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))
       '@vitejs/plugin-basic-ssl': 2.3.0(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))
       '@vitejs/plugin-vue': 6.0.7(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))(vue@3.5.39(typescript@5.6.3))
@@ -2513,9 +2475,7 @@ snapshots:
       vitest: 4.1.10(@types/node@26.1.1)(vite@8.1.4(@types/node@26.1.1)(jiti@2.7.0))
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - node-fetch
-      - rollup
       - typescript
       - utf-8-validate
       - vue
@@ -2639,12 +2599,6 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
-
-  '@rollup/pluginutils@5.4.0':
-    dependencies:
-      '@types/estree': 1.0.9
-      estree-walker: 2.0.2
-      picomatch: 4.0.5
 
   '@sentry/browser-utils@10.65.0':
     dependencies:
@@ -2965,7 +2919,7 @@ snapshots:
       '@vue/shared': 3.5.39
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.17
+      postcss: 8.5.19
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.39':
@@ -3048,7 +3002,7 @@ snapshots:
     dependencies:
       vue: 3.5.39(typescript@5.6.3)
 
-  adm-zip@0.5.18: {}
+  adm-zip@0.5.10: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -3073,16 +3027,6 @@ snapshots:
   assertion-error@2.0.1: {}
 
   asynckit@0.4.0: {}
-
-  at-least-node@1.0.0: {}
-
-  axios@1.13.5:
-    dependencies:
-      follow-redirects: 1.16.0
-      form-data: 4.0.6
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
 
   axios@1.18.1:
     dependencies:
@@ -3220,8 +3164,6 @@ snapshots:
 
   deepmerge@4.3.1: {}
 
-  defu@6.1.7: {}
-
   delayed-stream@1.0.0: {}
 
   detect-libc@2.1.2: {}
@@ -3347,13 +3289,6 @@ snapshots:
   formdata-polyfill@4.0.10:
     dependencies:
       fetch-blob: 3.2.0
-
-  fs-extra@9.1.0:
-    dependencies:
-      at-least-node: 1.0.0
-      graceful-fs: 4.2.11
-      jsonfile: 6.2.1
-      universalify: 2.0.1
 
   fs.realpath@1.0.0: {}
 
@@ -3493,12 +3428,6 @@ snapshots:
   js-tokens@4.0.0: {}
 
   json-parse-even-better-errors@2.3.1: {}
-
-  jsonfile@6.2.1:
-    dependencies:
-      universalify: 2.0.1
-    optionalDependencies:
-      graceful-fs: 4.2.11
 
   jwt-decode@4.0.0: {}
 
@@ -3788,7 +3717,7 @@ snapshots:
     optionalDependencies:
       vue: 3.5.39(typescript@5.6.3)
 
-  postcss@8.5.17:
+  postcss@8.5.19:
     dependencies:
       nanoid: 3.3.16
       picocolors: 1.1.1
@@ -3803,8 +3732,6 @@ snapshots:
       graceful-fs: 4.2.11
       retry: 0.12.0
       signal-exit: 3.0.7
-
-  proxy-from-env@1.1.0: {}
 
   proxy-from-env@2.1.0: {}
 
@@ -3964,7 +3891,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  universalify@2.0.1: {}
+  undici@7.24.7: {}
 
   url-join@5.0.0: {}
 
@@ -3979,7 +3906,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.5
-      postcss: 8.5.17
+      postcss: 8.5.19
       rolldown: 1.1.5
       tinyglobby: 0.2.17
     optionalDependencies:
