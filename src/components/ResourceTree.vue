@@ -46,7 +46,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { getFileReference } from '../composables/useFileReference'
+import { getFileReference, prefixResources } from '../composables/useFileReference'
 
 const props = defineProps<{
   resources: Resource[]
@@ -124,7 +124,7 @@ async function toggleExpand(resource: Resource) {
       const dm = new Map(depthMap.value)
       for (const c of children) { dm.set(c.id, parentDepth + 1) }
       depthMap.value = dm
-      childrenMap.value = new Map([...childrenMap.value, [id, children]])
+      childrenMap.value = new Map([...childrenMap.value, [id, showAktzInName.value ? prefixResources(children) : children]])
     } catch {
       childrenMap.value = new Map([...childrenMap.value, [id, []]])
     } finally {

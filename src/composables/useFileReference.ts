@@ -28,3 +28,15 @@ export function compareByDisplayName(a: Resource, b: Resource, showAktz: boolean
   const nb = displayName(b, showAktz).toLowerCase()
   return na.localeCompare(nb, undefined, { numeric: true })
 }
+
+/**
+ * Prefix resource names with Aktenzeichen if present.
+ * Used by resourceTransformer and Tree child-loading.
+ */
+export function prefixResources<T extends Resource>(resources: T[]): T[] {
+  return resources.map((r) => {
+    const aktz = (r as any).extraProps?.[PROP_KEY]
+    if (!aktz) return r
+    return { ...r, name: `${aktz} ${r.name}` } as T
+  })
+}

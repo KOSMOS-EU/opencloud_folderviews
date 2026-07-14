@@ -4,6 +4,7 @@ import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getPreferenceDefinitions, useFolderviewSettings } from './composables/useFolderviewSettings'
+import { prefixResources } from './composables/useFileReference'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
@@ -318,11 +319,7 @@ export default defineWebApplication({
         extensionPointIds: ['global.files.resource-transformer'],
         transformResources(resources: any[]) {
           if (!showAktzInName.value) return resources
-          return resources.map((r: any) => {
-            const aktz = r.extraProps?.['om:oy.fileReference']
-            if (!aktz) return r
-            return { ...r, name: `${aktz} ${r.name}` }
-          })
+          return prefixResources(resources)
         }
       }
     ])
