@@ -1,10 +1,10 @@
 import { Resource } from '@opencloud-eu/web-client'
 
-const PROP_KEY = 'oc:oy.fileReference'
+const PROP_KEY = 'om:oy.fileReference'
 
 /**
  * Get the Aktenzeichen (oy.fileReference) from a resource.
- * Requires registerExtraProp('oc:oy.fileReference') + buildPropFindBody fix.
+ * Requires registerExtraProp('om:oy.fileReference') + buildPropFindBody fix.
  */
 export function getFileReference(resource: Resource): string {
   return ((resource as any).extraProps?.[PROP_KEY] as string) || ''

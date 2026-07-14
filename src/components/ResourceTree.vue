@@ -96,7 +96,7 @@ async function patchFileReferences(resources: Resource[]) {
       if (ref) {
         patch.set(r.id, ref)
         if (!(r as any).extraProps) (r as any).extraProps = {}
-        ;(r as any).extraProps['oc:oy.fileReference'] = ref
+        ;(r as any).extraProps['om:oy.fileReference'] = ref
       }
     } catch { /* ignore */ }
   }

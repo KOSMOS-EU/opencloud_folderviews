@@ -43,7 +43,7 @@
     <template #image="{ resource }">
       <div class="metro-tile-content" :style="tileStyle(resource)">
         <span class="metro-tile-label">{{ resource.name }}</span>
-        <span v-if="getProp(resource, 'oc:oy.note')" class="metro-tile-note">{{ getProp(resource, 'oc:oy.note') }}</span>
+        <span v-if="getProp(resource, 'om:oy.note')" class="metro-tile-note">{{ getProp(resource, 'om:oy.note') }}</span>
       </div>
     </template>
     <template #contextMenu="{ resource }">
@@ -106,7 +106,7 @@ const leafFolder = ref<Resource | null>(null)
 const leafApp = computed(() => {
   if (!leafFolder.value) return ''
   // Prefer: look up app from schema via oy.ftype
-  const ftype = getProp(leafFolder.value, 'oc:oy.ftype')
+  const ftype = getProp(leafFolder.value, 'om:oy.ftype')
   if (ftype) {
     const sp = props.space
     if (sp) {
@@ -115,7 +115,7 @@ const leafApp = computed(() => {
     }
   }
   // Fallback: direct oy.app xattr (legacy)
-  return getProp(leafFolder.value, 'oc:oy.app')
+  return getProp(leafFolder.value, 'om:oy.app')
 })
 
 // Find registered leaf-app extension matching app value
@@ -153,20 +153,20 @@ function getProp(resource: Resource, key: string): string {
 }
 
 function tileStyle(resource: Resource): Record<string, string> {
-  const color = getProp(resource, 'oc:oy.color')
+  const color = getProp(resource, 'om:oy.color')
   if (!color) return {}
   return { backgroundColor: color, color: '#fff' }
 }
 
 function getLeafApp(resource: Resource): string {
   // Prefer: schema lookup via oy.ftype
-  const ftype = getProp(resource, 'oc:oy.ftype')
+  const ftype = getProp(resource, 'om:oy.ftype')
   if (ftype && props.space) {
     const s = getCachedSchema(props.space.id, ftype)
     if (s?.app) return s.app
   }
   // Fallback: direct oy.app xattr (legacy)
-  return getProp(resource, 'oc:oy.app')
+  return getProp(resource, 'om:oy.app')
 }
 
 function isLeaf(resource: Resource): boolean {
@@ -207,7 +207,7 @@ const sortedResources = computed(() => {
     .filter(r => !r.name?.startsWith('_type_'))
     .map(r => {
       if (!showAktzInName.value) return r
-      const ref = getProp(r, 'oc:oy.fileReference')
+      const ref = getProp(r, 'om:oy.fileReference')
       if (!ref) return r
       return Object.assign(Object.create(Object.getPrototypeOf(r)), r, {
         name: `${ref} ${r.name}`

@@ -92,7 +92,7 @@ async function detectRootType() {
   ready.value = false
   // Prefer oy.ftype xattr, fallback to _type_* file
   const folder = resourcesStore.currentFolder as any
-  const ftype = folder?.extraProps?.['oc:oy.ftype']
+  const ftype = folder?.extraProps?.['om:oy.ftype']
   const allResources = resourcesStore.resources || props.resources
   const typeFile = allResources.find(r => r.name?.startsWith('_type_'))
   const typeName = ftype || (typeFile ? typeFile.name.substring(6) : null)
