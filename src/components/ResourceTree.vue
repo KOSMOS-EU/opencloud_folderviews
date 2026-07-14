@@ -46,7 +46,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { displayName as buildDisplayName, compareByDisplayName, getFileReference } from '../composables/useFileReference'
+import { getFileReference } from '../composables/useFileReference'
 
 const props = defineProps<{
   resources: Resource[]
@@ -140,14 +140,9 @@ const visibleResources = computed(() => {
 
   function walk(resources: Resource[]) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
-    const sorted = [...filtered].sort((a, b) => compareByDisplayName(a, b, showAktzInName.value))
+    const sorted = [...filtered].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
     for (const r of sorted) {
-      const display = buildDisplayName(r, showAktzInName.value)
-      if (display !== r.name) {
-        result.push({ ...r, name: display } as Resource)
-      } else {
-        result.push(r)
-      }
+      result.push(r)
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
         walk(childrenMap.value.get(r.id)!)
       }
