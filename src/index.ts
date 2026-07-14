@@ -374,13 +374,15 @@ export default defineWebApplication({
       return { ...to, query }
     })
 
-    // Register oy.* metadata as extra DAV properties (come in PROPFIND, no extra API calls)
+    // Register oy.* metadata as extra DAV properties via om: namespace
+    // (come in PROPFIND/search, no extra API calls — reva resolves from xattrs)
     const clientService = useClientService()
-    clientService.webdav.registerExtraProp('oc:oy.fileReference')
-    clientService.webdav.registerExtraProp('oc:oy.color')
-    clientService.webdav.registerExtraProp('oc:oy.note')
-    clientService.webdav.registerExtraProp('oc:oy.app')
-    clientService.webdav.registerExtraProp('oc:oy.ftype')
+    clientService.webdav.registerExtraProp('om:oy.fileReference')
+    clientService.webdav.registerExtraProp('om:oy.color')
+    clientService.webdav.registerExtraProp('om:oy.note')
+    clientService.webdav.registerExtraProp('om:oy.app')
+    clientService.webdav.registerExtraProp('om:oy.ftype')
+    clientService.webdav.registerExtraProp('om:parent-oy.fileReference')
 
     // Space Apps: load from server and register as appMenuItem extensions
     interface SpaceApp {

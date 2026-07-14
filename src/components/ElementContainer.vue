@@ -151,7 +151,7 @@ async function loadAndAnalyze() {
     for (const r of items) {
       if (r.type !== 'folder') continue
       // Prefer oy.ftype xattr, fallback to _type_* file in children
-      const ftype = (r as any).extraProps?.['oc:oy.ftype']
+      const ftype = (r as any).extraProps?.['om:oy.ftype']
       const subChildren = await ctx.loadChildren(r.path)
       const typeFile = subChildren.find(c => c.name?.startsWith('_type_'))
       const typeName = ftype || (typeFile ? typeFile.name.substring(6) : null)

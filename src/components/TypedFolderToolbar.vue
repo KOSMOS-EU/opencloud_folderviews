@@ -95,7 +95,7 @@ const resolvedSpace = computed(() => {
 const currentType = computed(() => {
   // Prefer oy.ftype xattr on current folder
   const folder = unref(currentFolder) as any
-  const ftype = folder?.extraProps?.['oc:oy.ftype']
+  const ftype = folder?.extraProps?.['om:oy.ftype']
   if (ftype) return ftype
   // Fallback: _type_* file in resources
   const resources = resourcesStore.resources || []
@@ -114,7 +114,7 @@ const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(
 
 const currentFolderFileRef = computed(() => {
   const folder = unref(currentFolder) as any
-  return folder?.extraProps?.['oc:oy.fileReference'] || ''
+  return folder?.extraProps?.['om:oy.fileReference'] || ''
 })
 
 const folderCount = computed(() => {
@@ -184,7 +184,7 @@ const hasLeafChild = computed(() => {
   const resources = resourcesStore.resources || []
   return resources.some(r => {
     if (r.type !== 'folder') return false
-    const ftype = (r as any).extraProps?.['oc:oy.ftype']
+    const ftype = (r as any).extraProps?.['om:oy.ftype']
     if (!ftype) return false
     const childSchema = getCachedSchema(sp.id, ftype)
     return !!childSchema?.isLeaf
