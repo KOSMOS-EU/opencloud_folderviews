@@ -63,6 +63,7 @@ export default defineWebApplication({
 
     // User preferences (checkboxes on /account/extensions)
     const prefDefs = getPreferenceDefinitions()
+    const { showAktzInName, userAppCompact, userAppNewWindow } = useFolderviewSettings()
 
     function downloadUrlFile(fileName: string, url: string) {
       const isLinux = /Linux/.test(navigator.userAgent)
@@ -309,6 +310,20 @@ export default defineWebApplication({
             return r.type === 'file'
           }
         }
+      },
+      // Resource transformer: prefix resource names with Aktenzeichen (if user pref enabled)
+      {
+        id: 'com.kosmos-eu.folderviews.resource-transformer.aktenzeichen',
+        type: 'resourceTransformer',
+        extensionPointIds: ['global.files.resource-transformer'],
+        transformResources(resources: any[]) {
+          if (!showAktzInName.value) return resources
+          return resources.map((r: any) => {
+            const aktz = r.extraProps?.['om:oy.fileReference']
+            if (!aktz) return r
+            return { ...r, name: `${aktz} ${r.name}` }
+          })
+        }
       }
     ])
 
@@ -358,7 +373,6 @@ export default defineWebApplication({
       // Already opened in compact/new window — don't intercept again
       if (to.query.appCompact) return
 
-      const { userAppCompact, userAppNewWindow } = useFolderviewSettings()
       if (!userAppCompact.value && !userAppNewWindow.value) return
 
       const query = { ...to.query }
