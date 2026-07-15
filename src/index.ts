@@ -490,12 +490,29 @@ export default defineWebApplication({
       handler: () => navigateWithView('/files/spaces/project/intranet', 'resource-elements')
     }
 
-    const allExtensions = computed(() => [
-      ...extensions.value,
-      ...spaceAppExtensions.value,
-      filesMenuItem,
-      intranetMenuItem
-    ])
+    const mdmMenuItem = {
+      id: 'com.kosmos-eu.folderviews.mdm-menu-item',
+      type: 'appMenuItem' as const,
+      label: () => 'MDM',
+      icon: 'smartphone',
+      color: '#2E7D32',
+      priority: 30,
+      handler: () => navigateWithView('/files/spaces/project/mdm', 'resource-metro')
+    }
+
+    const allExtensions = computed(() => {
+      const spacesStore = useSpacesStore()
+      const hasMdmSpace = spacesStore.spaces.some(
+        (s: any) => s.name?.toLowerCase() === 'mdm'
+      )
+      return [
+        ...extensions.value,
+        ...spaceAppExtensions.value,
+        filesMenuItem,
+        intranetMenuItem,
+        ...(hasMdmSpace ? [mdmMenuItem] : [])
+      ]
+    })
 
     return {
       appInfo,

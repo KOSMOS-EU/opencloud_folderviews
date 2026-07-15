@@ -200,6 +200,18 @@ async function loadSchemaAndMetadata() {
           vals[key] = val
           if (val) active.add(key)
         }
+        // Also include oy.* keys from the API response not in the schema
+        if (data && typeof data === 'object') {
+          for (const key of Object.keys(data)) {
+            if (!key.startsWith('oy.') || allKeys.includes(key)) continue
+            vals[key] = data[key] || ''
+            if (vals[key]) active.add(key)
+            if (!schema.value.metadata) schema.value.metadata = {}
+            if (!schema.value.metadata[key]) {
+              schema.value.metadata[key] = { type: 'string', label: key }
+            }
+          }
+        }
         values.value = vals
         activeFields.value = active
       } catch {
