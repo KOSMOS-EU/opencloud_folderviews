@@ -17,6 +17,7 @@ import TypedFolderToolbar from './components/TypedFolderToolbar.vue'
 import LearnEditor from './components/LearnEditor.vue'
 import AppModeBar from './components/AppModeBar.vue'
 import { useAppModeStore } from './composables/useAppModeStore'
+import { useAppMenuStore } from './composables/useAppMenuStore'
 import translations from '../l10n/translations.json'
 
 const applicationId = 'folderviews'
@@ -338,6 +339,7 @@ export default defineWebApplication({
 
     const router = useRouter()
     const appModeStore = useAppModeStore()
+    const appMenuStore = useAppMenuStore()
 
     // App Mode: preserve query params within app space, disable when leaving
     router.beforeEach((to, from) => {
@@ -500,6 +502,37 @@ export default defineWebApplication({
       handler: () => navigateWithView('/files/spaces/project/mdm', 'resource-metro')
     }
 
+    // Build appMenuItems from registered entries (via useAppMenuStore)
+    const registeredMenuItems = computed(() =>
+      appMenuStore.items.map(entry => ({
+        id: `com.kosmos-eu.folderviews.registered.${entry.spaceAlias}`,
+        type: 'appMenuItem' as const,
+        label: () => entry.label,
+        icon: entry.icon,
+        color: entry.color,
+        priority: entry.priority || 50,
+        handler: () => {
+          if (entry.appMode) {
+            appModeStore.enable({
+              spaceId: '',
+              spaceName: entry.label,
+              driveAlias: entry.spaceAlias,
+              driveType: 'project',
+              name: entry.label,
+              icon: entry.icon,
+              color: entry.color
+            }, entry.spaceAlias)
+            router.push({
+              path: `/files/spaces/${entry.spaceAlias}`,
+              query: { appMode: 'true', 'view-mode': entry.defaultView || 'resource-table' }
+            })
+          } else {
+            navigateWithView(`/files/spaces/${entry.spaceAlias}`, entry.defaultView || 'resource-table')
+          }
+        }
+      }))
+    )
+
     const allExtensions = computed(() => {
       const spacesStore = useSpacesStore()
       const hasMdmSpace = spacesStore.spaces.some(
@@ -508,6 +541,7 @@ export default defineWebApplication({
       return [
         ...extensions.value,
         ...spaceAppExtensions.value,
+        ...registeredMenuItems.value,
         filesMenuItem,
         intranetMenuItem,
         ...(hasMdmSpace ? [mdmMenuItem] : [])
