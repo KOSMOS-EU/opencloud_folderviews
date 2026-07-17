@@ -20,6 +20,7 @@ export interface AppMenuEntry {
   appMode?: boolean
   defaultView?: string
   priority?: number
+  routeName?: string   // if set, navigate to this named route instead of /files/spaces/...
 }
 
 export const useAppMenuStore = defineStore('appMenu', () => {

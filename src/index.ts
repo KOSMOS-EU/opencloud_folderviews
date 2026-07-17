@@ -522,12 +522,18 @@ export default defineWebApplication({
               icon: entry.icon,
               color: entry.color
             }, entry.spaceAlias)
+          }
+          if (entry.routeName) {
             router.push({
-              path: `/files/spaces/${entry.spaceAlias}`,
-              query: { appMode: 'true', 'view-mode': entry.defaultView || 'resource-table' }
+              name: entry.routeName,
+              params: { driveAliasAndItem: entry.spaceAlias },
+              query: entry.appMode ? { appMode: 'true' } : {}
             })
           } else {
-            navigateWithView(`/files/spaces/${entry.spaceAlias}`, entry.defaultView || 'resource-table')
+            const query: Record<string, string> = {}
+            if (entry.appMode) query['appMode'] = 'true'
+            if (entry.defaultView) query['view-mode'] = entry.defaultView
+            router.push({ path: `/files/spaces/${entry.spaceAlias}`, query })
           }
         }
       }))
