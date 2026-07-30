@@ -66,6 +66,7 @@
     "Type schema": "Typ-Schema",
     "Set": "Setzen",
     "Add attribute": "Attribut hinzufügen",
-    "Attribute key (e.g. oy.color)": "Attribut-Schlüssel (z.B. oy.color)"
+    "Attribute key (e.g. oy.color)": "Attribut-Schlüssel (z.B. oy.color)",
+    "Ignore file reference for sorting": "Aktenzeichen bei Sortierung ignorieren"
   }
 }

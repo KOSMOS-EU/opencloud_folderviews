@@ -37,6 +37,16 @@ export function prefixResources<T extends Resource>(resources: T[]): T[] {
   return resources.map((r) => {
     const aktz = (r as any).extraProps?.[PROP_KEY]
     if (!aktz) return r
-    return { ...r, name: `${aktz} ${r.name}` } as T
+    return { ...r, name: `${aktz} ${r.name}`, _originalName: r.name } as T
   })
+}
+
+/**
+ * Get the sort key for a resource: original name if ignoreAktz, else current name.
+ */
+export function sortName(resource: Resource, ignoreAktz: boolean): string {
+  if (ignoreAktz && (resource as any)._originalName) {
+    return (resource as any)._originalName
+  }
+  return resource.name || ''
 }

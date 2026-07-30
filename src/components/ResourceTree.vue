@@ -1,5 +1,11 @@
 <template>
   <div class="resource-tree">
+    <div v-if="showAktzInName" class="tree-sort-toggle">
+      <oc-switch
+        v-model:checked="ignoreAktzSort"
+        :label="$gettext('Ignore file reference for sorting')"
+      />
+    </div>
     <resource-table
       v-model:selected-ids="selectedIds"
       :resources="visibleResources"
@@ -46,7 +52,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { ResourceTable, ResourceIcon, useClientService, useResourcesStore } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
-import { getFileReference, prefixResources } from '../composables/useFileReference'
+import { getFileReference, prefixResources, sortName } from '../composables/useFileReference'
 
 const props = defineProps<{
   resources: Resource[]
@@ -69,6 +75,7 @@ const isSpaceRoot = computed(() => {
 const selectedIds = defineModel<string[]>('selectedIds', { default: () => [] })
 const clientService = useClientService()
 const { showAktzInName } = useFolderviewSettings()
+const ignoreAktzSort = ref(false)
 
 const expanded = ref(new Set<string>())
 const childrenMap = ref(new Map<string, Resource[]>())
@@ -140,7 +147,8 @@ const visibleResources = computed(() => {
 
   function walk(resources: Resource[]) {
     const filtered = resources.filter(r => !r.name?.startsWith('_type_') && !r.name?.startsWith('.'))
-    const sorted = [...filtered].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }))
+    const ignore = ignoreAktzSort.value
+    const sorted = [...filtered].sort((a, b) => sortName(a, ignore).localeCompare(sortName(b, ignore), undefined, { numeric: true }))
     for (const r of sorted) {
       result.push(r)
       if (r.type === 'folder' && expanded.value.has(r.id) && childrenMap.value.has(r.id)) {
@@ -180,4 +188,5 @@ watch(() => props.resources, () => {
 }
 .tree-btn:hover { background: rgba(0,0,0,0.08); opacity: 1; }
 .tree-spacer { display: inline-block; width: 24px; margin-right: 4px; flex-shrink: 0; }
+.tree-sort-toggle { display: flex; justify-content: flex-end; padding: 4px 16px; }
 </style>
