@@ -1,5 +1,6 @@
 import { computed, ref, defineComponent, h, resolveComponent } from 'vue'
-import { useExtensionPreferencesStore, useViewOptionsStore } from '@opencloud-eu/web-pkg'
+import { defineStore } from 'pinia'
+import { useExtensionPreferencesStore } from '@opencloud-eu/web-pkg'
 
 // --- Aktenzeichen ---
 const AKTZ_EP = 'com.kosmos-eu.folderviews.aktenzeichen-display'
@@ -139,6 +140,15 @@ export function useFolderviewSettings() {
  * Call once at app startup (index.ts).
  */
 export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boolean>>, showAktzInName: { value: boolean }) {
+  // Local pinia store for view-option extensions (lives in folderviews, not web-pkg)
+  const useViewOptionsStore = defineStore('viewOptions', () => {
+    const entries = ref<{ id: string; component: any }[]>([])
+    function register(entry: { id: string; component: any }) {
+      if (entries.value.some((e) => e.id === entry.id)) return
+      entries.value.push(entry)
+    }
+    return { entries, register }
+  })
   const viewOptionsStore = useViewOptionsStore()
 
   const AktzSortToggle = defineComponent({
