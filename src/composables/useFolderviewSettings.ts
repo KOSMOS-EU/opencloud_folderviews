@@ -1,5 +1,5 @@
-import { computed } from 'vue'
-import { useExtensionPreferencesStore } from '@opencloud-eu/web-pkg'
+import { computed, ref, defineComponent, h, resolveComponent } from 'vue'
+import { useExtensionPreferencesStore, useViewOptionsStore } from '@opencloud-eu/web-pkg'
 
 // --- Aktenzeichen ---
 const AKTZ_EP = 'com.kosmos-eu.folderviews.aktenzeichen-display'
@@ -36,7 +36,7 @@ export function getPreferenceDefinitions() {
       id: COMPACT_EP,
       extensionType: 'customComponent' as const,
       multiple: false,
-      defaultExtensionId: COMPACT_ENABLED,
+      defaultExtensionId: COMPACT_DISABLED,
       userPreference: {
         label: 'Apps kompakt öffnen',
         description: 'Externe Apps (z.B. Collabora) ohne Navigationsleiste öffnen',
@@ -47,7 +47,7 @@ export function getPreferenceDefinitions() {
       id: NEWWIN_EP,
       extensionType: 'customComponent' as const,
       multiple: false,
-      defaultExtensionId: NEWWIN_ENABLED,
+      defaultExtensionId: NEWWIN_DISABLED,
       userPreference: {
         label: 'Datei in neuem Fenster öffnen',
         description: 'Externe Apps in einem separaten Browserfenster öffnen',
@@ -128,11 +128,32 @@ export function useFolderviewSettings() {
     return pref.selectedExtensionIds.includes(NEWWIN_ENABLED)
   })
 
-  // Debug helper — remove after testing
-  ;(window as any).__fvSettings = () => ({
-    compact: userAppCompact.value,
-    newWindow: userAppNewWindow.value
+  // Aktenzeichen sort toggle (session state, not persisted)
+  const ignoreAktzSort = ref(false)
+
+  return { showAktzInName, userAppCompact, userAppNewWindow, ignoreAktzSort }
+}
+
+/**
+ * Register the "Ignore file reference" toggle in ViewOptions dropdown.
+ * Call once at app startup (index.ts).
+ */
+export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boolean>>, showAktzInName: { value: boolean }) {
+  const viewOptionsStore = useViewOptionsStore()
+
+  const AktzSortToggle = defineComponent({
+    setup() {
+      const OcSwitch = resolveComponent('oc-switch')
+      return () => {
+        if (!showAktzInName.value) return null
+        return h(OcSwitch as any, {
+          checked: ignoreAktzSort.value,
+          'onUpdate:checked': (v: boolean) => { ignoreAktzSort.value = v },
+          label: 'Aktenzeichen bei Sortierung ignorieren'
+        })
+      }
+    }
   })
 
-  return { showAktzInName, userAppCompact, userAppNewWindow }
+  viewOptionsStore.register({ id: 'folderviews-aktz-sort', component: AktzSortToggle })
 }

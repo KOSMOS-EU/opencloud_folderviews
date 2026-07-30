@@ -3,7 +3,7 @@ import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
-import { getPreferenceDefinitions, useFolderviewSettings } from './composables/useFolderviewSettings'
+import { getPreferenceDefinitions, useFolderviewSettings, registerAktzSortToggle } from './composables/useFolderviewSettings'
 import { prefixResources } from './composables/useFileReference'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
@@ -65,7 +65,8 @@ export default defineWebApplication({
 
     // User preferences (checkboxes on /account/extensions)
     const prefDefs = getPreferenceDefinitions()
-    const { showAktzInName, userAppCompact, userAppNewWindow } = useFolderviewSettings()
+    const { showAktzInName, userAppCompact, userAppNewWindow, ignoreAktzSort } = useFolderviewSettings()
+    registerAktzSortToggle(ignoreAktzSort, showAktzInName)
 
     function downloadUrlFile(fileName: string, url: string) {
       const isLinux = /Linux/.test(navigator.userAgent)
