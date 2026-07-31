@@ -329,9 +329,9 @@ export default defineWebApplication({
           const parentAz = (resource as any).extraProps?.['om:parent-oy.fileReference'] || ''
           if (!parentAz) return false
 
-          const fullAz = getFileReference(resource)
+          const fullAz = getFileReference(resource) || ''
           const originalName = (resource as any)._originalName || resource.name || ''
-          const azRest = fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
+          const azRest = fullAz && fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
 
           const { dispatchModal } = useModals()
           const { showErrorMessage } = useMessages()
