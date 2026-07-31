@@ -2,7 +2,11 @@ import { defineWebApplication, useClientService, useSideBar, useResourcesStore, 
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import { WebDAV } from '@opencloud-eu/web-client/webdav'
-import { dirname, join } from 'path'
+// Browser-safe path helpers (Node's path module may not be available)
+function dirname(p: string): string {
+  const i = p.lastIndexOf('/')
+  return i <= 0 ? '/' : p.substring(0, i)
+}
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getPreferenceDefinitions, useFolderviewSettings, registerAktzSortToggle } from './composables/useFolderviewSettings'
@@ -326,9 +330,12 @@ export default defineWebApplication({
         handler: ({ space, resource, renameResource }: any) => {
           if (!showAktzInName.value) return false
 
+          // Only activate for resources inside folders with a valid AZ (not spaces/root)
           const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
-          const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : String(parentAzRaw || '')
+          const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : ''
           if (!parentAz) return false
+          // Skip if resource is directly in a space root (parent AZ makes no sense)
+          if (resource.path?.split('/').filter(Boolean).length <= 1) return false
 
           const fullAz = String(getFileReference(resource) || '')
           const originalName = (resource as any)._originalName || resource.name || ''

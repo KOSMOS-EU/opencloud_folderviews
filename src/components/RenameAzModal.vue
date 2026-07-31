@@ -11,7 +11,7 @@
           @input="validate"
         />
       </div>
-      <div class="rename-az-preview">{{ fullAz }}</div>
+      <div v-if="azRest" class="rename-az-preview">→ {{ parentAz }}{{ azRest }}</div>
     </div>
 
     <div class="rename-az-field">
