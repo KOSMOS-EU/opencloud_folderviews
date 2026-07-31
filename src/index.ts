@@ -1,6 +1,6 @@
 import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useAppsStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute, useModals, useMessages } from '@opencloud-eu/web-pkg'
 import { useGettext } from 'vue3-gettext'
-import { computed, markRaw, ref, watch, nextTick, h } from 'vue'
+import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import { WebDAV } from '@opencloud-eu/web-client/webdav'
 import { dirname, join } from 'path'
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
@@ -337,66 +337,52 @@ export default defineWebApplication({
             // If AZ mode active and resource has parent AZ → show AZ rename modal
             if (showAktzInName.value && parentAz) {
               const azRest = fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
-
-              const modalRef = ref<any>(null)
-              let isValid = true
+              const space = options.space
 
               const { dispatchModal } = useModals()
               const { showErrorMessage } = useMessages()
 
+              const onRename = async (newFileName: string, newFileReference: string) => {
+                try {
+                  if (newFileName !== originalName) {
+                    const newPath = join(dirname(resource.path), newFileName)
+                    await (clientService.webdav as WebDAV).moveFiles(space, resource, space, { path: newPath })
+                  }
+                  if (newFileReference !== fullAz) {
+                    const httpClient = (clientService as any).httpAuthenticated
+                    if (httpClient) {
+                      const itemId = `${space.id}!${resource.id.split('!').pop()}`
+                      await httpClient.put(
+                        `/graph/v1beta1/drives/${space.id}/items/${itemId}/metadata`,
+                        { 'oy.fileReference': newFileReference }
+                      )
+                    }
+                  }
+                  const resourcesStore = useResourcesStore()
+                  const { children } = await clientService.webdav.listFiles(space, { path: dirname(resource.path) })
+                  for (const child of children) {
+                    resourcesStore.upsertResource(child)
+                  }
+                } catch (error: any) {
+                  console.error(error)
+                  showErrorMessage({
+                    title: $gettext('Failed to rename "%{file}"', { file: originalName }),
+                    errors: [error]
+                  })
+                }
+              }
+
               dispatchModal({
                 title: $gettext('Rename'),
                 confirmText: $gettext('Rename'),
-                customContent: markRaw({
-                  render() {
-                    return h(RenameAzModal, {
-                      ref: (el: any) => { modalRef.value = el },
-                      resource,
-                      parentAz,
-                      initialAzRest: azRest,
-                      initialName: originalName,
-                      onValidate: (v: boolean) => { isValid = v }
-                    })
-                  }
-                }),
-                async onConfirm() {
-                  if (!isValid || !modalRef.value) return
-                  const { fileName, fileReference } = modalRef.value.getValues()
-                  const space = options.space
-
-                  try {
-                    // 1. Rename file if name changed
-                    if (fileName !== originalName) {
-                      const newPath = join(dirname(resource.path), fileName)
-                      await (clientService.webdav as WebDAV).moveFiles(space, resource, space, { path: newPath })
-                    }
-
-                    // 2. Update fileReference if changed
-                    if (fileReference !== fullAz) {
-                      const httpClient = (clientService as any).httpAuthenticated
-                      if (httpClient) {
-                        const itemId = `${space.id}!${resource.id.split('!').pop()}`
-                        await httpClient.put(
-                          `/graph/v1beta1/drives/${space.id}/items/${itemId}/metadata`,
-                          { 'oy.fileReference': fileReference }
-                        )
-                      }
-                    }
-
-                    // 3. Reload listing
-                    const resourcesStore = useResourcesStore()
-                    const { children } = await clientService.webdav.listFiles(space, { path: dirname(resource.path) })
-                    for (const child of children) {
-                      resourcesStore.upsertResource(child)
-                    }
-                  } catch (error: any) {
-                    console.error(error)
-                    showErrorMessage({
-                      title: $gettext('Failed to rename "%{file}"', { file: originalName }),
-                      errors: [error]
-                    })
-                  }
-                }
+                customComponent: markRaw(RenameAzModal) as any,
+                customComponentAttrs: () => ({
+                  resource,
+                  parentAz,
+                  initialAzRest: azRest,
+                  initialName: originalName,
+                  onRename
+                })
               })
               return
             }

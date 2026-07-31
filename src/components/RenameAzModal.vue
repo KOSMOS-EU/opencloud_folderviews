@@ -5,7 +5,6 @@
       <div class="rename-az-ref-row">
         <span class="rename-az-parent">{{ parentAz }}</span>
         <input
-          ref="azInput"
           v-model="azRest"
           class="rename-az-rest"
           :placeholder="$gettext('e.g. .03')"
@@ -22,7 +21,6 @@
         v-model="fileName"
         class="rename-az-name"
         @input="validate"
-        @keydown.enter="onConfirm"
       />
     </div>
 
@@ -31,39 +29,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
 
 const props = defineProps<{
-  resource: any
-  parentAz: string
-  initialAzRest: string
-  initialName: string
-  onValidate?: (valid: boolean) => void
+  modal: any
 }>()
 
-const azRest = ref(props.initialAzRest)
-const fileName = ref(props.initialName)
+const emit = defineEmits<{
+  'update:confirmDisabled': [value: boolean]
+}>()
+
+// Extract our data from modal.customComponentAttrs
+const resource = computed(() => props.modal?.customComponentAttrs?.()?.resource || {})
+const parentAz = computed(() => props.modal?.customComponentAttrs?.()?.parentAz || '')
+const initialAzRest = computed(() => props.modal?.customComponentAttrs?.()?.initialAzRest || '')
+const initialName = computed(() => props.modal?.customComponentAttrs?.()?.initialName || '')
+
+const azRest = ref(initialAzRest.value)
+const fileName = ref(initialName.value)
 const error = ref('')
 const nameInput = ref<HTMLInputElement>()
 
-const fullAz = computed(() => props.parentAz + azRest.value)
+const fullAz = computed(() => parentAz.value + azRest.value)
 
 function validate() {
   if (!fileName.value.trim()) {
     error.value = $gettext('Name must not be empty')
-    props.onValidate?.(false)
+    emit('update:confirmDisabled', true)
     return
   }
   if (fileName.value.includes('/')) {
     error.value = $gettext('Name must not contain "/"')
-    props.onValidate?.(false)
+    emit('update:confirmDisabled', true)
     return
   }
   error.value = ''
-  props.onValidate?.(true)
+  emit('update:confirmDisabled', false)
 }
 
 onMounted(() => {
@@ -72,12 +76,15 @@ onMounted(() => {
   validate()
 })
 
-defineExpose({
-  getValues: () => ({
-    fileName: fileName.value,
-    fileReference: fullAz.value
-  })
-})
+// Called by the modal framework on confirm
+async function onConfirm() {
+  const handler = props.modal?.customComponentAttrs?.()?.onRename
+  if (handler) {
+    await handler(fileName.value, fullAz.value)
+  }
+}
+
+defineExpose({ onConfirm })
 </script>
 
 <style scoped>
