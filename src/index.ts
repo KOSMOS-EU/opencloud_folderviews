@@ -357,11 +357,9 @@ export default defineWebApplication({
                   )
                 }
               }
-              const resourcesStore = useResourcesStore()
-              const { children } = await clientService.webdav.listFiles(space, { path: dirname(resource.path) })
-              for (const child of children) {
-                resourcesStore.upsertResource(child)
-              }
+              // Trigger full reload so resourceTransformer (AZ prefix) runs again
+              const { eventBus } = await import('@opencloud-eu/web-pkg')
+              eventBus.publish('app.files.list.load')
             } catch (error: any) {
               console.error(error)
               showErrorMessage({
