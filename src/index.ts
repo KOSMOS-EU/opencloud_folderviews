@@ -317,122 +317,67 @@ export default defineWebApplication({
           }
         }
       },
-      // Rename action: AZ-aware rename when prefix mode is active
+      // Rename handler: AZ-aware rename when prefix mode is active
+      // Hooks into global.files.rename-handler extension point
       {
-        id: 'com.kosmos-eu.folderviews.action.rename-az',
-        type: 'action',
-        extensionPointIds: ['global.files.context-actions'],
-        action: {
-          name: 'rename',  // same name = overrides built-in rename
-          icon: 'pencil',
-          label: () => $gettext('Rename'),
-          handler: (options: any) => {
-            const resource = options?.resources?.[0]
-            if (!resource) return
+        id: 'com.kosmos-eu.folderviews.rename-handler',
+        type: 'renameHandler',
+        extensionPointIds: ['global.files.rename-handler'],
+        handler: ({ space, resource, renameResource }: any) => {
+          if (!showAktzInName.value) return false
 
-            const parentAz = (resource as any).extraProps?.['om:parent-oy.fileReference'] || ''
-            const fullAz = getFileReference(resource)
-            const originalName = (resource as any)._originalName || resource.name || ''
+          const parentAz = (resource as any).extraProps?.['om:parent-oy.fileReference'] || ''
+          if (!parentAz) return false
 
-            // If AZ mode active and resource has parent AZ → show AZ rename modal
-            if (showAktzInName.value && parentAz) {
-              const azRest = fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
-              const space = options.space
+          const fullAz = getFileReference(resource)
+          const originalName = (resource as any)._originalName || resource.name || ''
+          const azRest = fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
 
-              const { dispatchModal } = useModals()
-              const { showErrorMessage } = useMessages()
+          const { dispatchModal } = useModals()
+          const { showErrorMessage } = useMessages()
 
-              const onRename = async (newFileName: string, newFileReference: string) => {
-                try {
-                  if (newFileName !== originalName) {
-                    const newPath = join(dirname(resource.path), newFileName)
-                    await (clientService.webdav as WebDAV).moveFiles(space, resource, space, { path: newPath })
-                  }
-                  if (newFileReference !== fullAz) {
-                    const httpClient = (clientService as any).httpAuthenticated
-                    if (httpClient) {
-                      const itemId = `${space.id}!${resource.id.split('!').pop()}`
-                      await httpClient.put(
-                        `/graph/v1beta1/drives/${space.id}/items/${itemId}/metadata`,
-                        { 'oy.fileReference': newFileReference }
-                      )
-                    }
-                  }
-                  const resourcesStore = useResourcesStore()
-                  const { children } = await clientService.webdav.listFiles(space, { path: dirname(resource.path) })
-                  for (const child of children) {
-                    resourcesStore.upsertResource(child)
-                  }
-                } catch (error: any) {
-                  console.error(error)
-                  showErrorMessage({
-                    title: $gettext('Failed to rename "%{file}"', { file: originalName }),
-                    errors: [error]
-                  })
+          const onRename = async (newFileName: string, newFileReference: string) => {
+            try {
+              if (newFileName !== originalName) {
+                await renameResource(space, resource, newFileName)
+              }
+              if (newFileReference !== fullAz) {
+                const httpClient = (clientService as any).httpAuthenticated
+                if (httpClient) {
+                  const itemId = `${space.id}!${resource.id.split('!').pop()}`
+                  await httpClient.put(
+                    `/graph/v1beta1/drives/${space.id}/items/${itemId}/metadata`,
+                    { 'oy.fileReference': newFileReference }
+                  )
                 }
               }
-
-              dispatchModal({
-                title: $gettext('Rename'),
-                confirmText: $gettext('Rename'),
-                customComponent: markRaw(RenameAzModal) as any,
-                customComponentAttrs: () => ({
-                  resource,
-                  parentAz,
-                  initialAzRest: azRest,
-                  initialName: originalName,
-                  onRename
-                })
+              const resourcesStore = useResourcesStore()
+              const { children } = await clientService.webdav.listFiles(space, { path: dirname(resource.path) })
+              for (const child of children) {
+                resourcesStore.upsertResource(child)
+              }
+            } catch (error: any) {
+              console.error(error)
+              showErrorMessage({
+                title: $gettext('Failed to rename "%{file}"', { file: originalName }),
+                errors: [error]
               })
-              return
             }
-
-            // Fallback: no AZ context → let built-in rename handle it
-            // Trigger built-in rename by dispatching standard modal
-            const { dispatchModal } = useModals()
-            const resourcesStore = useResourcesStore()
-            const areFileExtensionsShown = resourcesStore.areFileExtensionsShown
-            const nameWithoutExt = resource.isFolder || areFileExtensionsShown
-              ? originalName
-              : originalName.replace(/\.[^.]+$/, '')
-
-            dispatchModal({
-              title: resource.isFolder
-                ? $gettext('Rename folder »%{name}«', { name: nameWithoutExt })
-                : $gettext('Rename file »%{name}«', { name: nameWithoutExt }),
-              confirmText: $gettext('Rename'),
-              hasInput: true,
-              inputValue: nameWithoutExt,
-              inputLabel: resource.isFolder ? $gettext('Folder name') : $gettext('File name'),
-              async onConfirm(newName: string) {
-                if (!areFileExtensionsShown && !resource.isFolder) {
-                  const ext = originalName.match(/\.[^.]+$/)?.[0] || ''
-                  newName = newName + ext
-                }
-                try {
-                  const newPath = join(dirname(resource.path), newName)
-                  await (clientService.webdav as WebDAV).moveFiles(options.space, resource, options.space, { path: newPath })
-                  const updated = { ...resource }
-                  updated.name = newName
-                  updated.path = newPath
-                  resourcesStore.upsertResource(updated)
-                } catch (error: any) {
-                  console.error(error)
-                  const { showErrorMessage } = useMessages()
-                  showErrorMessage({
-                    title: $gettext('Failed to rename "%{file}"', { file: originalName }),
-                    errors: [error]
-                  })
-                }
-              }
-            })
-          },
-          isVisible: (options: any) => {
-            if (!options?.resources?.length || options.resources.length !== 1) return false
-            const r = options.resources[0]
-            if (r.locked || r.processing) return false
-            return r.canRename?.() !== false
           }
+
+          dispatchModal({
+            title: $gettext('Rename'),
+            confirmText: $gettext('Rename'),
+            customComponent: markRaw(RenameAzModal) as any,
+            customComponentAttrs: () => ({
+              resource,
+              parentAz,
+              initialAzRest: azRest,
+              initialName: originalName,
+              onRename
+            })
+          })
+          return true  // handled
         }
       },
       // Resource transformer: prefix resource names with Aktenzeichen (if user pref enabled)
