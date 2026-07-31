@@ -326,10 +326,11 @@ export default defineWebApplication({
         handler: ({ space, resource, renameResource }: any) => {
           if (!showAktzInName.value) return false
 
-          const parentAz = (resource as any).extraProps?.['om:parent-oy.fileReference'] || ''
+          const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
+          const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : String(parentAzRaw || '')
           if (!parentAz) return false
 
-          const fullAz = getFileReference(resource) || ''
+          const fullAz = String(getFileReference(resource) || '')
           const originalName = (resource as any)._originalName || resource.name || ''
           const azRest = fullAz && fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
 
