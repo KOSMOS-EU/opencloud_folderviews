@@ -330,14 +330,12 @@ export default defineWebApplication({
         handler: ({ space, resource, renameResource }: any) => {
           if (!showAktzInName.value) return false
 
-          // Only activate for resources inside folders with a valid AZ (not spaces/root)
           const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
           const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : ''
-          if (!parentAz) return false
-          // Skip if resource is directly in a space root (parent AZ makes no sense)
-          if (resource.path?.split('/').filter(Boolean).length <= 1) return false
-
           const fullAz = String(getFileReference(resource) || '')
+
+          // AZ-Modal only if parent AZ or own AZ exists
+          if (!parentAz && !fullAz) return false
           const originalName = (resource as any)._originalName || resource.name || ''
           const azRest = fullAz && fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
 
