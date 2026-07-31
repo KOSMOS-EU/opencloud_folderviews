@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useGettext } from 'vue3-gettext'
 
 const { $gettext } = useGettext()
@@ -43,13 +43,12 @@ const emit = defineEmits<{
 }>()
 
 // Extract our data from modal.customComponentAttrs
-const resource = computed(() => props.modal?.customComponentAttrs?.()?.resource || {})
-const parentAz = computed(() => props.modal?.customComponentAttrs?.()?.parentAz || '')
-const initialAzRest = computed(() => props.modal?.customComponentAttrs?.()?.initialAzRest || '')
-const initialName = computed(() => props.modal?.customComponentAttrs?.()?.initialName || '')
+function attrs() { return props.modal?.customComponentAttrs?.() || {} }
+const resource = computed(() => attrs().resource || {})
+const parentAz = computed(() => attrs().parentAz || '')
 
-const azRest = ref(initialAzRest.value)
-const fileName = ref(initialName.value)
+const azRest = ref('')
+const fileName = ref('')
 const error = ref('')
 const nameInput = ref<HTMLInputElement>()
 
@@ -71,8 +70,13 @@ function validate() {
 }
 
 onMounted(() => {
-  nameInput.value?.focus()
-  nameInput.value?.select()
+  const a = attrs()
+  azRest.value = a.initialAzRest || ''
+  fileName.value = a.initialName || ''
+  nextTick(() => {
+    nameInput.value?.focus()
+    nameInput.value?.select()
+  })
   validate()
 })
 

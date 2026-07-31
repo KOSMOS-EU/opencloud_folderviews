@@ -8,7 +8,8 @@ OWNER="${PUSH_ORG:-kosmos-eu}"
 PACKAGE="${PACKAGE_NAME:-${APP}-web}"
 REPO="${REPO:-$(basename "${GIT_BASE:-}/${PACKAGE}")}"
 TAG="${TAG:-$(date +%Y%m%d-%H%M)}"
-TOKEN="${PUSH_TOKEN:-${CODEBERG_TOKEN:-}}"
+# PACKAGES_TOKEN for push (GitHub Releases needs contents:write), fallback to PUSH_TOKEN
+TOKEN="${PACKAGES_TOKEN:-${PUSH_TOKEN:-${CODEBERG_TOKEN:-}}}"
 REGISTRY="${PUSH_REGISTRY:-codeberg}"
 
 # Token fallback
