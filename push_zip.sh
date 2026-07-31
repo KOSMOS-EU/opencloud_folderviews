@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 OWNER="${PUSH_ORG:-kosmos-eu}"
 PACKAGE="${PACKAGE_NAME:-${APP}-web}"
+REPO="${REPO:-$(basename "${GIT_BASE:-}/${PACKAGE}")}"
 TAG="${TAG:-$(date +%Y%m%d-%H%M)}"
 TOKEN="${PUSH_TOKEN:-${CODEBERG_TOKEN:-}}"
 REGISTRY="${PUSH_REGISTRY:-codeberg}"
