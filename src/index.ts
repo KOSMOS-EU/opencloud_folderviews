@@ -12,6 +12,7 @@ import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getPreferenceDefinitions, useFolderviewSettings, registerAktzSortToggle } from './composables/useFolderviewSettings'
 import { prefixResources, getFileReference } from './composables/useFileReference'
 import RenameAzModal from './components/RenameAzModal.vue'
+import CreateFolderAzModal from './components/CreateFolderAzModal.vue'
 import AktenplanView from './views/AktenplanView.vue'
 import AkteView from './views/AkteView.vue'
 import VorgangView from './views/VorgangView.vue'
@@ -328,20 +329,11 @@ export default defineWebApplication({
         type: 'renameHandler',
         extensionPointIds: ['global.files.rename-handler'],
         handler: ({ space, resource, renameResource }: any) => {
-          console.log('[FOLDERVIEWS] rename-handler called', {
-            showAktzInName: showAktzInName.value,
-            extraProps: (resource as any).extraProps,
-            parentAzRaw: (resource as any).extraProps?.['om:parent-oy.fileReference'],
-            fullAz: getFileReference(resource),
-            resource
-          })
           if (!showAktzInName.value) return false
 
           const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
           const parentAz = parentAzRaw ? String(parentAzRaw) : ''
           const fullAz = String(getFileReference(resource) || '')
-
-          console.log('[FOLDERVIEWS] rename-handler check', { parentAz, fullAz })
 
           // AZ-Modal only if parent has an AZ (provides the prefix)
           if (!parentAz) return false
@@ -392,6 +384,66 @@ export default defineWebApplication({
             })
           })
           return true  // handled
+        }
+      },
+      // Create folder handler: AZ-aware create folder when prefix mode is active
+      // Hooks into global.files.create-folder-handler extension point
+      {
+        id: 'com.kosmos-eu.folderviews.create-folder-handler',
+        type: 'createFolderHandler',
+        extensionPointIds: ['global.files.create-folder-handler'],
+        handler: ({ space, currentFolder, addNewFolder }: any) => {
+          if (!showAktzInName.value) return false
+
+          const parentAzRaw = (currentFolder as any)?.extraProps?.['om:oy.fileReference']
+          const parentAz = parentAzRaw ? String(parentAzRaw) : ''
+          if (!parentAz) return false
+
+          const { dispatchModal } = useModals()
+          const { showErrorMessage } = useMessages()
+
+          const onCreate = async (folderName: string, fileReference: string) => {
+            try {
+              await addNewFolder(folderName)
+              if (fileReference) {
+                // Set AZ metadata on the newly created folder
+                const httpClient = (clientService as any).httpAuthenticated
+                if (httpClient) {
+                  // Find the new folder to get its ID
+                  const { children } = await clientService.webdav.listFiles(space, { path: currentFolder.path })
+                  const newFolder = children.find((r: any) => r.name === folderName)
+                  if (newFolder) {
+                    const itemId = `${space.id}!${newFolder.id.split('!').pop()}`
+                    await httpClient.put(
+                      `/graph/v1beta1/drives/${space.id}/items/${itemId}/metadata`,
+                      { 'oy.fileReference': fileReference }
+                    )
+                  }
+                }
+              }
+              const { eventBus } = await import('@opencloud-eu/web-pkg')
+              eventBus.publish('app.files.list.load')
+            } catch (error: any) {
+              console.error(error)
+              showErrorMessage({
+                title: $gettext('Failed to create folder'),
+                errors: [error]
+              })
+            }
+          }
+
+          dispatchModal({
+            title: $gettext('New Folder'),
+            confirmText: $gettext('Create'),
+            customComponent: markRaw(CreateFolderAzModal) as any,
+            customComponentAttrs: () => ({
+              parentAz,
+              initialName: '',
+              initialAzRest: '',
+              onCreate
+            })
+          })
+          return true
         }
       },
       // Resource transformer: prefix resource names with Aktenzeichen (if user pref enabled)
