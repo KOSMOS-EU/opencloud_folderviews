@@ -334,8 +334,8 @@ export default defineWebApplication({
           const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : ''
           const fullAz = String(getFileReference(resource) || '')
 
-          // AZ-Modal only if parent AZ or own AZ exists
-          if (!parentAz && !fullAz) return false
+          // AZ-Modal only if parent has an AZ (provides the prefix)
+          if (!parentAz) return false
           const originalName = (resource as any)._originalName || resource.name || ''
           const azRest = fullAz && fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
 
