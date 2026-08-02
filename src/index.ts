@@ -338,7 +338,7 @@ export default defineWebApplication({
           if (!showAktzInName.value) return false
 
           const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
-          const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : ''
+          const parentAz = parentAzRaw ? String(parentAzRaw) : ''
           const fullAz = String(getFileReference(resource) || '')
 
           console.log('[FOLDERVIEWS] rename-handler check', { parentAz, fullAz })
