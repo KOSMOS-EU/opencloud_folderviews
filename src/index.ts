@@ -393,17 +393,10 @@ export default defineWebApplication({
         type: 'createFolderHandler',
         extensionPointIds: ['global.files.create-folder-handler'],
         handler: ({ space, currentFolder, addNewFolder }: any) => {
-          console.log('[FOLDERVIEWS] create-folder-handler called', {
-            showAktzInName: showAktzInName.value,
-            currentFolder,
-            extraProps: (currentFolder as any)?.extraProps,
-            azRaw: (currentFolder as any)?.extraProps?.['om:oy.fileReference']
-          })
           if (!showAktzInName.value) return false
 
           const parentAzRaw = (currentFolder as any)?.extraProps?.['om:oy.fileReference']
           const parentAz = parentAzRaw ? String(parentAzRaw) : ''
-          console.log('[FOLDERVIEWS] create-folder-handler check', { parentAz })
           if (!parentAz) return false
 
           const { dispatchModal } = useModals()
