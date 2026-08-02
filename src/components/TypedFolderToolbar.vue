@@ -55,6 +55,8 @@
       :title="dialogTitle"
       :show-color="dialogShowColor"
       :show-note="dialogShowNote"
+      :parent-az="dialogParentAz"
+      :initial-az-rest="dialogInitialAzRest"
       @cancel="dialogOpen = false"
       @confirm="onDialogConfirm"
     />
@@ -108,7 +110,7 @@ const appModeStore = useAppModeStore()
 
 const spaceRef = computed(() => unref(resolvedSpace))
 const { schema } = useTypedFolderSchema(spaceRef, currentType)
-const { createTypedChild, allowedChildren, canCreate } = useTypedFolderActions(
+const { createTypedChild, computeNextFileReference, allowedChildren, canCreate } = useTypedFolderActions(
   spaceRef, currentFolder, schema
 )
 
@@ -220,17 +222,30 @@ const dialogTitle = ref('')
 const dialogShowColor = ref(false)
 const dialogShowNote = ref(false)
 const dialogChildType = ref('')
+const dialogParentAz = ref('')
+const dialogInitialAzRest = ref('')
 
-function openCreateDialog(childType: string, label: string) {
+async function openCreateDialog(childType: string, label: string) {
   const s = unref(schema)
   dialogChildType.value = childType
   dialogTitle.value = label
   dialogShowColor.value = !!s?.metadata?.['oy.color']
   dialogShowNote.value = !!s?.metadata?.['oy.note']
+
+  // Compute parent AZ and suggested next rest for the dialog
+  const parentRef = currentFolderFileRef.value
+  dialogParentAz.value = parentRef
+  if (parentRef) {
+    const nextFull = await computeNextFileReference(childType)
+    dialogInitialAzRest.value = nextFull.startsWith(parentRef) ? nextFull.slice(parentRef.length) : nextFull
+  } else {
+    dialogInitialAzRest.value = ''
+  }
+
   dialogOpen.value = true
 }
 
-function onDialogConfirm(data: { name: string; color?: string; note?: string }) {
+function onDialogConfirm(data: { name: string; color?: string; note?: string; fileReference?: string }) {
   dialogOpen.value = false
   const extraMeta: Record<string, string> = {}
   if (data.color) extraMeta['oy.color'] = data.color
@@ -238,7 +253,8 @@ function onDialogConfirm(data: { name: string; color?: string; note?: string }) 
   createTypedChild(
     dialogChildType.value,
     data.name,
-    Object.keys(extraMeta).length > 0 ? extraMeta : undefined
+    Object.keys(extraMeta).length > 0 ? extraMeta : undefined,
+    data.fileReference
   )
 }
 </script>

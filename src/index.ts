@@ -377,6 +377,7 @@ export default defineWebApplication({
               resource,
               parentAz,
               initialAzRest: azRest,
+              initialFullAz: fullAz,
               initialName: originalName,
               onRename
             })

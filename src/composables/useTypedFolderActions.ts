@@ -60,7 +60,7 @@ export function useTypedFolderActions(
   /**
    * Create a typed child folder with type marker and file reference.
    */
-  async function createTypedChild(childType: string, name: string, extraMeta?: Record<string, string>) {
+  async function createTypedChild(childType: string, name: string, extraMeta?: Record<string, string>, fileReference?: string) {
     const sp = unref(space)
     const folder = unref(currentFolder)
     if (!sp || !folder) return
@@ -93,7 +93,8 @@ export function useTypedFolderActions(
       if (!newFolder) throw new Error('Folder not found after creation')
 
       // 4. Compute and set file reference + app + extra metadata
-      const fileRef = await computeNextFileReference(childType)
+      // Use explicit fileReference if provided ('' = no AZ, undefined = auto-compute)
+      const fileRef = fileReference !== undefined ? fileReference : await computeNextFileReference(childType)
       const httpClient2 = (clientService as any).httpAuthenticated
       if (httpClient2) {
         const itemId = `${sp.id}!${newFolder.id.split('!').pop()}`

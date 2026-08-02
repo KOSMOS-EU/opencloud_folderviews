@@ -8,6 +8,27 @@
         </button>
       </div>
       <div class="create-dialog-body">
+        <template v-if="parentAz">
+          <div class="create-az-switch-row">
+            <label>{{ $gettext('File reference') }}</label>
+            <oc-switch
+              :checked="azEnabled"
+              @update:checked="azEnabled = $event"
+            />
+          </div>
+          <template v-if="azEnabled">
+            <div class="create-az-ref-row">
+              <span class="create-az-parent">{{ parentAz }}</span>
+              <input
+                v-model="azRest"
+                class="create-az-rest"
+                :placeholder="$gettext('e.g. .03')"
+              />
+            </div>
+            <div v-if="azRest" class="create-az-preview">→ {{ parentAz }}{{ azRest }}</div>
+          </template>
+        </template>
+
         <label>{{ $gettext('Name') }}</label>
         <input
           ref="nameInput"
@@ -58,20 +79,24 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   title: string
   showColor?: boolean
   showNote?: boolean
+  parentAz?: string
+  initialAzRest?: string
 }>()
 
 const emit = defineEmits<{
   (e: 'cancel'): void
-  (e: 'confirm', data: { name: string; color?: string; note?: string }): void
+  (e: 'confirm', data: { name: string; color?: string; note?: string; fileReference?: string }): void
 }>()
 
 const name = ref('')
 const color = ref('#1565C0')
 const note = ref('')
+const azEnabled = ref(true)
+const azRest = ref('')
 const nameInput = ref<HTMLInputElement>()
 
 const colors = [
@@ -91,14 +116,20 @@ const colors = [
 
 function submit() {
   if (!name.value.trim()) return
-  emit('confirm', {
+  const data: { name: string; color?: string; note?: string; fileReference?: string } = {
     name: name.value.trim(),
     color: color.value || undefined,
     note: note.value.trim() || undefined
-  })
+  }
+  if (props.parentAz) {
+    data.fileReference = azEnabled.value ? (props.parentAz + azRest.value) : ''
+  }
+  emit('confirm', data)
 }
 
 onMounted(() => {
+  azRest.value = props.initialAzRest || ''
+  azEnabled.value = !!props.parentAz
   nextTick(() => nameInput.value?.focus())
 })
 </script>
@@ -199,4 +230,44 @@ onMounted(() => {
   color: #fff;
 }
 .create-btn-ok:disabled { opacity: 0.4; cursor: not-allowed; }
+.create-az-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 4px;
+}
+.create-az-ref-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 4px;
+}
+.create-az-parent {
+  background: var(--oc-color-background-muted, #f0f0f0);
+  border: 1px solid var(--oc-color-border, #ccc);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  padding: 6px 8px;
+  color: var(--oc-color-text-muted, #888);
+  font-family: monospace;
+  white-space: nowrap;
+}
+.create-az-rest {
+  border: 1px solid var(--oc-color-border, #ccc);
+  border-radius: 0 4px 4px 0;
+  padding: 6px 8px;
+  flex: 1;
+  font-family: monospace;
+  outline: none;
+  font-size: 14px;
+}
+.create-az-rest:focus {
+  border-color: var(--oc-color-swatch-primary-default, #0070c0);
+}
+.create-az-preview {
+  font-size: 12px;
+  color: var(--oc-color-text-muted, #999);
+  font-family: monospace;
+  margin-top: 2px;
+}
 </style>

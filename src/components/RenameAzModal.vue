@@ -1,17 +1,25 @@
 <template>
   <div class="rename-az-modal">
     <div class="rename-az-field">
-      <label class="rename-az-label">{{ $gettext('File reference') }}</label>
-      <div class="rename-az-ref-row">
-        <span class="rename-az-parent">{{ parentAz }}</span>
-        <input
-          v-model="azRest"
-          class="rename-az-rest"
-          :placeholder="$gettext('e.g. .03')"
-          @input="validate"
+      <div class="rename-az-switch-row">
+        <label class="rename-az-label">{{ $gettext('File reference') }}</label>
+        <oc-switch
+          :checked="azEnabled"
+          @update:checked="onAzToggle"
         />
       </div>
-      <div v-if="azRest" class="rename-az-preview">→ {{ parentAz }}{{ azRest }}</div>
+      <template v-if="azEnabled">
+        <div class="rename-az-ref-row">
+          <span class="rename-az-parent">{{ parentAz }}</span>
+          <input
+            v-model="azRest"
+            class="rename-az-rest"
+            :placeholder="$gettext('e.g. .03')"
+            @input="validate"
+          />
+        </div>
+        <div v-if="azRest" class="rename-az-preview">→ {{ parentAz }}{{ azRest }}</div>
+      </template>
     </div>
 
     <div class="rename-az-field">
@@ -47,12 +55,18 @@ function attrs() { return props.modal?.customComponentAttrs?.() || {} }
 const resource = computed(() => attrs().resource || {})
 const parentAz = computed(() => attrs().parentAz || '')
 
+const azEnabled = ref(true)
 const azRest = ref('')
 const fileName = ref('')
 const error = ref('')
 const nameInput = ref<HTMLInputElement>()
 
-const fullAz = computed(() => parentAz.value + azRest.value)
+const fullAz = computed(() => azEnabled.value ? parentAz.value + azRest.value : '')
+
+function onAzToggle(v: boolean) {
+  azEnabled.value = v
+  validate()
+}
 
 function validate() {
   if (!fileName.value.trim()) {
@@ -73,6 +87,8 @@ onMounted(() => {
   const a = attrs()
   azRest.value = a.initialAzRest || ''
   fileName.value = a.initialName || ''
+  // If no existing AZ, start with AZ section disabled
+  azEnabled.value = !!(a.initialAzRest || a.initialFullAz)
   nextTick(() => {
     nameInput.value?.focus()
     nameInput.value?.select()
@@ -102,6 +118,11 @@ defineExpose({ onConfirm })
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.rename-az-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .rename-az-label {
   font-weight: 600;
