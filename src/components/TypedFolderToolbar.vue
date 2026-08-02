@@ -116,7 +116,8 @@ const { createTypedChild, computeNextFileReference, allowedChildren, canCreate }
 
 const currentFolderFileRef = computed(() => {
   const folder = unref(currentFolder) as any
-  return folder?.extraProps?.['om:oy.fileReference'] || ''
+  const ref = folder?.extraProps?.['om:oy.fileReference']
+  return ref ? String(ref) : ''
 })
 
 const folderCount = computed(() => {

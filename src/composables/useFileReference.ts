@@ -7,7 +7,8 @@ const PROP_KEY = 'om:oy.fileReference'
  * Requires registerExtraProp('om:oy.fileReference') + buildPropFindBody fix.
  */
 export function getFileReference(resource: Resource): string {
-  return ((resource as any).extraProps?.[PROP_KEY] as string) || ''
+  const val = (resource as any).extraProps?.[PROP_KEY]
+  return val ? String(val) : ''
 }
 
 /**
