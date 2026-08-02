@@ -328,11 +328,20 @@ export default defineWebApplication({
         type: 'renameHandler',
         extensionPointIds: ['global.files.rename-handler'],
         handler: ({ space, resource, renameResource }: any) => {
+          console.log('[FOLDERVIEWS] rename-handler called', {
+            showAktzInName: showAktzInName.value,
+            extraProps: (resource as any).extraProps,
+            parentAzRaw: (resource as any).extraProps?.['om:parent-oy.fileReference'],
+            fullAz: getFileReference(resource),
+            resource
+          })
           if (!showAktzInName.value) return false
 
           const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
           const parentAz = typeof parentAzRaw === 'string' ? parentAzRaw : ''
           const fullAz = String(getFileReference(resource) || '')
+
+          console.log('[FOLDERVIEWS] rename-handler check', { parentAz, fullAz })
 
           // AZ-Modal only if parent has an AZ (provides the prefix)
           if (!parentAz) return false
