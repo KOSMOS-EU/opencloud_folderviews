@@ -165,7 +165,10 @@ export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boo
         if (!showAktzInName.value) return null
         return h(OcSwitch as any, {
           checked: ignoreAktzSort.value,
-          'onUpdate:checked': (v: boolean) => { ignoreAktzSort.value = v },
+          'onUpdate:checked': (v: boolean) => {
+            ignoreAktzSort.value = v
+            import('@opencloud-eu/web-pkg').then(({ eventBus }) => eventBus.publish('app.files.list.load'))
+          },
           label: 'Aktenzeichen bei Sortierung ignorieren'
         })
       }
