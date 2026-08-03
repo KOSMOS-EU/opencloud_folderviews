@@ -452,7 +452,7 @@ export default defineWebApplication({
         type: 'resourceTransformer',
         extensionPointIds: ['global.files.resource-transformer'],
         transformResources(resources: any[]) {
-          if (!showAktzInName.value) return resources
+          if (!showAktzInName.value || ignoreAktzSort.value) return resources
           return prefixResources(resources)
         }
       }
