@@ -135,7 +135,7 @@ export function useFolderviewSettings() {
 
   const showAktzInName = computed(() => {
     const pref = store.getExtensionPreference(AKTZ_EP, [AKTZ_DISABLED])
-    return !pref.selectedExtensionIds.includes(AKTZ_ENABLED)
+    return pref.selectedExtensionIds.includes(AKTZ_ENABLED)
   })
 
   const userAppCompact = computed(() => {
