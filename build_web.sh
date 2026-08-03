@@ -5,4 +5,4 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 pnpm config set minimum-release-age 0
 pnpm install
-npx vite build --mode opencloud
+npx vite build --mode production
