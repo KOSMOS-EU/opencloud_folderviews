@@ -1,6 +1,22 @@
-import { computed, ref, defineComponent, h, resolveComponent } from 'vue'
+import { computed, ref, defineComponent, h, resolveComponent, markRaw, type Component } from 'vue'
 import { defineStore } from 'pinia'
 import { useExtensionPreferencesStore } from '@opencloud-eu/web-pkg'
+
+// Shared Pinia store — same ID as web-pkg's useViewOptionsStore.
+// Cannot import directly: Module Federation shared deps have import:false,
+// Rolldown rejects missing exports at build time.
+// Same store ID + same Pinia instance (shared via MF) = same store at runtime.
+const useViewOptionsStore = defineStore('viewOptions', () => {
+  const entries = ref<{ id: string; component: Component }[]>([])
+  function register(entry: { id: string; component: Component }) {
+    if (entries.value.some((e) => e.id === entry.id)) return
+    entries.value.push({ ...entry, component: markRaw(entry.component) })
+  }
+  function unregister(id: string) {
+    entries.value = entries.value.filter((e) => e.id !== id)
+  }
+  return { entries, register, unregister }
+})
 
 // --- Aktenzeichen ---
 const AKTZ_EP = 'com.kosmos-eu.folderviews.aktenzeichen-display'
@@ -140,15 +156,6 @@ export function useFolderviewSettings() {
  * Call once at app startup (index.ts).
  */
 export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boolean>>, showAktzInName: { value: boolean }) {
-  // Local pinia store for view-option extensions (lives in folderviews, not web-pkg)
-  const useViewOptionsStore = defineStore('viewOptions', () => {
-    const entries = ref<{ id: string; component: any }[]>([])
-    function register(entry: { id: string; component: any }) {
-      if (entries.value.some((e) => e.id === entry.id)) return
-      entries.value.push(entry)
-    }
-    return { entries, register }
-  })
   const viewOptionsStore = useViewOptionsStore()
 
   const AktzSortToggle = defineComponent({
