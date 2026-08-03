@@ -455,6 +455,18 @@ export default defineWebApplication({
           if (!showAktzInName.value) return resources
           return prefixResources(resources)
         }
+      },
+      // Sort field modifier: sort by original name when AZ sort toggle is active
+      {
+        id: 'com.kosmos-eu.folderviews.sort-field-modifier.aktenzeichen',
+        type: 'sortFieldModifier',
+        extensionPointIds: ['global.files.sort-field-modifier'],
+        modifySortFields(fields: any[]) {
+          if (!showAktzInName.value || !ignoreAktzSort.value) return fields
+          return fields.map((f: any) =>
+            f.name === 'name' ? { ...f, prop: '_originalName' } : f
+          )
+        }
       }
     ])
 

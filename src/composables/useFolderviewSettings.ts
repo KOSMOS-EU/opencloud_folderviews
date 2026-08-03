@@ -124,6 +124,9 @@ export const getAktenzeichenPreferenceDefinitions = () => {
   }
 }
 
+// Aktenzeichen sort toggle (session state, shared singleton across all consumers)
+const _ignoreAktzSort = ref(false)
+
 /**
  * Composable to read all user preferences.
  */
@@ -145,10 +148,7 @@ export function useFolderviewSettings() {
     return pref.selectedExtensionIds.includes(NEWWIN_ENABLED)
   })
 
-  // Aktenzeichen sort toggle (session state, not persisted)
-  const ignoreAktzSort = ref(false)
-
-  return { showAktzInName, userAppCompact, userAppNewWindow, ignoreAktzSort }
+  return { showAktzInName, userAppCompact, userAppNewWindow, ignoreAktzSort: _ignoreAktzSort }
 }
 
 /**
@@ -165,10 +165,7 @@ export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boo
         if (!showAktzInName.value) return null
         return h(OcSwitch as any, {
           checked: ignoreAktzSort.value,
-          'onUpdate:checked': (v: boolean) => {
-            ignoreAktzSort.value = v
-            import('@opencloud-eu/web-pkg').then(({ eventBus }) => eventBus.publish('app.files.list.load'))
-          },
+          'onUpdate:checked': (v: boolean) => { ignoreAktzSort.value = v },
           label: 'Aktenzeichen bei Sortierung ignorieren'
         })
       }
