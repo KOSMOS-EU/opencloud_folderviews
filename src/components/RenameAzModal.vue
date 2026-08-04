@@ -10,15 +10,25 @@
       </div>
       <template v-if="azEnabled">
         <div class="rename-az-ref-row">
-          <span class="rename-az-parent">{{ parentAz }}</span>
+          <span class="rename-az-parent">{{ azPrefix }}</span>
           <input
-            v-model="azRest"
+            v-model="azNumber"
             class="rename-az-rest"
-            :placeholder="$gettext('e.g. .03')"
-            @input="validate"
+            :placeholder="padWidth > 0 ? '01' : '1'"
+            :maxlength="2"
+            @input="onAzNumberInput"
           />
         </div>
-        <div v-if="azRest" class="rename-az-preview">→ {{ parentAz }}{{ azRest }}</div>
+        <div class="rename-az-preview">
+          <template v-if="azNumber">
+            → {{ fullAzPreview }}
+            <template v-if="fullAzPreview !== currentFullAz">
+              <span v-if="azDuplicate" class="rename-az-taken">{{ $gettext('already taken') }}</span>
+              <span v-else-if="azNumberValid" class="rename-az-free">{{ $gettext('available') }}</span>
+            </template>
+          </template>
+        </div>
+        <div v-if="azError" class="rename-az-error-msg">{{ azError }}</div>
       </template>
     </div>
 
@@ -28,7 +38,7 @@
         ref="nameInput"
         v-model="fileName"
         class="rename-az-name"
-        @input="validate"
+        @input="validateAll"
       />
     </div>
 
@@ -39,6 +49,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useGettext } from 'vue3-gettext'
+import { isValidAzInput, formatAzNumber, isDuplicateAz } from '../composables/azFormat'
 
 const { $gettext } = useGettext()
 
@@ -50,57 +61,101 @@ const emit = defineEmits<{
   'update:confirmDisabled': [value: boolean]
 }>()
 
-// Extract our data from modal.customComponentAttrs
 function attrs() { return props.modal?.customComponentAttrs?.() || {} }
 const resource = computed(() => attrs().resource || {})
 const parentAz = computed(() => attrs().parentAz || '')
+const separator = computed(() => attrs().azSeparator || '')
+const padWidth = computed(() => attrs().azPadWidth ?? 0)
+const siblingRefs = computed<string[]>(() => attrs().azSiblingRefs || [])
+const currentFullAz = computed(() => attrs().initialFullAz || '')
 
 const azEnabled = ref(true)
-const azRest = ref('')
+const azNumber = ref('')
 const fileName = ref('')
 const error = ref('')
+const azError = ref('')
 const nameInput = ref<HTMLInputElement>()
 
-const fullAz = computed(() => azEnabled.value ? parentAz.value + azRest.value : '')
+const azPrefix = computed(() => parentAz.value + separator.value)
+
+const azNumberValid = computed(() => isValidAzInput(azNumber.value))
+
+const fullAzPreview = computed(() => {
+  if (!azNumberValid.value) return azPrefix.value + azNumber.value
+  const num = parseInt(azNumber.value, 10)
+  return azPrefix.value + formatAzNumber(num, padWidth.value)
+})
+
+const azDuplicate = computed(() => {
+  if (!azNumberValid.value) return false
+  const preview = fullAzPreview.value
+  // Don't flag as duplicate if it's the same as the current AZ (unchanged)
+  if (preview === currentFullAz.value) return false
+  return isDuplicateAz(siblingRefs.value, preview)
+})
 
 function onAzToggle(v: boolean) {
   azEnabled.value = v
-  validate()
+  validateAll()
 }
 
-function validate() {
+function onAzNumberInput() {
+  azNumber.value = azNumber.value.replace(/\D/g, '')
+  validateAll()
+}
+
+function validateAll() {
+  let ok = true
+
+  // Name validation
   if (!fileName.value.trim()) {
     error.value = $gettext('Name must not be empty')
-    emit('update:confirmDisabled', true)
-    return
-  }
-  if (fileName.value.includes('/')) {
+    ok = false
+  } else if (fileName.value.includes('/')) {
     error.value = $gettext('Name must not contain "/"')
-    emit('update:confirmDisabled', true)
-    return
+    ok = false
+  } else {
+    error.value = ''
   }
-  error.value = ''
-  emit('update:confirmDisabled', false)
+
+  // AZ validation
+  if (azEnabled.value) {
+    if (!azNumber.value) {
+      azError.value = ''
+      ok = false
+    } else if (!azNumberValid.value) {
+      azError.value = $gettext('Enter a number from 1-99')
+      ok = false
+    } else if (azDuplicate.value) {
+      azError.value = $gettext('File reference already taken')
+      ok = false
+    } else {
+      azError.value = ''
+    }
+  } else {
+    azError.value = ''
+  }
+
+  emit('update:confirmDisabled', !ok)
 }
 
 onMounted(() => {
   const a = attrs()
-  azRest.value = a.initialAzRest || ''
   fileName.value = a.initialName || ''
-  // If no existing AZ, start with AZ section disabled
-  azEnabled.value = !!(a.initialAzRest || a.initialFullAz)
+  azNumber.value = a.azInitialNumber || ''
+  azEnabled.value = !!(a.azInitialNumber || a.initialFullAz)
   nextTick(() => {
     nameInput.value?.focus()
     nameInput.value?.select()
   })
-  validate()
+  validateAll()
 })
 
-// Called by the modal framework on confirm
 async function onConfirm() {
   const handler = props.modal?.customComponentAttrs?.()?.onRename
   if (handler) {
-    await handler(fileName.value, fullAz.value)
+    const newAz = azEnabled.value ? fullAzPreview.value : ''
+    await handler(fileName.value, newAz)
   }
 }
 
@@ -148,7 +203,7 @@ defineExpose({ onConfirm })
   border: 1px solid var(--oc-color-border, #ccc);
   border-radius: 0 4px 4px 0;
   padding: 6px 8px;
-  flex: 1;
+  width: 60px;
   font-family: monospace;
   outline: none;
 }
@@ -159,6 +214,15 @@ defineExpose({ onConfirm })
   font-size: 0.8em;
   color: var(--oc-color-text-muted, #999);
   font-family: monospace;
+  min-height: 16px;
+}
+.rename-az-free {
+  color: #2E7D32;
+  font-weight: 600;
+}
+.rename-az-taken {
+  color: #C62828;
+  font-weight: 600;
 }
 .rename-az-name {
   border: 1px solid var(--oc-color-border, #ccc);
@@ -170,7 +234,7 @@ defineExpose({ onConfirm })
 .rename-az-name:focus {
   border-color: var(--oc-color-swatch-primary-default, #0070c0);
 }
-.rename-az-error {
+.rename-az-error, .rename-az-error-msg {
   color: var(--oc-color-swatch-danger-default, #c00);
   font-size: 0.85em;
 }

@@ -3,6 +3,7 @@ import { SpaceResource, Resource } from '@opencloud-eu/web-client'
 import { useClientService, useMessages, useResourcesStore } from '@opencloud-eu/web-pkg'
 import { TypedFolderSchema } from './types'
 import { getFileReference } from './useFileReference'
+import { getNextLevelInfo, formatAzNumber, findNextAvailableNumber, buildChildAz } from './azFormat'
 
 export function useTypedFolderActions(
   space: Ref<SpaceResource>,
@@ -24,36 +25,34 @@ export function useTypedFolderActions(
     if (!sp || !folder || !s) return ''
 
     const parentRef = getFileReference(folder)
-    const isRoot = !folder.path || folder.path === '/'
 
     try {
-      // Find highest sequence among siblings
       const { children } = await clientService.webdav.listFiles(sp, { path: folder.path })
-      let maxSeq = 0
+      const siblingRefs = children
+        .filter((c) => c.type === 'folder')
+        .map((c) => getFileReference(c))
+        .filter(Boolean)
 
-      for (const child of children) {
-        if (child.type !== 'folder') continue
-        const ref = getFileReference(child)
-        if (!ref) continue
-        // Extract the last numeric part
-        const parts = ref.split(/[.\-/#]/).filter(Boolean)
-        if (parts.length > 0) {
-          const num = parseInt(parts[parts.length - 1], 10)
-          if (!isNaN(num) && num > maxSeq) maxSeq = num
-        }
-      }
-
-      const nextSeq = maxSeq + 1
-
-      if (isRoot || !parentRef) {
-        // Top-level: just a zero-padded sequence number
-        return String(nextSeq).padStart(2, '0')
-      }
-
-      // Nested: parentRef + separator + sequence
-      return `${parentRef}.${String(nextSeq).padStart(2, '0')}`
+      const nextNum = findNextAvailableNumber(siblingRefs, parentRef)
+      return buildChildAz(parentRef, nextNum)
     } catch {
       return ''
+    }
+  }
+
+  /** List sibling AZ refs for the current folder's children. */
+  async function listSiblingAzRefs(): Promise<string[]> {
+    const sp = unref(space)
+    const folder = unref(currentFolder)
+    if (!sp || !folder) return []
+    try {
+      const { children } = await clientService.webdav.listFiles(sp, { path: folder.path })
+      return children
+        .filter((c) => c.type === 'folder')
+        .map((c) => getFileReference(c))
+        .filter(Boolean)
+    } catch {
+      return []
     }
   }
 
@@ -215,6 +214,7 @@ export function useTypedFolderActions(
   return {
     createTypedChild,
     computeNextFileReference,
+    listSiblingAzRefs,
     allowedChildren,
     canCreate,
     needsUnprotect

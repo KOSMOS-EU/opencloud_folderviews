@@ -11,6 +11,7 @@ import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
 import { getPreferenceDefinitions, useFolderviewSettings, registerAktzSortToggle } from './composables/useFolderviewSettings'
 import { prefixResources, getFileReference } from './composables/useFileReference'
+import { getNextLevelInfo, findNextAvailableNumber, extractChildNumber, formatAzNumber } from './composables/azFormat'
 import RenameAzModal from './components/RenameAzModal.vue'
 import CreateFolderAzModal from './components/CreateFolderAzModal.vue'
 import AktenplanView from './views/AktenplanView.vue'
@@ -328,7 +329,7 @@ export default defineWebApplication({
         id: 'com.kosmos-eu.folderviews.rename-handler',
         type: 'renameHandler',
         extensionPointIds: ['global.files.rename-handler'],
-        handler: ({ space, resource, renameResource }: any) => {
+        handler: async ({ space, resource, renameResource }: any) => {
           if (!showAktzInName.value) return false
 
           const parentAzRaw = (resource as any).extraProps?.['om:parent-oy.fileReference']
@@ -338,7 +339,26 @@ export default defineWebApplication({
           // AZ-Modal only if parent has an AZ (provides the prefix)
           if (!parentAz) return false
           const originalName = (resource as any)._originalName || resource.name || ''
-          const azRest = fullAz && fullAz.startsWith(parentAz) ? fullAz.slice(parentAz.length) : fullAz
+
+          // Compute level info and siblings for validation
+          const levelInfo = getNextLevelInfo(parentAz)
+          const azSeparator = levelInfo?.separator ?? ''
+          const azPadWidth = levelInfo?.padWidth ?? 0
+
+          // Extract current number from full AZ
+          const currentNum = extractChildNumber(fullAz, parentAz)
+          const azInitialNumber = currentNum !== null ? String(currentNum) : ''
+
+          // List siblings for duplicate checking
+          let siblingRefs: string[] = []
+          try {
+            const parentPath = resource.path ? resource.path.replace(/\/[^/]+$/, '') || '/' : '/'
+            const { children } = await clientService.webdav.listFiles(space, { path: parentPath })
+            siblingRefs = children
+              .filter((c: any) => c.type === 'folder' && c.id !== resource.id)
+              .map((c: any) => getFileReference(c))
+              .filter(Boolean)
+          } catch { /* ignore */ }
 
           const { dispatchModal } = useModals()
           const { showErrorMessage } = useMessages()
@@ -358,7 +378,6 @@ export default defineWebApplication({
                   )
                 }
               }
-              // Trigger full reload so resourceTransformer (AZ prefix) runs again
               const { eventBus } = await import('@opencloud-eu/web-pkg')
               eventBus.publish('app.files.list.load')
             } catch (error: any) {
@@ -377,7 +396,10 @@ export default defineWebApplication({
             customComponentAttrs: () => ({
               resource,
               parentAz,
-              initialAzRest: azRest,
+              azSeparator,
+              azPadWidth,
+              azInitialNumber,
+              azSiblingRefs: siblingRefs,
               initialFullAz: fullAz,
               initialName: originalName,
               onRename
@@ -392,12 +414,28 @@ export default defineWebApplication({
         id: 'com.kosmos-eu.folderviews.create-folder-handler',
         type: 'createFolderHandler',
         extensionPointIds: ['global.files.create-folder-handler'],
-        handler: ({ space, currentFolder, addNewFolder }: any) => {
+        handler: async ({ space, currentFolder, addNewFolder }: any) => {
           if (!showAktzInName.value) return false
 
           const parentAzRaw = (currentFolder as any)?.extraProps?.['om:oy.fileReference']
           const parentAz = parentAzRaw ? String(parentAzRaw) : ''
           if (!parentAz) return false
+
+          // Compute level info and siblings
+          const levelInfo = getNextLevelInfo(parentAz)
+          const azSeparator = levelInfo?.separator ?? ''
+          const azPadWidth = levelInfo?.padWidth ?? 0
+
+          let siblingRefs: string[] = []
+          try {
+            const { children } = await clientService.webdav.listFiles(space, { path: currentFolder.path })
+            siblingRefs = children
+              .filter((c: any) => c.type === 'folder')
+              .map((c: any) => getFileReference(c))
+              .filter(Boolean)
+          } catch { /* ignore */ }
+
+          const nextNum = findNextAvailableNumber(siblingRefs, parentAz)
 
           const { dispatchModal } = useModals()
           const { showErrorMessage } = useMessages()
@@ -406,10 +444,8 @@ export default defineWebApplication({
             try {
               await addNewFolder(folderName)
               if (fileReference) {
-                // Set AZ metadata on the newly created folder
                 const httpClient = (clientService as any).httpAuthenticated
                 if (httpClient) {
-                  // Find the new folder to get its ID
                   const { children } = await clientService.webdav.listFiles(space, { path: currentFolder.path })
                   const newFolder = children.find((r: any) => r.name === folderName)
                   if (newFolder) {
@@ -438,8 +474,11 @@ export default defineWebApplication({
             customComponent: markRaw(CreateFolderAzModal) as any,
             customComponentAttrs: () => ({
               parentAz,
+              azSeparator,
+              azPadWidth,
+              azInitialNumber: String(nextNum),
+              azSiblingRefs: siblingRefs,
               initialName: '',
-              initialAzRest: '',
               onCreate
             })
           })

@@ -56,7 +56,10 @@
       :show-color="dialogShowColor"
       :show-note="dialogShowNote"
       :parent-az="dialogParentAz"
-      :initial-az-rest="dialogInitialAzRest"
+      :az-separator="dialogAzSeparator"
+      :az-pad-width="dialogAzPadWidth"
+      :az-initial-number="dialogAzInitialNumber"
+      :az-sibling-refs="dialogAzSiblingRefs"
       @cancel="dialogOpen = false"
       @confirm="onDialogConfirm"
     />
@@ -72,6 +75,7 @@ import { useResourcesStore, useClientService, useSpacesStore } from '@opencloud-
 import { useTypedFolderActions } from '../composables/useTypedFolderActions'
 import { useTypedFolderSchema, getCachedSchema } from '../composables/useTypedFolderSchema'
 import { useAppModeStore } from '../composables/useAppModeStore'
+import { getNextLevelInfo, findNextAvailableNumber, formatAzNumber } from '../composables/azFormat'
 import CreateDialog from './CreateDialog.vue'
 
 const props = defineProps<{
@@ -110,7 +114,7 @@ const appModeStore = useAppModeStore()
 
 const spaceRef = computed(() => unref(resolvedSpace))
 const { schema } = useTypedFolderSchema(spaceRef, currentType)
-const { createTypedChild, computeNextFileReference, allowedChildren, canCreate } = useTypedFolderActions(
+const { createTypedChild, computeNextFileReference, listSiblingAzRefs, allowedChildren, canCreate } = useTypedFolderActions(
   spaceRef, currentFolder, schema
 )
 
@@ -224,7 +228,10 @@ const dialogShowColor = ref(false)
 const dialogShowNote = ref(false)
 const dialogChildType = ref('')
 const dialogParentAz = ref('')
-const dialogInitialAzRest = ref('')
+const dialogAzSeparator = ref('')
+const dialogAzPadWidth = ref(0)
+const dialogAzInitialNumber = ref('')
+const dialogAzSiblingRefs = ref<string[]>([])
 
 async function openCreateDialog(childType: string, label: string) {
   const s = unref(schema)
@@ -233,15 +240,19 @@ async function openCreateDialog(childType: string, label: string) {
   dialogShowColor.value = !!s?.metadata?.['oy.color']
   dialogShowNote.value = !!s?.metadata?.['oy.note']
 
-  // Compute parent AZ and suggested next rest for the dialog
   const parentRef = currentFolderFileRef.value
   dialogParentAz.value = parentRef
-  if (parentRef) {
-    const nextFull = await computeNextFileReference(childType)
-    dialogInitialAzRest.value = nextFull.startsWith(parentRef) ? nextFull.slice(parentRef.length) : nextFull
-  } else {
-    dialogInitialAzRest.value = ''
-  }
+
+  // Get level info for correct separator and padding
+  const levelInfo = getNextLevelInfo(parentRef)
+  dialogAzSeparator.value = levelInfo?.separator ?? ''
+  dialogAzPadWidth.value = levelInfo?.padWidth ?? 0
+
+  // List siblings and compute next available number
+  const siblingRefs = await listSiblingAzRefs()
+  dialogAzSiblingRefs.value = siblingRefs
+  const nextNum = findNextAvailableNumber(siblingRefs, parentRef)
+  dialogAzInitialNumber.value = String(nextNum)
 
   dialogOpen.value = true
 }

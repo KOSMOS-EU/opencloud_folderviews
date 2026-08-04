@@ -8,24 +8,35 @@
         </button>
       </div>
       <div class="create-dialog-body">
-        <template v-if="parentAz">
+        <template v-if="hasAzSupport">
           <div class="create-az-switch-row">
             <label>{{ $gettext('File reference') }}</label>
             <oc-switch
+              v-if="!maxDepthReached"
               :checked="azEnabled"
-              @update:checked="azEnabled = $event"
+              @update:checked="azEnabled = $event; validateAz()"
             />
+            <span v-else class="create-az-max-depth">{{ $gettext('Max depth reached') }}</span>
           </div>
-          <template v-if="azEnabled">
+          <template v-if="azEnabled && !maxDepthReached">
             <div class="create-az-ref-row">
-              <span class="create-az-parent">{{ parentAz }}</span>
+              <span class="create-az-parent">{{ azPrefix }}</span>
               <input
-                v-model="azRest"
+                v-model="azNumber"
                 class="create-az-rest"
-                :placeholder="$gettext('e.g. .03')"
+                :placeholder="azPadWidth > 0 ? '01' : '1'"
+                :maxlength="2"
+                @input="onAzNumberInput"
               />
             </div>
-            <div v-if="azRest" class="create-az-preview">→ {{ parentAz }}{{ azRest }}</div>
+            <div class="create-az-preview">
+              <template v-if="azNumber">
+                → {{ fullAzPreview }}
+                <span v-if="azDuplicate" class="create-az-taken">{{ $gettext('already taken') }}</span>
+                <span v-else-if="azNumberValid" class="create-az-free">{{ $gettext('available') }}</span>
+              </template>
+            </div>
+            <div v-if="azError" class="create-az-error">{{ azError }}</div>
           </template>
         </template>
 
@@ -70,21 +81,25 @@
       </div>
       <div class="create-dialog-footer">
         <button class="create-btn create-btn-cancel" @click="$emit('cancel')">{{ $gettext('Cancel') }}</button>
-        <button class="create-btn create-btn-ok" :disabled="!name.trim()" @click="submit">{{ $gettext('Create') }}</button>
+        <button class="create-btn create-btn-ok" :disabled="!canSubmit" @click="submit">{{ $gettext('Create') }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { isValidAzInput, formatAzNumber, isDuplicateAz, getNextLevelInfo, getAzDepth, MAX_AZ_DEPTH } from '../composables/azFormat'
 
 const props = defineProps<{
   title: string
   showColor?: boolean
   showNote?: boolean
   parentAz?: string
-  initialAzRest?: string
+  azSeparator?: string
+  azPadWidth?: number
+  azInitialNumber?: string
+  azSiblingRefs?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -96,8 +111,42 @@ const name = ref('')
 const color = ref('#1565C0')
 const note = ref('')
 const azEnabled = ref(true)
-const azRest = ref('')
+const azNumber = ref('')
+const azError = ref('')
 const nameInput = ref<HTMLInputElement>()
+
+const hasAzSupport = computed(() => props.parentAz !== undefined && props.parentAz !== null)
+const maxDepthReached = computed(() => {
+  if (!hasAzSupport.value) return false
+  return getAzDepth(props.parentAz || '') >= MAX_AZ_DEPTH
+})
+
+const azPrefix = computed(() => {
+  const sep = props.azSeparator ?? ''
+  return (props.parentAz || '') + sep
+})
+
+const azNumberValid = computed(() => isValidAzInput(azNumber.value))
+
+const fullAzPreview = computed(() => {
+  if (!azNumberValid.value) return azPrefix.value + azNumber.value
+  const num = parseInt(azNumber.value, 10)
+  const padWidth = props.azPadWidth ?? 0
+  return azPrefix.value + formatAzNumber(num, padWidth)
+})
+
+const azDuplicate = computed(() => {
+  if (!azNumberValid.value || !props.azSiblingRefs) return false
+  return isDuplicateAz(props.azSiblingRefs, fullAzPreview.value)
+})
+
+const canSubmit = computed(() => {
+  if (!name.value.trim()) return false
+  if (azEnabled.value && hasAzSupport.value && !maxDepthReached.value) {
+    if (!azNumberValid.value || azDuplicate.value) return false
+  }
+  return true
+})
 
 const colors = [
   { value: '#8B1A1A', label: 'Dunkelrot' },
@@ -114,22 +163,48 @@ const colors = [
   { value: '#455A64', label: 'Blaugrau' }
 ]
 
+function onAzNumberInput() {
+  // Strip non-digits
+  azNumber.value = azNumber.value.replace(/\D/g, '')
+  validateAz()
+}
+
+function validateAz() {
+  if (!azEnabled.value || maxDepthReached.value) {
+    azError.value = ''
+    return
+  }
+  if (azNumber.value && !azNumberValid.value) {
+    azError.value = 'Zahl von 1-99 eingeben'
+    return
+  }
+  if (azDuplicate.value) {
+    azError.value = 'Aktenzeichen bereits vergeben'
+    return
+  }
+  azError.value = ''
+}
+
 function submit() {
-  if (!name.value.trim()) return
+  if (!canSubmit.value) return
   const data: { name: string; color?: string; note?: string; fileReference?: string } = {
     name: name.value.trim(),
     color: color.value || undefined,
     note: note.value.trim() || undefined
   }
-  if (props.parentAz) {
-    data.fileReference = azEnabled.value ? (props.parentAz + azRest.value) : ''
+  if (hasAzSupport.value) {
+    if (azEnabled.value && !maxDepthReached.value && azNumberValid.value) {
+      data.fileReference = fullAzPreview.value
+    } else {
+      data.fileReference = ''
+    }
   }
   emit('confirm', data)
 }
 
 onMounted(() => {
-  azRest.value = props.initialAzRest || ''
-  azEnabled.value = !!props.parentAz
+  azNumber.value = props.azInitialNumber || ''
+  azEnabled.value = hasAzSupport.value && !maxDepthReached.value
   nextTick(() => nameInput.value?.focus())
 })
 </script>
@@ -256,7 +331,7 @@ onMounted(() => {
   border: 1px solid var(--oc-color-border, #ccc);
   border-radius: 0 4px 4px 0;
   padding: 6px 8px;
-  flex: 1;
+  width: 60px;
   font-family: monospace;
   outline: none;
   font-size: 14px;
@@ -269,5 +344,23 @@ onMounted(() => {
   color: var(--oc-color-text-muted, #999);
   font-family: monospace;
   margin-top: 2px;
+  min-height: 18px;
+}
+.create-az-free {
+  color: #2E7D32;
+  font-weight: 600;
+}
+.create-az-taken {
+  color: #C62828;
+  font-weight: 600;
+}
+.create-az-error {
+  color: var(--oc-color-swatch-danger-default, #c00);
+  font-size: 0.85em;
+  margin-top: 2px;
+}
+.create-az-max-depth {
+  font-size: 0.85em;
+  color: var(--oc-color-text-muted, #999);
 }
 </style>
