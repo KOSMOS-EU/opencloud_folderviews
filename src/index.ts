@@ -554,7 +554,7 @@ export default defineWebApplication({
           !routeName.includes('viewer') &&
           !routeName.includes('editor')) return
       // Already opened in compact/new window — don't intercept again
-      if (to.query.appCompact) return
+      if (to.query.appCompact || to.query.appNewWindow) return
 
       if (!userAppCompact.value && !userAppNewWindow.value) return
 
@@ -562,8 +562,8 @@ export default defineWebApplication({
       if (userAppCompact.value) query.appCompact = 'true'
 
       if (userAppNewWindow.value) {
+        query.appNewWindow = 'true'
         const resolved = router.resolve({ ...to, query })
-        console.error('[FOLDERVIEWS] window.open:', resolved.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         window.open(resolved.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         return { path: from.path, query: from.query }
       }
