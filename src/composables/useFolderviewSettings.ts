@@ -157,6 +157,23 @@ export function useFolderviewSettings() {
  */
 export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boolean>>, showAktzInName: { value: boolean }) {
   const viewOptionsStore = useViewOptionsStore()
+  const prefStore = useExtensionPreferencesStore()
+
+  const AktzPrefixToggle = defineComponent({
+    setup() {
+      const OcSwitch = resolveComponent('oc-switch')
+      return () => {
+        return h(OcSwitch as any, {
+          checked: showAktzInName.value,
+          'onUpdate:checked': (v: boolean) => {
+            prefStore.setSelectedExtensionIds(AKTZ_EP, v ? [AKTZ_ENABLED] : [AKTZ_DISABLED])
+            import('@opencloud-eu/web-pkg').then(({ eventBus }) => eventBus.publish('app.files.list.load'))
+          },
+          label: 'Aktenzeichen anzeigen'
+        })
+      }
+    }
+  })
 
   const AktzSortToggle = defineComponent({
     setup() {
@@ -175,5 +192,6 @@ export function registerAktzSortToggle(ignoreAktzSort: ReturnType<typeof ref<boo
     }
   })
 
+  viewOptionsStore.register({ id: 'folderviews-aktz-prefix', component: AktzPrefixToggle })
   viewOptionsStore.register({ id: 'folderviews-aktz-sort', component: AktzSortToggle })
 }
