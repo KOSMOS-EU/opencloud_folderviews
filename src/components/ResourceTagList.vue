@@ -21,6 +21,7 @@
         :label="$gettext('Primärtag')"
         :multiple="true"
         :options="availableTagOptions"
+        :position-fixed="true"
         @update:model-value="onTagChanged"
       >
         <template #selected-option-container="{ option, deselect }">
@@ -45,6 +46,7 @@
         :label="$gettext('Sekundärtag')"
         :multiple="true"
         :options="availableTagOptions"
+        :position-fixed="true"
         @update:model-value="onTagChanged"
       >
         <template #selected-option-container="{ option, deselect }">
