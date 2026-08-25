@@ -28,10 +28,7 @@ export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
   async function doLoad(path: string, binary: boolean): Promise<CacheEntry> {
     const sp = space.value
     const key = `${sp?.id || ''}:${path}`
-    const url = clientService.webdav.getFileUrl
-      ? clientService.webdav.getFileUrl(sp, { path }, {})
-      : null
-    console.log('[useContentLoader] GET', path, binary ? '(arrayBuffer)' : '(text)', 'url:', url)
+    console.log('[useContentLoader] GET', path, binary ? '(arrayBuffer)' : '(text)')
     const { body } = await clientService.webdav.getFileContents(sp, {
       path,
       ...(binary ? { responseType: 'arrayBuffer' } : {})
