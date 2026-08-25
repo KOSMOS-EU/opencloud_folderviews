@@ -8,7 +8,7 @@
       <oc-spinner v-if="loading" :size="32" />
       <p v-else-if="error" class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
       <TextViewer v-else-if="kind === 'text'" :content="textContent" />
-      <ImageViewer v-else-if="kind === 'image'" :content="binaryContent" :alt="resource?.name" />
+      <img v-else-if="kind === 'image'" class="preview-panel-image" :src="(binaryContent as string)" :alt="resource?.name" />
       <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <PdfViewer v-else-if="kind === 'pdf'" :content="binaryContent" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
@@ -22,7 +22,6 @@ import { useGettext } from 'vue3-gettext'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
 import { useClientService } from '@opencloud-eu/web-pkg'
 import TextViewer from './viewers/TextViewer.vue'
-import ImageViewer from './viewers/ImageViewer.vue'
 import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
 import PdfViewer from './viewers/PdfViewer.vue'
 
@@ -38,7 +37,7 @@ const clientService = useClientService()
 const loading = ref(false)
 const error = ref(false)
 const textContent = ref('')
-const binaryContent = ref<ArrayBuffer | null>(null)
+const binaryContent = ref<ArrayBuffer | string | null>(null)
 let loadToken = 0
 
 watch(
@@ -63,17 +62,18 @@ async function loadPreview(resource: any, token: number) {
       ...(isBinary ? { responseType: 'arraybuffer' } : {})
     }) as any
     if (token !== loadToken) return
-    console.log('[PreviewPanel] loaded:', resource.path, {
-      kind: kind.value,
-      isBinary,
-      bodyType: Object.prototype.toString.call(body),
-      bytes: body instanceof ArrayBuffer ? body.byteLength : (body as string)?.length,
-      head: body instanceof ArrayBuffer ? new Uint8Array(body, 0, 8).join(',') : undefined
-    })
-    if (isBinary) {
-      binaryContent.value = body as ArrayBuffer
+    if (typeof body === 'string') {
+      if (isBinary) {
+        binaryContent.value = body
+      } else {
+        textContent.value = body
+      }
     } else {
-      textContent.value = typeof body === 'string' ? body : new TextDecoder().decode(body)
+      if (isBinary) {
+        binaryContent.value = body as ArrayBuffer
+      } else {
+        textContent.value = new TextDecoder().decode(body)
+      }
     }
   } catch (loadErr) {
     if (token !== loadToken) return
@@ -98,5 +98,13 @@ async function loadPreview(resource: any, token: number) {
   margin: 0;
   font-size: 13px;
   color: var(--oc-role-text-secondary, #666);
+}
+.preview-panel-image {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 4px;
+  margin: 0 auto;
 }
 </style>

@@ -61,11 +61,16 @@ function clearPages() {
   if (pagesRef.value) pagesRef.value.innerHTML = ''
 }
 
+let pdfjsModule: any = null
 async function loadPdfjs() {
-  const pdfjs = await import('pdfjs-dist')
-  const workerUrlModule = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
-  pdfjs.GlobalWorkerOptions.workerSrc = workerUrlModule.default
-  return pdfjs
+  if (!pdfjsModule) {
+    const pdfjs = await import('pdfjs-dist')
+    // Kein workerSrc setzen: pdfjs nutzt dann automatisch den Main-Thread-Fallback
+    // (fake worker) mit der korrekten Version. Ein ?url-Worker-Import wuerde
+    // durch Module Federation sonst mit dem Host-Pdfjs-Worker kollidieren.
+    pdfjsModule = pdfjs
+  }
+  return pdfjsModule
 }
 
 async function renderPdf(data: ArrayBuffer, token: number) {
@@ -84,7 +89,6 @@ async function renderPdf(data: ArrayBuffer, token: number) {
     return
   }
 
-  console.log('[PdfViewer] renderPdf:', data.byteLength, 'bytes')
   const uint8Data = new Uint8Array(data)
   let doc: any = null
 
@@ -128,7 +132,6 @@ async function renderPdf(data: ArrayBuffer, token: number) {
         await renderTask.promise
       } catch (renderErr: any) {
         if (renderErr?.name !== 'RenderingCancelledException') {
-          console.error('[PdfViewer] page render failed:', pageNumber, renderErr)
           error.value = $gettext('Preview not available')
           break
         }
