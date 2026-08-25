@@ -9,6 +9,7 @@
       <p v-else-if="error" class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
       <TextViewer v-else-if="kind === 'text'" :content="textContent" />
       <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resource?.name" />
+      <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
     </template>
   </div>
@@ -21,6 +22,7 @@ import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSuppo
 import { useContentLoader } from '../composables/useContentLoader'
 import TextViewer from './viewers/TextViewer.vue'
 import ImageViewer from './viewers/ImageViewer.vue'
+import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
 
 const props = defineProps<{ space?: any; resource?: any }>()
 
