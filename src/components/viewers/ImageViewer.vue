@@ -14,10 +14,12 @@ const objectUrl = ref('')
 
 watch(() => props.content, (buf) => {
   if (objectUrl.value) URL.revokeObjectURL(objectUrl.value)
-  if (buf) {
-    const blob = new Blob([buf])
-    objectUrl.value = URL.createObjectURL(blob)
-  }
+  objectUrl.value = ''
+  if (!buf) return
+  console.log('[ImageViewer] content:', Object.prototype.toString.call(buf), 'bytes:', buf.byteLength, 'head:', new Uint8Array(buf, 0, 16).join(','))
+  const blob = new Blob([buf], { type: 'application/octet-stream' })
+  objectUrl.value = URL.createObjectURL(blob)
+  console.log('[ImageViewer] objectUrl:', objectUrl.value)
 }, { immediate: true })
 
 onUnmounted(() => {

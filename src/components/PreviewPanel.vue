@@ -67,7 +67,8 @@ async function loadPreview(resource: any, token: number) {
       kind: kind.value,
       isBinary,
       bodyType: Object.prototype.toString.call(body),
-      bytes: body instanceof ArrayBuffer ? body.byteLength : (body as string)?.length
+      bytes: body instanceof ArrayBuffer ? body.byteLength : (body as string)?.length,
+      head: body instanceof ArrayBuffer ? new Uint8Array(body, 0, 8).join(',') : undefined
     })
     if (isBinary) {
       binaryContent.value = body as ArrayBuffer
