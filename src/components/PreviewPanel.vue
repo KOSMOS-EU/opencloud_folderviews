@@ -1,36 +1,76 @@
 <template>
   <div class="p-4 preview-panel">
-    <oc-icon name="eye" fill-type="line" size="large" />
-    <p class="preview-panel-state-text">{{ $gettext('Preview') }}</p>
-    <p v-if="resource" class="preview-panel-filename">{{ resource.name }}</p>
+    <div v-if="!supported" class="preview-panel-state">
+      <oc-icon name="file" fill-type="line" size="large" />
+      <p class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
+    </div>
+    <template v-else>
+      <oc-spinner v-if="loading" :size="32" />
+      <p v-else-if="error" class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
+      <TextViewer v-else-if="kind === 'text'" :content="textContent" />
+      <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
+import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
+import { useContentLoader } from '../composables/useContentLoader'
+import TextViewer from './viewers/TextViewer.vue'
 
-defineProps<{ space?: any; resource?: any }>()
+const props = defineProps<{ space?: any; resource?: any }>()
 
 const { $gettext } = useGettext()
+
+const kind = computed<PreviewKind | undefined>(() => getPreviewKind(props.resource?.name))
+const supported = computed(() => kind.value !== undefined)
+
+const contentLoader = useContentLoader(computed(() => props.space as any))
+
+const loading = ref(false)
+const error = ref(false)
+const textContent = ref('')
+
+watch(
+  () => props.resource,
+  (resource) => {
+    textContent.value = ''
+    error.value = false
+    if (!resource || !supported.value) return
+    if (kind.value !== 'text') return
+    loadPreview(resource)
+  },
+  { immediate: true }
+)
+
+async function loadPreview(resource: any) {
+  loading.value = true
+  try {
+    const entry = await contentLoader.loadContent(resource.path, false)
+    textContent.value = entry.content as string
+  } catch (loadErr) {
+    console.error('[PreviewPanel] load failed:', resource.path, loadErr)
+    error.value = true
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <style scoped>
-.preview-panel {
+.preview-panel-state {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding: 32px 8px;
   gap: 8px;
 }
 .preview-panel-state-text {
   margin: 0;
   font-size: 13px;
   color: var(--oc-role-text-secondary, #666);
-}
-.preview-panel-filename {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  word-break: break-all;
-  text-align: center;
 }
 </style>
