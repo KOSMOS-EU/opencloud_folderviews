@@ -9,6 +9,8 @@ function dirname(p: string): string {
 }
 import ViewTypeEditor from './components/ViewTypeEditor.vue'
 import FolderSettingsPanel from './components/FolderSettingsPanel.vue'
+import PreviewPanel from './components/PreviewPanel.vue'
+import { isPreviewSupported } from './composables/usePreviewSupport'
 import { getPreferenceDefinitions, useFolderviewSettings, registerAktzSortToggle } from './composables/useFolderviewSettings'
 import { prefixResources, getFileReference } from './composables/useFileReference'
 import { getNextLevelInfo, findNextAvailableNumber, extractChildNumber, formatAzNumber } from './composables/azFormat'
@@ -186,6 +188,51 @@ export default defineWebApplication({
           isVisible: (context: any) => {
             if (context?.items?.length !== 1) return false
             return context.items[0]?.type === 'folder'
+          }
+        }
+      },
+      // Preview sidebar sub-panel (txt, md, pdf, images)
+      {
+        id: 'com.kosmos-eu.folderviews.sidebar-panel.preview',
+        type: 'sidebarPanel',
+        extensionPointIds: ['global.files.sidebar'],
+        panel: {
+          name: 'preview',
+          icon: 'eye',
+          title: () => $gettext('Preview'),
+          component: markRaw(PreviewPanel),
+          componentAttrs: (context: any) => ({
+            space: context?.root,
+            resource: context?.items?.[0]
+          }),
+          isRoot: () => false,
+          isVisible: (context: any) => {
+            const item = context?.items?.[0]
+            if (context?.items?.length !== 1) return false
+            if (item?.type !== 'file') return false
+            return isPreviewSupported(item?.name)
+          }
+        }
+      },
+      // Context menu action to open the preview panel
+      {
+        id: 'com.kosmos-eu.folderviews.action.preview',
+        type: 'action',
+        extensionPointIds: ['global.files.context-actions'],
+        action: {
+          name: 'preview',
+          icon: 'eye',
+          label: () => $gettext('Preview'),
+          category: 'secondary',
+          handler: () => {
+            const sidebarStore = useSideBar()
+            sidebarStore.openSideBarPanel('preview')
+          },
+          isVisible: (options: any) => {
+            const resource = options?.resources?.[0]
+            if (!resource || options?.resources?.length !== 1) return false
+            if (resource.type !== 'file') return false
+            return isPreviewSupported(resource?.name)
           }
         }
       },

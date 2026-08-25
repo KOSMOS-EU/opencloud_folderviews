@@ -67,6 +67,11 @@
     "Set": "Setzen",
     "Add attribute": "Attribut hinzufügen",
     "Attribute key (e.g. oy.color)": "Attribut-Schlüssel (z.B. oy.color)",
-    "Ignore file reference for sorting": "Aktenzeichen bei Sortierung ignorieren"
+    "Ignore file reference for sorting": "Aktenzeichen bei Sortierung ignorieren",
+    "Preview": "Vorschau",
+    "No preview available": "Keine Vorschau verfügbar",
+    "Preview not available": "Vorschau nicht verfügbar",
+    "Preview not available (password protected?)": "Vorschau nicht verfügbar (Passwort geschützt?)",
+    "… further %(count)d pages not loaded": "… weitere %(count)d Seiten nicht geladen"
   }
 }
