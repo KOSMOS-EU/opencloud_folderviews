@@ -8,7 +8,7 @@
       <oc-spinner v-if="loading" :size="32" />
       <p v-else-if="error" class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
       <TextViewer v-else-if="kind === 'text'" :content="textContent" />
-      <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resource?.name" />
+      <ImageViewer v-else-if="kind === 'image'" :content="binaryContent" :alt="resource?.name" />
       <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <PdfViewer v-else-if="kind === 'pdf'" :content="binaryContent" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
