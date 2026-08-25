@@ -32,6 +32,7 @@ const pagesRef = ref<HTMLElement>()
 
 let renderTask: any = null
 let destroyed = false
+let renderToken = 0
 
 const morePagesText = computed(() =>
   $gettext('… %(count)d more pages not loaded').replace('%(count)d', String(remainingPages.value))
@@ -39,10 +40,11 @@ const morePagesText = computed(() =>
 
 watch(() => props.content, (buffer) => {
   if (!buffer) {
+    renderToken++
     clearPages()
     return
   }
-  renderPdf(buffer)
+  renderPdf(buffer, ++renderToken)
 }, { immediate: true })
 
 onUnmounted(() => {
@@ -66,29 +68,36 @@ async function loadPdfjs() {
   return pdfjs
 }
 
-async function renderPdf(data: ArrayBuffer) {
+async function renderPdf(data: ArrayBuffer, token: number) {
   clearPages()
   loading.value = true
 
   let pdfjs: any
   try {
     pdfjs = await loadPdfjs()
-  } catch {
-    error.value = $gettext('Preview not available')
-    loading.value = false
+  } catch (loadErr) {
+    console.error('[PdfViewer] pdfjs-dist load failed:', loadErr)
+    if (token === renderToken) {
+      error.value = $gettext('Preview not available')
+      loading.value = false
+    }
     return
   }
 
+  console.log('[PdfViewer] renderPdf:', data.byteLength, 'bytes')
   const uint8Data = new Uint8Array(data)
   let doc: any = null
 
   try {
     doc = await pdfjs.getDocument({ data: uint8Data }).promise
   } catch (loadErr: any) {
-    if (loadErr?.name === 'PasswordException') {
-      error.value = $gettext('Preview not available (password protected?)')
-    } else {
-      error.value = $gettext('Preview not available')
+    console.error('[PdfViewer] getDocument failed:', loadErr)
+    if (token === renderToken) {
+      if (loadErr?.name === 'PasswordException') {
+        error.value = $gettext('Preview not available (password protected?)')
+      } else {
+        error.value = $gettext('Preview not available')
+      }
     }
     loading.value = false
     return
@@ -119,6 +128,7 @@ async function renderPdf(data: ArrayBuffer) {
         await renderTask.promise
       } catch (renderErr: any) {
         if (renderErr?.name !== 'RenderingCancelledException') {
+          console.error('[PdfViewer] page render failed:', pageNumber, renderErr)
           error.value = $gettext('Preview not available')
           break
         }

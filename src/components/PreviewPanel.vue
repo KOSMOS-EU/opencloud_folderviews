@@ -20,7 +20,7 @@
 import { computed, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
-import { useContentLoader } from '../composables/useContentLoader'
+import { useClientService } from '@opencloud-eu/web-pkg'
 import TextViewer from './viewers/TextViewer.vue'
 import ImageViewer from './viewers/ImageViewer.vue'
 import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
@@ -33,12 +33,13 @@ const { $gettext } = useGettext()
 const kind = computed<PreviewKind | undefined>(() => getPreviewKind(props.resource?.name))
 const supported = computed(() => kind.value !== undefined)
 
-const contentLoader = useContentLoader(computed(() => props.space as any))
+const clientService = useClientService()
 
 const loading = ref(false)
 const error = ref(false)
 const textContent = ref('')
 const binaryContent = ref<ArrayBuffer | null>(null)
+let loadToken = 0
 
 watch(
   () => props.resource,
@@ -47,26 +48,38 @@ watch(
     binaryContent.value = null
     error.value = false
     if (!resource || !supported.value) return
-    loadPreview(resource)
+    const token = ++loadToken
+    loadPreview(resource, token)
   },
   { immediate: true }
 )
 
-async function loadPreview(resource: any) {
+async function loadPreview(resource: any, token: number) {
   loading.value = true
   try {
     const isBinary = kind.value === 'image' || kind.value === 'pdf'
-    const entry = await contentLoader.loadContent(resource.path, isBinary)
-    if (entry.type === 'binary') {
-      binaryContent.value = entry.content as ArrayBuffer
+    const { body } = await clientService.webdav.getFileContents(props.space as any, {
+      path: resource.path,
+      ...(isBinary ? { responseType: 'arraybuffer' } : {})
+    }) as any
+    if (token !== loadToken) return
+    console.log('[PreviewPanel] loaded:', resource.path, {
+      kind: kind.value,
+      isBinary,
+      bodyType: Object.prototype.toString.call(body),
+      bytes: body instanceof ArrayBuffer ? body.byteLength : (body as string)?.length
+    })
+    if (isBinary) {
+      binaryContent.value = body as ArrayBuffer
     } else {
-      textContent.value = entry.content as string
+      textContent.value = typeof body === 'string' ? body : new TextDecoder().decode(body)
     }
   } catch (loadErr) {
+    if (token !== loadToken) return
     console.error('[PreviewPanel] load failed:', resource.path, loadErr)
     error.value = true
   } finally {
-    loading.value = false
+    if (token === loadToken) loading.value = false
   }
 }
 </script>

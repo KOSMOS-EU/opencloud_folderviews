@@ -7,7 +7,9 @@
 <script setup lang="ts">
 import { ref, onUnmounted, watch } from 'vue'
 
-const props = defineProps<{ content: ArrayBuffer; alt?: string }>()
+const props = withDefaults(defineProps<{ content: ArrayBuffer | null; alt?: string }>(), {
+  content: null
+})
 const objectUrl = ref('')
 
 watch(() => props.content, (buf) => {

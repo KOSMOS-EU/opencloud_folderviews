@@ -27,6 +27,7 @@ export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
 
   async function doLoad(path: string, binary: boolean): Promise<CacheEntry> {
     const sp = space.value
+    const key = `${sp?.id || ''}:${path}`
     const { body } = await clientService.webdav.getFileContents(sp, {
       path,
       ...(binary ? { responseType: 'arrayBuffer' } : {})
@@ -35,23 +36,24 @@ export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
       content: typeof body === 'string' ? body : body,
       type: binary ? 'binary' : 'text'
     }
-    cache.set(path, entry)
-    pending.delete(path)
+    cache.set(key, entry)
+    pending.delete(key)
     return entry
   }
 
   function loadContent(path: string, binary = false): Promise<CacheEntry> {
-    const cached = cache.get(path)
+    const key = `${space.value?.id || ''}:${path}`
+    const cached = cache.get(key)
     if (cached) return Promise.resolve(cached)
 
-    const inflight = pending.get(path)
+    const inflight = pending.get(key)
     if (inflight) return inflight
 
     const p = new Promise<CacheEntry>((resolve, reject) => {
       queue.push({ path, binary, resolve, reject })
       drain()
     })
-    pending.set(path, p)
+    pending.set(key, p)
     return p
   }
 
