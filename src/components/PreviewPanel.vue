@@ -7,7 +7,6 @@
     <template v-else>
       <oc-spinner v-if="loading" :size="32" />
       <p v-else-if="error" class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
-      <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resource?.name" />
       <TextViewer v-else-if="kind === 'text'" :content="textContent" />
       <MarkdownViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
@@ -20,7 +19,6 @@ import { computed, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
 import { useContentLoader } from '../composables/useContentLoader'
-import ImageViewer from './viewers/ImageViewer.vue'
 import TextViewer from './viewers/TextViewer.vue'
 import MarkdownViewer from './viewers/MarkdownViewer.vue'
 
