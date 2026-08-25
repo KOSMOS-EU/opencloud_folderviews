@@ -8,19 +8,15 @@
     <template v-else>
       <div ref="pagesRef" class="pdf-viewer-pages"></div>
       <p v-if="remainingPages > 0" class="pdf-viewer-more">
-        {{ $gettext('… more pages not loaded') }} ({{ remainingPages }})
+        {{ morePagesText }}
       </p>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+import { ref, watch, onUnmounted, computed } from 'vue'
 import { useGettext } from 'vue3-gettext'
-
-GlobalWorkerOptions.workerSrc = workerUrl
 
 const props = withDefaults(defineProps<{ content: ArrayBuffer | null; maxPages?: number }>(), {
   content: null,
@@ -36,6 +32,10 @@ const pagesRef = ref<HTMLElement>()
 
 let renderTask: any = null
 let destroyed = false
+
+const morePagesText = computed(() =>
+  $gettext('… %(count)d more pages not loaded').replace('%(count)d', String(remainingPages.value))
+)
 
 watch(() => props.content, (buffer) => {
   if (!buffer) {
@@ -59,16 +59,31 @@ function clearPages() {
   if (pagesRef.value) pagesRef.value.innerHTML = ''
 }
 
+async function loadPdfjs() {
+  const pdfjs = await import('pdfjs-dist')
+  const workerUrlModule = await import('pdfjs-dist/build/pdf.worker.min.mjs?url')
+  pdfjs.GlobalWorkerOptions.workerSrc = workerUrlModule.default
+  return pdfjs
+}
+
 async function renderPdf(data: ArrayBuffer) {
   clearPages()
   loading.value = true
 
-  // pdfjs transfers the buffer to the worker, so hand over a copy
+  let pdfjs: any
+  try {
+    pdfjs = await loadPdfjs()
+  } catch {
+    error.value = $gettext('Preview not available')
+    loading.value = false
+    return
+  }
+
   const uint8Data = new Uint8Array(data)
-  let doc: any
+  let doc: any = null
 
   try {
-    doc = await getDocument({ data: uint8Data }).promise
+    doc = await pdfjs.getDocument({ data: uint8Data }).promise
   } catch (loadErr: any) {
     if (loadErr?.name === 'PasswordException') {
       error.value = $gettext('Preview not available (password protected?)')
@@ -86,6 +101,7 @@ async function renderPdf(data: ArrayBuffer) {
     if (!container) return
 
     for (let pageNumber = 1; pageNumber <= Math.min(totalPages, props.maxPages); pageNumber++) {
+      if (destroyed) return
       const page = await doc.getPage(pageNumber)
       const viewport = page.getViewport({ scale: 1.25 })
       const canvas = document.createElement('canvas')
@@ -111,8 +127,8 @@ async function renderPdf(data: ArrayBuffer) {
       page.cleanup()
     }
   } finally {
+    doc?.destroy()
     if (!destroyed) loading.value = false
-    doc.destroy()
   }
 }
 </script>
