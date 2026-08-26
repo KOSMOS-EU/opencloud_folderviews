@@ -7,6 +7,38 @@ interface CacheEntry {
   type: 'text' | 'binary'
 }
 
+async function toArrayBuffer(body: any): Promise<ArrayBuffer> {
+  // Blob / File
+  if (typeof Blob !== 'undefined' && body instanceof Blob) {
+    return body.arrayBuffer()
+  }
+  // ArrayBuffer / TypedArray
+  if (body instanceof ArrayBuffer) {
+    return body
+  }
+  if (ArrayBuffer.isView(body)) {
+    return (body as any).buffer.slice(
+      (body as any).byteOffset,
+      (body as any).byteOffset + (body as any).byteLength
+    )
+  }
+  // String (fallback — text content in binary slot)
+  if (typeof body === 'string') {
+    const encoder = new TextEncoder()
+    return encoder.encode(body).buffer
+  }
+  // Last resort: wrap in Blob and read
+  return new Blob([body]).arrayBuffer()
+}
+
+async function toText(body: any): Promise<string> {
+  if (typeof body === 'string') return body
+  if (typeof Blob !== 'undefined' && body instanceof Blob) return body.text()
+  if (body instanceof ArrayBuffer) return new TextDecoder().decode(body)
+  if (ArrayBuffer.isView(body)) return new TextDecoder().decode(body)
+  return String(body)
+}
+
 export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
   const clientService = useClientService()
   const cache = new Map<string, CacheEntry>()
@@ -29,18 +61,10 @@ export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
     const sp = space.value
     const { body } = await clientService.webdav.getFileContents(sp, {
       path,
-      ...(binary ? { responseType: 'blob' } : {})
+      ...(binary ? { responseType: 'arrayBuffer' } : {})
     }) as any
-    let content: string | ArrayBuffer
-    if (binary) {
-      // web-client resolves a Blob for responseType 'blob' — read it as ArrayBuffer
-      const blob: Blob = body
-      content = await blob.arrayBuffer()
-    } else {
-      content = typeof body === 'string' ? body : await new Response(body).text()
-    }
     const entry: CacheEntry = {
-      content,
+      content: binary ? await toArrayBuffer(body) : await toText(body),
       type: binary ? 'binary' : 'text'
     }
     cache.set(path, entry)
