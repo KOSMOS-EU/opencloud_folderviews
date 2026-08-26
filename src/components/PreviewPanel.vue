@@ -10,6 +10,7 @@
       <TextViewer v-else-if="kind === 'text'" :content="textContent" />
       <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resource?.name" />
       <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
+      <PdfViewer v-else-if="kind === 'pdf'" :content="binaryContent" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
     </template>
   </div>
@@ -23,6 +24,7 @@ import { useContentLoader } from '../composables/useContentLoader'
 import TextViewer from './viewers/TextViewer.vue'
 import ImageViewer from './viewers/ImageViewer.vue'
 import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
+import PdfViewer from './viewers/PdfViewer.vue'
 
 const props = defineProps<{ space?: any; resource?: any }>()
 
@@ -45,7 +47,6 @@ watch(
     binaryContent.value = null
     error.value = false
     if (!resource || !supported.value) return
-    if (kind.value === 'pdf') return
     loadPreview(resource)
   },
   { immediate: true }
@@ -54,7 +55,7 @@ watch(
 async function loadPreview(resource: any) {
   loading.value = true
   try {
-    const isBinary = kind.value === 'image'
+    const isBinary = kind.value === 'image' || kind.value === 'pdf'
     const entry = await contentLoader.loadContent(resource.path, isBinary)
     if (entry.type === 'binary') {
       binaryContent.value = entry.content as ArrayBuffer

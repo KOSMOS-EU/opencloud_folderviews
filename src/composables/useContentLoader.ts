@@ -29,10 +29,18 @@ export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
     const sp = space.value
     const { body } = await clientService.webdav.getFileContents(sp, {
       path,
-      ...(binary ? { responseType: 'arrayBuffer' } : {})
+      ...(binary ? { responseType: 'blob' } : {})
     }) as any
+    let content: string | ArrayBuffer
+    if (binary) {
+      // web-client resolves a Blob for responseType 'blob' — read it as ArrayBuffer
+      const blob: Blob = body
+      content = await blob.arrayBuffer()
+    } else {
+      content = typeof body === 'string' ? body : await new Response(body).text()
+    }
     const entry: CacheEntry = {
-      content: typeof body === 'string' ? body : body,
+      content,
       type: binary ? 'binary' : 'text'
     }
     cache.set(path, entry)
