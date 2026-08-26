@@ -16,19 +16,23 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted } from 'vue'
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
+import { getDocument, GlobalWorkerOptions, PDFWorker } from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { useGettext } from 'vue3-gettext'
 
 // The host app (opencloud_web) ships its own, newer pdfjs (6.x) and exposes
 // it as a *global* (`window.pdfjsLib` / `window.pdfjsWorker`). pdfjs'
 // fake-worker loader prefers `globalThis.pdfjsWorker` over `workerSrc`, so
-// our bundled pdfjs-dist 4.x would pick up the host's 6.x worker and fail
-// with "API version does not match the Worker version".
+// a plain `getDocument({ data })` would make our bundled pdfjs-dist 4.x pick
+// up the host's 6.x worker and fail with "API version does not match the
+// Worker version".
 //
-// Fix: load *our* worker module and hand its WorkerMessageHandler to pdfjs
-// via a dedicated `workerPort`-style global override, so our 4.x API always
-// talks to a 4.x worker regardless of what the host registered.
+// Robust fix: give pdfjs an explicitly created *real* worker of OUR version
+// via `getDocument({ data, worker })` (pdfjs 4.x reads `src.worker`, a
+// PDFWorker instance — NOT `src.workerPort`). A real worker bypasses the
+// fake-worker path and the shared global entirely, so our 4.x API always
+// talks to a 4.x worker. We keep the global patched as a safety net for any
+// code path that still falls back to the fake worker.
 GlobalWorkerOptions.workerSrc = workerUrl
 
 let ourWorkerModule: any = null
@@ -45,7 +49,7 @@ async function ensureOurWorkerGlobal() {
     // Point pdfjs' fake-worker loader at our worker, not the host's.
     ;(globalThis as any).pdfjsWorker = ourWorkerModule
     globalPatched = true
-    console.debug('[PdfViewer] patched global pdfjsWorker to extension version', ourWorkerModule?.version)
+    console.debug('[PdfViewer] patched global pdfjsWorker to extension version')
   } catch (workerErr) {
     console.warn('[PdfViewer] could not load our worker module, relying on workerSrc', workerErr)
   }
@@ -55,6 +59,18 @@ function restoreGlobalWorker() {
   if (!globalPatched) return
   ;(globalThis as any).pdfjsWorker = savedGlobalWorker
   globalPatched = false
+}
+
+// Create a real worker of our version and wrap it in a PDFWorker so
+// getDocument uses it directly (never the fake worker / global).
+function createPdfWorker(): PDFWorker | null {
+  try {
+    const port = new Worker(workerUrl, { type: 'module' })
+    return new PDFWorker({ port } as any)
+  } catch (workerErr) {
+    console.warn('[PdfViewer] could not create real worker, falling back to fake worker', workerErr)
+    return null
+  }
 }
 
 const props = withDefaults(defineProps<{ content: ArrayBuffer | null; maxPages?: number }>(), {
@@ -106,18 +122,25 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
 
   const isStale = () => seq !== renderSeq
 
-  // Make sure pdfjs' fake-worker loader uses OUR worker (matching the 4.x
-  // API) and not the host's newer global worker.
+  // Real worker of our version (bypasses fake worker + host global).
+  const pdfWorker = createPdfWorker()
+  // Safety net for any path that still falls back to the fake worker.
   await ensureOurWorkerGlobal()
-  if (isStale()) return
+  if (isStale()) {
+    pdfWorker?.destroy()
+    return
+  }
 
   // pdfjs transfers the buffer to the worker, so hand over a copy
   const uint8Data = new Uint8Array(data)
+  const init: any = pdfWorker
+    ? { data: uint8Data, worker: pdfWorker }
+    : { data: uint8Data }
   let doc: any
 
   try {
-    doc = await getDocument({ data: uint8Data }).promise
-    console.debug('[PdfViewer] getDocument ok, pages=' + doc.numPages, 'seq=' + seq)
+    doc = await getDocument(init).promise
+    console.debug('[PdfViewer] getDocument ok, pages=' + doc.numPages, 'seq=' + seq, 'realWorker=' + !!pdfWorker)
   } catch (loadErr: any) {
     console.error('[PdfViewer] getDocument failed:', loadErr?.name, loadErr?.message, loadErr)
     if (isStale()) return
@@ -174,6 +197,8 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
   } finally {
     if (!destroyed && !isStale()) loading.value = false
     doc.destroy()
+    // Terminate the real worker we created for this render.
+    pdfWorker?.destroy()
     // Give the host back its own global worker so the built-in PDF viewer
     // (pdfjs 6.x) is unaffected once we're done rendering. Only the latest
     // render restores it, so an in-flight newer render keeps our worker.
