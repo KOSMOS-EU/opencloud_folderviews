@@ -1,11 +1,15 @@
 <template>
   <div class="pdf-viewer">
-    <oc-spinner v-if="loading" :size="32" />
-    <div v-else-if="error" class="pdf-viewer-state">
+    <!-- The pages container must stay mounted while rendering: renderPdf
+         awaits doc.getPage/render into it, so it can't be behind a
+         v-if on `loading` (that would unmount it mid-render and leave
+         pagesRef null). -->
+    <div v-if="error" class="pdf-viewer-state">
       <oc-icon name="file" fill-type="line" size="large" />
       <p class="pdf-viewer-state-text">{{ error }}</p>
     </div>
     <template v-else>
+      <oc-spinner v-if="loading" :size="32" class="pdf-viewer-loading" />
       <div ref="pagesRef" class="pdf-viewer-pages"></div>
       <p v-if="remainingPages > 0" class="pdf-viewer-more">
         {{ $gettext('… more pages not loaded') }} ({{ remainingPages }})
