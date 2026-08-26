@@ -8,7 +8,7 @@
       <oc-spinner v-if="loading" :size="32" />
       <p v-else-if="error" class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
       <TextViewer v-else-if="kind === 'text'" :content="textContent" />
-      <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resource?.name" />
+      <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resourceName" />
       <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <PdfViewer v-else-if="kind === 'pdf'" :content="binaryContent" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
@@ -19,21 +19,53 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
+import { useResourcesStore } from '@opencloud-eu/web-pkg'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
 import { useContentLoader } from '../composables/useContentLoader'
+import { useResourcesStore } from '@opencloud-eu/web-pkg'
 import TextViewer from './viewers/TextViewer.vue'
 import ImageViewer from './viewers/ImageViewer.vue'
 import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
 import PdfViewer from './viewers/PdfViewer.vue'
 
+// Accept props as fallback (componentAttrs may pass them),
+// but prefer reactive store lookup so the panel works even when
+// componentAttrs is called with a stale/empty context.
 const props = defineProps<{ space?: any; resource?: any }>()
 
 const { $gettext } = useGettext()
+const resourcesStore = useResourcesStore()
 
-const kind = computed<PreviewKind | undefined>(() => getPreviewKind(props.resource?.name))
+// Resolve the selected resource reactively from the store.
+// The sidebar panel context passed via componentAttrs is not always
+// reliable (it may be empty at render time), so we fall back to
+// the store's selectedIds + resources list.
+const selectedResource = computed(() => {
+  // First try the prop (if componentAttrs passed a valid resource)
+  if (props.resource?.name) return props.resource
+  // Fallback: look up by selectedIds in the resources store
+  const selectedIds: string[] = resourcesStore.selectedIds || []
+  if (selectedIds.length !== 1) return null
+  const resources: any[] = resourcesStore.resources || []
+  return resources.find((r) => r.id === selectedIds[0]) || null
+})
+
+const resourceName = computed(() => selectedResource.value?.name || '')
+
+// Space: prefer prop, fall back to the resource's own space reference
+const space = computed(() => {
+  if (props.space?.id) return props.space
+  // The resource carries a reference to its space
+  const res = selectedResource.value
+  if (res?.space) return res.space
+  // Last resort: currentFolder from the store
+  return resourcesStore.currentFolder || null
+})
+
+const kind = computed<PreviewKind | undefined>(() => getPreviewKind(resourceName.value))
 const supported = computed(() => kind.value !== undefined)
 
-const contentLoader = useContentLoader(computed(() => props.space as any))
+const contentLoader = useContentLoader(computed(() => space.value as any))
 
 const loading = ref(false)
 const error = ref(false)
@@ -41,7 +73,7 @@ const textContent = ref('')
 const binaryContent = ref<ArrayBuffer | null>(null)
 
 watch(
-  () => props.resource,
+  () => selectedResource.value,
   (resource) => {
     textContent.value = ''
     binaryContent.value = null
