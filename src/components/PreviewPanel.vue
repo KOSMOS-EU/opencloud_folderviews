@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
 import { useResourcesStore, useSpacesStore } from '@opencloud-eu/web-pkg'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
@@ -71,43 +71,46 @@ const error = ref(false)
 const textContent = ref('')
 const binaryContent = ref<ArrayBuffer | null>(null)
 
-let lastLoadedId: string | null = null
+let loadSeq = 0
 
-watchEffect(() => {
-  const resource = selectedResource.value
-  const isSupported = supported.value
-  if (!resource || !isSupported) {
+watch([selectedResource, kind], ([resource, previewKind], oldResource) => {
+  if (!resource || previewKind === undefined) {
     textContent.value = ''
     binaryContent.value = null
     error.value = false
-    lastLoadedId = null
     return
   }
-  // Only reload if the resource actually changed
-  if (resource.id === lastLoadedId && binaryContent.value !== null) return
-  if (resource.id === lastLoadedId && textContent.value !== '') return
-  lastLoadedId = resource.id
+  // Resource (or its kind) changed → fresh load. The cache in
+  // useContentLoader dedupes identical paths, so re-selecting the
+  // same file is cheap.
+  const seq = ++loadSeq
   textContent.value = ''
   binaryContent.value = null
   error.value = false
-  loadPreview(resource)
-})
+  void loadPreview(resource, previewKind, seq)
+}, { immediate: true })
 
-async function loadPreview(resource: any) {
+async function loadPreview(resource: any, previewKind: PreviewKind, seq: number) {
   loading.value = true
+  console.debug('[PreviewPanel] loading', resource.name, 'kind=' + previewKind, 'seq=' + seq)
   try {
-    const isBinary = kind.value === 'image' || kind.value === 'pdf'
+    const isBinary = previewKind === 'image' || previewKind === 'pdf'
     const entry = await contentLoader.loadContent(resource.path, isBinary)
+    // A newer load superseded this one → discard its result
+    if (seq !== loadSeq) return
     if (entry.type === 'binary') {
       binaryContent.value = entry.content as ArrayBuffer
+      console.debug('[PreviewPanel] binary ok', resource.name, (entry.content as ArrayBuffer).byteLength, 'bytes')
     } else {
       textContent.value = entry.content as string
+      console.debug('[PreviewPanel] text ok', resource.name, (entry.content as string).length, 'chars')
     }
   } catch (loadErr) {
+    if (seq !== loadSeq) return
     console.error('[PreviewPanel] load failed:', resource.path, loadErr)
     error.value = true
   } finally {
-    loading.value = false
+    if (seq === loadSeq) loading.value = false
   }
 }
 </script>

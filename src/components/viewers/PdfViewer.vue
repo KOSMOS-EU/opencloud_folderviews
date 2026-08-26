@@ -20,7 +20,27 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { useGettext } from 'vue3-gettext'
 
+// Fallback: let pdfjs create its own worker from the URL.
 GlobalWorkerOptions.workerSrc = workerUrl
+
+// pdfjs' fake-worker fallback fails silently in the Module Federation
+// bundle (the fake-worker loader's dynamic import of the .mjs worker does
+// not resolve reliably there). We therefore hand pdfjs an explicitly
+// created real module worker via `workerPort`, keeping it off the
+// fake-worker path entirely. A worker port is single-use, so we create a
+// fresh one per render and terminate it when the document is destroyed.
+let currentWorker: Worker | null = null
+
+function createWorkerPort(): Worker | undefined {
+  try {
+    currentWorker = new Worker(workerUrl, { type: 'module' })
+    return currentWorker
+  } catch (workerErr) {
+    console.warn('[PdfViewer] could not create worker, falling back to workerSrc', workerErr)
+    currentWorker = null
+    return undefined
+  }
+}
 
 const props = withDefaults(defineProps<{ content: ArrayBuffer | null; maxPages?: number }>(), {
   content: null,
@@ -49,6 +69,8 @@ onUnmounted(() => {
   destroyed = true
   renderTask?.cancel()
   renderTask = null
+  currentWorker?.terminate()
+  currentWorker = null
   clearPages()
 })
 
@@ -67,9 +89,15 @@ async function renderPdf(data: ArrayBuffer) {
   const uint8Data = new Uint8Array(data)
   let doc: any
 
+  const port = createWorkerPort()
+  const init: any = port
+    ? { data: uint8Data, workerPort: port }
+    : { data: uint8Data }
   try {
-    doc = await getDocument({ data: uint8Data }).promise
+    doc = await getDocument(init).promise
+    console.debug('[PdfViewer] getDocument ok, pages=' + doc.numPages, 'port=' + !!port)
   } catch (loadErr: any) {
+    console.error('[PdfViewer] getDocument failed:', loadErr?.name, loadErr?.message, loadErr)
     if (loadErr?.name === 'PasswordException') {
       error.value = $gettext('Preview not available (password protected?)')
     } else {
@@ -98,11 +126,14 @@ async function renderPdf(data: ArrayBuffer) {
       canvas.style.boxShadow = '0 1px 3px rgba(0,0,0,0.15)'
       container.appendChild(canvas)
 
-      renderTask = page.render({ canvasContext: canvas.getContext('2d'), viewport })
+      const ctx = canvas.getContext('2d')
+      renderTask = page.render({ canvasContext: ctx, viewport })
       try {
         await renderTask.promise
+        console.debug('[PdfViewer] rendered page ' + pageNumber)
       } catch (renderErr: any) {
         if (renderErr?.name !== 'RenderingCancelledException') {
+          console.error('[PdfViewer] page render failed:', renderErr?.name, renderErr?.message, renderErr)
           error.value = $gettext('Preview not available')
           break
         }
@@ -110,9 +141,16 @@ async function renderPdf(data: ArrayBuffer) {
       renderTask = null
       page.cleanup()
     }
+  } catch (loopErr: any) {
+    console.error('[PdfViewer] render loop failed:', loopErr?.name, loopErr?.message, loopErr)
+    error.value = $gettext('Preview not available')
   } finally {
     if (!destroyed) loading.value = false
     doc.destroy()
+    // pdfjs closes the worker port when the document is destroyed; make
+    // sure we don't leak it if that path was skipped.
+    currentWorker?.terminate()
+    currentWorker = null
   }
 }
 </script>
