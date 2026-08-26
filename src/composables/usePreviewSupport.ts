@@ -1,4 +1,4 @@
-export type PreviewKind = 'image' | 'text' | 'markdown' | 'pdf'
+export type PreviewKind = 'image' | 'text' | 'markdown' | 'pdf' | 'office' | 'mail'
 
 const PREVIEW_EXTENSION_MAP: Record<string, PreviewKind> = {
   png: 'image',
@@ -15,7 +15,13 @@ const PREVIEW_EXTENSION_MAP: Record<string, PreviewKind> = {
   xml: 'text',
   md: 'markdown',
   markdown: 'markdown',
-  pdf: 'pdf'
+  pdf: 'pdf',
+  docx: 'office',
+  doc: 'office',
+  odt: 'office',
+  rtf: 'office',
+  msg: 'mail',
+  eml: 'mail'
 }
 
 export function getPreviewKind(fileName: string | undefined): PreviewKind | undefined {

@@ -11,6 +11,9 @@
       <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resourceName" />
       <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <PdfViewer v-else-if="kind === 'pdf'" :content="binaryContent" />
+      <!-- office lädt asynchron selbst (Collabora iframe), Panel-Spinner daher nicht -->
+      <OfficeViewer v-else-if="kind === 'office'" :space="space" :resource="selectedResource" />
+      <MailViewer v-else-if="kind === 'mail'" :content="binaryContent" :name="resourceName" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
     </template>
   </div>
@@ -26,6 +29,8 @@ import TextViewer from './viewers/TextViewer.vue'
 import ImageViewer from './viewers/ImageViewer.vue'
 import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
 import PdfViewer from './viewers/PdfViewer.vue'
+import OfficeViewer from './viewers/OfficeViewer.vue'
+import MailViewer from './viewers/MailViewer.vue'
 
 // Accept props as fallback (componentAttrs may pass them),
 // but prefer reactive store lookup so the panel works even when
@@ -94,7 +99,7 @@ async function loadPreview(resource: any, previewKind: PreviewKind, seq: number)
   loading.value = true
   console.debug('[PreviewPanel] loading', resource.name, 'kind=' + previewKind, 'seq=' + seq)
   try {
-    const isBinary = previewKind === 'image' || previewKind === 'pdf'
+    const isBinary = previewKind === 'image' || previewKind === 'pdf' || previewKind === 'mail'
     const entry = await contentLoader.loadContent(resource.path, isBinary)
     // A newer load superseded this one → discard its result
     if (seq !== loadSeq) return
