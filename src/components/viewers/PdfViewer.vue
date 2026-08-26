@@ -71,13 +71,18 @@ const pagesRef = ref<HTMLElement>()
 
 let renderTask: any = null
 let destroyed = false
+// Monotonic counter so a newer render invalidates any still-running one
+// (e.g. rapid re-selection). Prevents concurrent renders from wiping each
+// other's canvases or racing on the shared global worker.
+let renderSeq = 0
 
 watch(() => props.content, (buffer) => {
   if (!buffer) {
+    renderSeq++
     clearPages()
     return
   }
-  renderPdf(buffer)
+  void renderPdf(buffer, ++renderSeq)
 }, { immediate: true })
 
 onUnmounted(() => {
@@ -95,13 +100,16 @@ function clearPages() {
   if (pagesRef.value) pagesRef.value.innerHTML = ''
 }
 
-async function renderPdf(data: ArrayBuffer) {
+async function renderPdf(data: ArrayBuffer, seq: number) {
   clearPages()
   loading.value = true
+
+  const isStale = () => seq !== renderSeq
 
   // Make sure pdfjs' fake-worker loader uses OUR worker (matching the 4.x
   // API) and not the host's newer global worker.
   await ensureOurWorkerGlobal()
+  if (isStale()) return
 
   // pdfjs transfers the buffer to the worker, so hand over a copy
   const uint8Data = new Uint8Array(data)
@@ -109,9 +117,10 @@ async function renderPdf(data: ArrayBuffer) {
 
   try {
     doc = await getDocument({ data: uint8Data }).promise
-    console.debug('[PdfViewer] getDocument ok, pages=' + doc.numPages)
+    console.debug('[PdfViewer] getDocument ok, pages=' + doc.numPages, 'seq=' + seq)
   } catch (loadErr: any) {
     console.error('[PdfViewer] getDocument failed:', loadErr?.name, loadErr?.message, loadErr)
+    if (isStale()) return
     if (loadErr?.name === 'PasswordException') {
       error.value = $gettext('Preview not available (password protected?)')
     } else {
@@ -128,7 +137,10 @@ async function renderPdf(data: ArrayBuffer) {
     if (!container) return
 
     for (let pageNumber = 1; pageNumber <= Math.min(totalPages, props.maxPages); pageNumber++) {
+      if (isStale()) return
       const page = await doc.getPage(pageNumber)
+      if (isStale()) return
+      console.debug('[PdfViewer] page ' + pageNumber + ' fetched, rendering…')
       const viewport = page.getViewport({ scale: 1.25 })
       const canvas = document.createElement('canvas')
       canvas.width = viewport.width
@@ -141,6 +153,7 @@ async function renderPdf(data: ArrayBuffer) {
       container.appendChild(canvas)
 
       const ctx = canvas.getContext('2d')
+      if (!ctx) throw new Error('2d canvas context unavailable')
       renderTask = page.render({ canvasContext: ctx, viewport })
       try {
         await renderTask.promise
@@ -148,7 +161,7 @@ async function renderPdf(data: ArrayBuffer) {
       } catch (renderErr: any) {
         if (renderErr?.name !== 'RenderingCancelledException') {
           console.error('[PdfViewer] page render failed:', renderErr?.name, renderErr?.message, renderErr)
-          error.value = $gettext('Preview not available')
+          if (!isStale()) error.value = $gettext('Preview not available')
           break
         }
       }
@@ -157,13 +170,14 @@ async function renderPdf(data: ArrayBuffer) {
     }
   } catch (loopErr: any) {
     console.error('[PdfViewer] render loop failed:', loopErr?.name, loopErr?.message, loopErr)
-    error.value = $gettext('Preview not available')
+    if (!isStale()) error.value = $gettext('Preview not available')
   } finally {
-    if (!destroyed) loading.value = false
+    if (!destroyed && !isStale()) loading.value = false
     doc.destroy()
     // Give the host back its own global worker so the built-in PDF viewer
-    // (pdfjs 6.x) is unaffected once we're done rendering.
-    restoreGlobalWorker()
+    // (pdfjs 6.x) is unaffected once we're done rendering. Only the latest
+    // render restores it, so an in-flight newer render keeps our worker.
+    if (!isStale()) restoreGlobalWorker()
   }
 }
 </script>
