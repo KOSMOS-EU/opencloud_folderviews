@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
 import { useClientService } from '@opencloud-eu/web-pkg'
@@ -44,7 +44,7 @@ watch(
   () => props.resource,
   (resource) => {
     textContent.value = ''
-    binaryContent.value = null
+    revokeBinary()
     error.value = false
     if (!resource || !supported.value) return
     const token = ++loadToken
@@ -53,12 +53,28 @@ watch(
   { immediate: true }
 )
 
+onUnmounted(revokeBinary)
+
+function revokeBinary() {
+  if (typeof binaryContent.value === 'string' && binaryContent.value.startsWith('blob:')) {
+    URL.revokeObjectURL(binaryContent.value)
+  }
+  binaryContent.value = null
+}
+
 async function loadPreview(resource: any, token: number) {
   loading.value = true
   try {
     if (kind.value === 'image') {
       const url = await buildImagePreviewUrl(resource)
-      if (token === loadToken) binaryContent.value = url
+      // Wie der Host: Download ueber Axios mit Bearer-Token (httpAuthenticated),
+      // dann Blob-URL. Ein direktes <img :src> wuerde ohne Token zum Login-Redirect
+      // fuehren, weil <img>-Requests kein Authorization-Header tragen.
+      const { data } = await clientService.httpAuthenticated.get<Blob>(url, {
+        responseType: 'blob'
+      })
+      if (token !== loadToken) return
+      binaryContent.value = URL.createObjectURL(data)
       return
     }
     const isBinary = kind.value === 'pdf'
@@ -106,7 +122,7 @@ async function buildImagePreviewUrl(resource: any): Promise<string> {
   params.set('y', String(dims[1]))
   params.set('processor', 'fit')
   if (resource.etag) params.set('c', String(resource.etag).replaceAll('"', ''))
-  return `${window.location.origin}/dav/${webDavPath}?${params.toString()}`
+  return `/dav/${webDavPath}?${params.toString()}`
 }
 
 function base64ToArrayBuffer(b64: string): ArrayBuffer {
