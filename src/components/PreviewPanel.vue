@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useGettext } from 'vue3-gettext'
-import { useResourcesStore } from '@opencloud-eu/web-pkg'
+import { useResourcesStore, useSpacesStore } from '@opencloud-eu/web-pkg'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
 import { useContentLoader } from '../composables/useContentLoader'
 import TextViewer from './viewers/TextViewer.vue'
@@ -34,6 +34,7 @@ const props = defineProps<{ space?: any; resource?: any }>()
 
 const { $gettext } = useGettext()
 const resourcesStore = useResourcesStore()
+const spacesStore = useSpacesStore()
 
 // Resolve the selected resource reactively from the store.
 // The sidebar panel context passed via componentAttrs is not always
@@ -51,14 +52,13 @@ const selectedResource = computed(() => {
 
 const resourceName = computed(() => selectedResource.value?.name || '')
 
-// Space: prefer prop, fall back to the resource's own space reference
+// Space: must be a Space object (with webDavPath = /spaces/<id>),
+// NOT a Folder (whose webDavPath includes the folder path).
 const space = computed(() => {
   if (props.space?.id) return props.space
-  // The resource carries a reference to its space
   const res = selectedResource.value
   if (res?.space) return res.space
-  // Last resort: currentFolder from the store
-  return resourcesStore.currentFolder || null
+  return spacesStore.currentSpace || null
 })
 
 const kind = computed<PreviewKind | undefined>(() => getPreviewKind(resourceName.value))
@@ -71,17 +71,27 @@ const error = ref(false)
 const textContent = ref('')
 const binaryContent = ref<ArrayBuffer | null>(null)
 
-watch(
-  () => selectedResource.value,
-  (resource) => {
+let lastLoadedId: string | null = null
+
+watchEffect(() => {
+  const resource = selectedResource.value
+  const isSupported = supported.value
+  if (!resource || !isSupported) {
     textContent.value = ''
     binaryContent.value = null
     error.value = false
-    if (!resource || !supported.value) return
-    loadPreview(resource)
-  },
-  { immediate: true }
-)
+    lastLoadedId = null
+    return
+  }
+  // Only reload if the resource actually changed
+  if (resource.id === lastLoadedId && binaryContent.value !== null) return
+  if (resource.id === lastLoadedId && textContent.value !== '') return
+  lastLoadedId = resource.id
+  textContent.value = ''
+  binaryContent.value = null
+  error.value = false
+  loadPreview(resource)
+})
 
 async function loadPreview(resource: any) {
   loading.value = true
