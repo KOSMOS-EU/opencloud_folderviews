@@ -11,8 +11,6 @@
       <ImageViewer v-else-if="kind === 'image'" :content="(binaryContent as ArrayBuffer)" :alt="resourceName" />
       <MarkdownPreviewViewer v-else-if="kind === 'markdown'" :content="textContent" />
       <PdfViewer v-else-if="kind === 'pdf'" :content="binaryContent" />
-      <!-- office lädt asynchron selbst (Collabora iframe), Panel-Spinner daher nicht -->
-      <OfficeViewer v-else-if="kind === 'office'" :space="space" :resource="selectedResource" />
       <MailViewer v-else-if="kind === 'mail'" :content="binaryContent" :name="resourceName" />
       <p v-else class="preview-panel-state-text">{{ $gettext('Preview not ready') }}</p>
     </template>
@@ -29,7 +27,6 @@ import TextViewer from './viewers/TextViewer.vue'
 import ImageViewer from './viewers/ImageViewer.vue'
 import MarkdownPreviewViewer from './viewers/MarkdownPreviewViewer.vue'
 import PdfViewer from './viewers/PdfViewer.vue'
-import OfficeViewer from './viewers/OfficeViewer.vue'
 import MailViewer from './viewers/MailViewer.vue'
 
 // Accept props as fallback (componentAttrs may pass them),

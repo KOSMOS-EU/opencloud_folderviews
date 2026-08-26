@@ -1,4 +1,4 @@
-export type PreviewKind = 'image' | 'text' | 'markdown' | 'pdf' | 'office' | 'mail'
+export type PreviewKind = 'image' | 'text' | 'markdown' | 'pdf' | 'mail'
 
 const PREVIEW_EXTENSION_MAP: Record<string, PreviewKind> = {
   png: 'image',
@@ -16,10 +16,6 @@ const PREVIEW_EXTENSION_MAP: Record<string, PreviewKind> = {
   md: 'markdown',
   markdown: 'markdown',
   pdf: 'pdf',
-  docx: 'office',
-  doc: 'office',
-  odt: 'office',
-  rtf: 'office',
   msg: 'mail',
   eml: 'mail'
 }
