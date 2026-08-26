@@ -1,6 +1,6 @@
 import { ref, type Ref } from 'vue'
 import { type SpaceResource } from '@opencloud-eu/web-client'
-import { useClientService, useConfigStore } from '@opencloud-eu/web-pkg'
+import { useClientService } from '@opencloud-eu/web-pkg'
 
 interface CacheEntry {
   content: string | ArrayBuffer
@@ -9,7 +9,6 @@ interface CacheEntry {
 
 export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
   const clientService = useClientService()
-  const configStore = useConfigStore()
   const cache = new Map<string, CacheEntry>()
   const pending = new Map<string, Promise<CacheEntry>>()
   let active = 0
@@ -27,12 +26,11 @@ export function useContentLoader(space: Ref<SpaceResource>, concurrency = 4) {
   }
 
   function buildDavUrl(sp: SpaceResource, path: string): string {
-    const serverUrl = configStore.serverUrl
+    // httpAuthenticated already has baseURL = serverUrl, so use a relative URL
     const davBase = sp.webDavPath || ''
-    // path is space-relative, e.g. '/Scout/20160328_123840.jpg'
     const encoded = path.split('/').map(encodeURIComponent).join('/')
     const joined = (davBase + '/' + encoded).replace(/\/+/g, '/')
-    return [serverUrl, 'remote.php/dav', joined.replace(/^\//, '')].filter(Boolean).join('/').replace(/\/{2,}/g, '/')
+    return ['remote.php/dav', joined.replace(/^\//, '')].filter(Boolean).join('/').replace(/\/{2,}/g, '/')
   }
 
   async function doLoad(path: string, binary: boolean): Promise<CacheEntry> {
