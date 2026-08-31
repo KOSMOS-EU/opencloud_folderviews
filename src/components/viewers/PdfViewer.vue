@@ -171,25 +171,27 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
       const viewport = page.getViewport({ scale: 1.25 })
 
       // Page wrapper: canvas + text-layer overlay (for copy+paste)
+      // Note: scoped CSS doesn't apply to imperatively created elements
+      // (no data-v-* attribute), so all styles are set inline.
       const pageWrapper = document.createElement('div')
-      pageWrapper.className = 'pdf-viewer-page'
-      pageWrapper.style.width = viewport.width + 'px'
-      pageWrapper.style.maxWidth = '100%'
-      pageWrapper.style.margin = '0 auto 8px'
+      pageWrapper.style.cssText =
+        'position:relative;width:' + viewport.width + 'px;max-width:100%;margin:0 auto 8px'
 
       const canvas = document.createElement('canvas')
       canvas.width = viewport.width
       canvas.height = viewport.height
-      canvas.style.width = '100%'
-      canvas.style.display = 'block'
-      canvas.style.borderRadius = '4px'
-      canvas.style.boxShadow = '0 1px 3px rgba(0,0,0,0.15)'
+      canvas.style.cssText =
+        'width:100%;display:block;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.15)'
       pageWrapper.appendChild(canvas)
 
       // Text layer: invisible overlay for text selection / copy+paste.
       // Only rendered for PDFs with an embedded text layer (not scans).
       const textLayerDiv = document.createElement('div')
-      textLayerDiv.className = 'pdf-viewer-text-layer'
+      textLayerDiv.style.cssText =
+        'position:absolute;inset:0;overflow:hidden;line-height:1;' +
+        'text-size-adjust:none;forced-color-adjust:none;' +
+        '-webkit-user-select:text;user-select:text;cursor:text;' +
+        '--scale-factor:1'
       pageWrapper.appendChild(textLayerDiv)
       container.appendChild(pageWrapper)
 
@@ -291,5 +293,17 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
   font-size: 12px;
   color: var(--oc-role-text-secondary, #666);
   margin: 4px 0 0;
+}
+</style>
+
+<!-- Non-scoped: TextLayer creates spans imperatively (no data-v-* attr),
+     so scoped CSS can't reach them. These rules target the text layer
+     container via a unique class we set inline. -->
+<style>
+.pdf-viewer [style*="--scale-factor"] span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  margin: 0;
 }
 </style>
