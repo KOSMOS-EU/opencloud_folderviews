@@ -8,7 +8,7 @@
       data-testid="toggle-sidebar-width"
       :aria-label="$gettext('Toggle sidebar width')"
       :title="$gettext('Toggle sidebar width')"
-      @click="toggleSideBarExpanded"
+      @click.stop="toggleSideBarExpanded"
     >
       x2
     </oc-button>
