@@ -1,5 +1,17 @@
 <template>
-  <div class="p-4 preview-panel">
+  <div class="relative p-4 preview-panel">
+    <oc-button
+      v-if="!isMobile"
+      :class="sideBarIsExpanded ? 'text-role-text-interactive' : 'text-role-text-muted'"
+      appearance="raw"
+      class="absolute top-2 right-2 z-10 text-xs font-semibold"
+      data-testid="toggle-sidebar-width"
+      :aria-label="$gettext('Toggle sidebar width')"
+      :title="$gettext('Toggle sidebar width')"
+      @click="toggleSideBarExpanded"
+    >
+      x2
+    </oc-button>
     <div v-if="!supported" class="preview-panel-state">
       <oc-icon name="file" fill-type="line" size="large" />
       <p class="preview-panel-state-text">{{ $gettext('No preview available') }}</p>
@@ -20,7 +32,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useGettext } from 'vue3-gettext'
-import { useResourcesStore, useSpacesStore } from '@opencloud-eu/web-pkg'
+import { useResourcesStore, useSpacesStore, useSideBar } from '@opencloud-eu/web-pkg'
 import { getPreviewKind, type PreviewKind } from '../composables/usePreviewSupport'
 import { useContentLoader } from '../composables/useContentLoader'
 import TextViewer from './viewers/TextViewer.vue'
@@ -37,6 +49,9 @@ const props = defineProps<{ space?: any; resource?: any }>()
 const { $gettext } = useGettext()
 const resourcesStore = useResourcesStore()
 const spacesStore = useSpacesStore()
+const sidebarStore = useSideBar()
+const { sideBarIsExpanded, toggleSideBarExpanded } = sidebarStore
+const isMobile = window.matchMedia('(max-width: 768px)').matches
 
 // Resolve the selected resource reactively from the store.
 // The sidebar panel context passed via componentAttrs is not always
