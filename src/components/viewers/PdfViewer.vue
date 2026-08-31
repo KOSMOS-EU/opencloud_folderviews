@@ -173,9 +173,11 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
       // Page wrapper: canvas + text-layer overlay (for copy+paste)
       // Note: scoped CSS doesn't apply to imperatively created elements
       // (no data-v-* attribute), so all styles are set inline.
+      // Use scale:1 for the text layer viewport so that --scale-factor:1
+      // makes setLayerDimensions produce the exact CSS pixel dimensions.
       const pageWrapper = document.createElement('div')
       pageWrapper.style.cssText =
-        'position:relative;width:' + viewport.width + 'px;max-width:100%;margin:0 auto 8px'
+        'position:relative;width:' + viewport.width + 'px;max-width:100%;height:' + viewport.height + 'px;margin:0 auto 8px'
 
       const canvas = document.createElement('canvas')
       canvas.width = viewport.width
@@ -195,6 +197,12 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
       pageWrapper.appendChild(textLayerDiv)
       container.appendChild(pageWrapper)
 
+      // Render text layer using a scale-1 viewport so that --scale-factor:1
+      // yields the correct CSS pixel dimensions (setLayerDimensions uses
+      // calc(var(--scale-factor) * pageWidth)). Position is % of page dims,
+      // so scale doesn't affect it.
+      const textViewport = page.getViewport({ scale: 1 })
+
       // Use pdfjs TextLayer to render the invisible text overlay.
       // It handles PDF→viewport coordinate conversion, rotation, and fonts.
       const textContent = await page.getTextContent()
@@ -203,9 +211,19 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
           const textLayer = new TextLayer({
             textContentSource: textContent,
             container: textLayerDiv,
-            viewport
+            viewport: textViewport
           })
           await textLayer.render()
+          // The text layer is rendered at scale:1 (page dims in CSS px) but
+          // the canvas is displayed at a different size (max-width:100%).
+          // Scale the text layer to match the canvas display size.
+          const pageDims = textViewport.width
+          const displayWidth = pageWrapper.clientWidth
+          if (displayWidth > 0 && pageDims > 0 && Math.abs(displayWidth - pageDims) > 1) {
+            const scale = displayWidth / pageDims
+            textLayerDiv.style.transformOrigin = '0 0'
+            textLayerDiv.style.transform = `scale(${scale.toFixed(4)}, ${scale.toFixed(4)})`
+          }
           console.debug('[PdfViewer] text layer page ' + pageNumber + ' ok, items=' + textContent.items.length)
         } catch (tlErr: any) {
           console.debug('[PdfViewer] text layer page ' + pageNumber + ' skipped:', tlErr?.message)
