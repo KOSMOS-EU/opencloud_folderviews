@@ -126,7 +126,10 @@ onUnmounted(() => {
 <style scoped>
 .mail-viewer {
   position: relative;
-  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 .mail-viewer-state {
   display: flex;
@@ -147,7 +150,8 @@ onUnmounted(() => {
 }
 .mail-viewer-frame {
   width: 100%;
-  height: 500px;
+  flex: 1;
+  min-height: 0;
   border: none;
   background: white;
   border-radius: 4px;

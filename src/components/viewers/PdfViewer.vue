@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted } from 'vue'
-import { getDocument, GlobalWorkerOptions, PDFWorker } from 'pdfjs-dist'
+import { getDocument, GlobalWorkerOptions, PDFWorker, TextLayer } from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { useGettext } from 'vue3-gettext'
 
@@ -169,15 +169,46 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
       if (isStale()) return
       console.debug('[PdfViewer] page ' + pageNumber + ' fetched, rendering…')
       const viewport = page.getViewport({ scale: 1.25 })
+
+      // Page wrapper: canvas + text-layer overlay (for copy+paste)
+      const pageWrapper = document.createElement('div')
+      pageWrapper.className = 'pdf-viewer-page'
+      pageWrapper.style.width = viewport.width + 'px'
+      pageWrapper.style.maxWidth = '100%'
+      pageWrapper.style.margin = '0 auto 8px'
+
       const canvas = document.createElement('canvas')
       canvas.width = viewport.width
       canvas.height = viewport.height
       canvas.style.width = '100%'
       canvas.style.display = 'block'
-      canvas.style.margin = '0 auto 8px'
       canvas.style.borderRadius = '4px'
       canvas.style.boxShadow = '0 1px 3px rgba(0,0,0,0.15)'
-      container.appendChild(canvas)
+      pageWrapper.appendChild(canvas)
+
+      // Text layer: invisible overlay for text selection / copy+paste.
+      // Only rendered for PDFs with an embedded text layer (not scans).
+      const textLayerDiv = document.createElement('div')
+      textLayerDiv.className = 'pdf-viewer-text-layer'
+      pageWrapper.appendChild(textLayerDiv)
+      container.appendChild(pageWrapper)
+
+      // Use pdfjs TextLayer to render the invisible text overlay.
+      // It handles PDF→viewport coordinate conversion, rotation, and fonts.
+      const textContent = await page.getTextContent()
+      if (textContent.items.length > 0 && !isStale()) {
+        try {
+          const textLayer = new TextLayer({
+            textContentSource: textContent,
+            container: textLayerDiv,
+            viewport
+          })
+          await textLayer.render()
+          console.debug('[PdfViewer] text layer page ' + pageNumber + ' ok, items=' + textContent.items.length)
+        } catch (tlErr: any) {
+          console.debug('[PdfViewer] text layer page ' + pageNumber + ' skipped:', tlErr?.message)
+        }
+      }
 
       const ctx = canvas.getContext('2d')
       if (!ctx) throw new Error('2d canvas context unavailable')
@@ -213,9 +244,34 @@ async function renderPdf(data: ArrayBuffer, seq: number) {
 
 <style scoped>
 .pdf-viewer {
-  max-height: 600px;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: 4px;
+}
+.pdf-viewer-page {
+  position: relative;
+}
+.pdf-viewer-text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+  /* TextLayer uses calc(var(--scale-factor) * Npx) for font-size.
+     At 1:1 scale the text layer matches the page dimensions exactly. */
+  --scale-factor: 1;
+}
+/* Text layer glyphs: invisible but selectable */
+.pdf-viewer-text-layer span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  margin: 0;
 }
 .pdf-viewer-state {
   display: flex;

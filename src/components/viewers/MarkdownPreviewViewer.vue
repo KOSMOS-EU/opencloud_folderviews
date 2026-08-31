@@ -23,7 +23,8 @@ const rendered = computed(() => {
   line-height: 1.6;
   padding: 8px 12px;
   overflow: auto;
-  max-height: 600px;
+  flex: 1;
+  min-height: 0;
   word-break: break-word;
 }
 .markdown-preview-body :deep(h1) { font-size: 1.6em; margin: 0.4em 0; }

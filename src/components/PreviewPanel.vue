@@ -133,11 +133,19 @@ async function loadPreview(resource: any, previewKind: PreviewKind, seq: number)
 </script>
 
 <style scoped>
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
 .preview-panel-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex: 1;
+  min-height: 0;
   padding: 32px 8px;
   gap: 8px;
 }
@@ -145,5 +153,16 @@ async function loadPreview(resource: any, previewKind: PreviewKind, seq: number)
   margin: 0;
   font-size: 13px;
   color: var(--oc-role-text-secondary, #666);
+}
+/* The host wraps the panel component in an unstyled div inside
+   .sidebar-panel__body-content. That wrapper needs height:100% so the
+   percentage chain reaches .preview-panel. The body-content itself must
+   clip (overflow:hidden) so the panel doesn't push the sidebar body into
+   scroll mode — the PDF viewer scrolls internally instead. */
+:global(.sidebar-panel__body-preview > .sidebar-panel__body-content) {
+  overflow: hidden;
+}
+:global(.sidebar-panel__body-preview > .sidebar-panel__body-content > div) {
+  height: 100%;
 }
 </style>

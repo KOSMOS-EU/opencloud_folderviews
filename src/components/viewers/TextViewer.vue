@@ -15,7 +15,8 @@ defineProps<{ content: string }>()
   white-space: pre-wrap;
   word-break: break-word;
   overflow: auto;
-  max-height: 400px;
+  flex: 1;
+  min-height: 0;
   background: var(--oc-role-surface, #fafafa);
   border-radius: 4px;
 }
