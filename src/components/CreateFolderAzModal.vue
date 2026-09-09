@@ -38,7 +38,7 @@
         ref="nameInput"
         v-model="folderName"
         class="create-folder-az-name"
-        @input="validate"
+        @input="validateAll"
       />
     </div>
 
@@ -106,12 +106,10 @@ function onAzNumberInput() {
 function validate() {
   if (!folderName.value.trim()) {
     error.value = $gettext('Name must not be empty')
-    emit('update:confirmDisabled', true)
     return false
   }
   if (folderName.value.includes('/')) {
     error.value = $gettext('Name must not contain "/"')
-    emit('update:confirmDisabled', true)
     return false
   }
   error.value = ''
@@ -125,17 +123,14 @@ function validateAz() {
   }
   if (!azNumber.value) {
     azError.value = ''
-    emit('update:confirmDisabled', true)
     return false
   }
   if (!azNumberValid.value) {
     azError.value = $gettext('Enter a number from 1-99')
-    emit('update:confirmDisabled', true)
     return false
   }
   if (azDuplicate.value) {
     azError.value = $gettext('File reference already taken')
-    emit('update:confirmDisabled', true)
     return false
   }
   azError.value = ''
