@@ -79,6 +79,13 @@ export default defineWebApplication({
     const { showAktzInName, userAppCompact, userAppNewWindow, ignoreAktzSort } = useFolderviewSettings()
     registerAktzSortToggle(ignoreAktzSort, showAktzInName)
 
+    // App im eigenen Fenster UND kompakt: Marke am <html>, damit Themes dort ihren Rand weglassen können
+    // (Nutzer 2026-11-17: Rand nur in diesem Fall weg, nicht pauschal im Kompaktmodus).
+    const startQuery = new URLSearchParams(window.location.search)
+    if (startQuery.get('appCompact') === 'true' && startQuery.get('appNewWindow') === 'true') {
+      document.documentElement.dataset.appWindow = 'compact'
+    }
+
     function downloadUrlFile(fileName: string, url: string) {
       const isLinux = /Linux/.test(navigator.userAgent)
       const isMac = /Mac/.test(navigator.userAgent)
