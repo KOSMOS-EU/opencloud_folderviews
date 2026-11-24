@@ -1,5 +1,5 @@
 import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useAppsStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute, useModals, useMessages } from '@opencloud-eu/web-pkg'
-import { isAppRouteName } from './appRouteName'
+import { directStartHref, isAppRouteName } from './appRouteName'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import { WebDAV } from '@opencloud-eu/web-client/webdav'
@@ -618,7 +618,7 @@ export default defineWebApplication({
       if (userAppNewWindow.value) {
         query.appNewWindow = 'true'
         const resolved = router.resolve({ ...to, query })
-        window.open(resolved.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
+        window.open(directStartHref(resolved) || resolved.href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         return { path: from.path, query: from.query }
       }
 

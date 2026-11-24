@@ -39,6 +39,7 @@ import { ref } from 'vue'
 import { Resource, SpaceResource } from '@opencloud-eu/web-client'
 import { useRouter, useResourcesStore, useFileActions, useDownloadFile, useClientService } from '@opencloud-eu/web-pkg'
 import { useFolderviewSettings } from '../composables/useFolderviewSettings'
+import { directStartHref } from '../appRouteName'
 
 const props = defineProps<{
   resource: Resource
@@ -92,11 +93,13 @@ function doOpen() {
     if (resolved) {
       const query = { ...resolved.query }
       if (userAppCompact.value) query.appCompact = 'true'
-      const href = router.resolve({ ...resolved, query }).href
+      const target = router.resolve({ ...resolved, query })
+      const href = target.href
 
       if (userAppNewWindow.value) {
-        console.error('[ELEMENTFRAME] window.open:', href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
-        window.open(href, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
+        const windowHref = directStartHref(target) || href
+        console.error('[ELEMENTFRAME] window.open:', windowHref, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
+        window.open(windowHref, '_blank', 'menubar=no,toolbar=no,location=no,status=no')
         return
       }
       router.push({ path: resolved.path, query })
