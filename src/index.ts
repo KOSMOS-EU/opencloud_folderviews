@@ -1,4 +1,5 @@
 import { defineWebApplication, useClientService, useSideBar, useResourcesStore, useSpacesStore, useRouter, useExtensionRegistry, useAuthStore, useAppsStore, createFileRouteOptions, createLocationSpaces, AppWrapperRoute, useModals, useMessages } from '@opencloud-eu/web-pkg'
+import { isAppRouteName } from './appRouteName'
 import { useGettext } from 'vue3-gettext'
 import { computed, markRaw, ref, watch, nextTick } from 'vue'
 import { WebDAV } from '@opencloud-eu/web-client/webdav'
@@ -605,10 +606,7 @@ export default defineWebApplication({
     // Craft-Apps (opencraft: Routen wordcraft, pdfcraft, …) sind Editoren ohne das Wort im Namen.
     router.beforeEach((to, from) => {
       const routeName = String(to.name || '')
-      if (!routeName.startsWith('external-') &&
-          !routeName.includes('viewer') &&
-          !routeName.includes('editor') &&
-          !routeName.includes('craft')) return
+      if (!routeName.startsWith('external-') && !isAppRouteName(routeName)) return
       // Already opened in compact/new window — don't intercept again
       if (to.query.appCompact || to.query.appNewWindow) return
 
